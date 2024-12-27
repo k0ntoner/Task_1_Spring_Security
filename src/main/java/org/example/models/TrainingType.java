@@ -1,6 +1,4 @@
-package org.example.modules;
-
-import org.springframework.stereotype.Component;
+package org.example.models;
 
 
 public class TrainingType {

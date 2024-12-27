@@ -1,6 +1,4 @@
-package org.example.modules;
-
-import org.springframework.stereotype.Component;
+package org.example.models;
 
 import java.util.Date;
 import java.util.Objects;
@@ -9,8 +7,10 @@ public class Trainee extends User{
     private Date dateOfBirth;
     private String address;
     private int userId;
-
-    public Trainee(String firstName, String lastName, String username, String password, String isActive, Date dateOfBirth, String address, int userId) {
+    public Trainee() {
+        super();
+    }
+    public Trainee(String firstName, String lastName, String username, String password, boolean isActive, Date dateOfBirth, String address, int userId) {
         super(firstName, lastName, username, password, isActive);
         this.dateOfBirth = dateOfBirth;
         this.address = address;

@@ -1,13 +1,15 @@
-package org.example.modules;
+package org.example.models;
 
-public class User {
+public abstract class User {
     private String firstName;
     private String lastName;
     private String username;
     private String password;
-    private String isActive;
+    private boolean isActive;
+    public User(){
 
-    public User(String firstName, String lastName, String username, String password, String isActive) {
+    }
+    public User(String firstName, String lastName, String username, String password, boolean isActive) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
@@ -47,11 +49,11 @@ public class User {
         this.password = password;
     }
 
-    public String getIsActive() {
+    public boolean getIsActive() {
         return isActive;
     }
 
-    public void setIsActive(String isActive) {
+    public void setIsActive(boolean isActive) {
         this.isActive = isActive;
     }
 }

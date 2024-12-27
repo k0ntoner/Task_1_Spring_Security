@@ -1,13 +1,11 @@
-package org.example.modules;
-
-import org.springframework.stereotype.Component;
+package org.example.models;
 
 
 public class Trainer extends User{
     private String specialization;
     private int userId;
 
-    public Trainer(String firstName, String lastName, String username, String password, String isActive, String specialization, int userId) {
+    public Trainer(String firstName, String lastName, String username, String password, boolean isActive, String specialization, int userId) {
         super(firstName, lastName, username, password, isActive);
         this.specialization = specialization;
         this.userId = userId;
