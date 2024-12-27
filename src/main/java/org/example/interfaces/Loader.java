@@ -1,4 +1,7 @@
 package org.example.interfaces;
 
-public class Loader {
+import java.util.Map;
+
+public interface Loader<T> {
+    Map<Integer,T> load(String filePath);
 }
