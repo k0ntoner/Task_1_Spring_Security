@@ -1,6 +1,9 @@
 package org.example.modules;
 
+import org.springframework.stereotype.Component;
+
 import java.util.Date;
+import java.util.Objects;
 
 public class Trainee extends User{
     private Date dateOfBirth;
@@ -36,5 +39,18 @@ public class Trainee extends User{
 
     public void setUserId(int userId) {
         this.userId = userId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Trainee trainee = (Trainee) o;
+        return userId == trainee.userId && Objects.equals(dateOfBirth, trainee.dateOfBirth) && Objects.equals(address, trainee.address);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(dateOfBirth, address, userId);
     }
 }

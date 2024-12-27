@@ -1,5 +1,8 @@
 package org.example.modules;
 
+import org.springframework.stereotype.Component;
+
+
 public class TrainingType {
     private String trainingTypeName;
 
