@@ -5,15 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.interfaces.Loader;
 import org.example.models.Trainee;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TreineeLoader implements Loader {
+public class TraineeLoader implements Loader {
     @Override
     public Map<Integer, Trainee> load(String filePath) {
         try{
