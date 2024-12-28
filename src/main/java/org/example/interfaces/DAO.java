@@ -1,12 +1,11 @@
 package org.example.interfaces;
 
-import java.util.List;
 import java.util.Map;
 
-public interface DAO<T>{
-    void add(T entity);
-    void update(Integer id, T entity);
-    T findById(int id);
-    Map<Integer,T> findAll();
+public interface DAO{
+    void add(Model entity);
+    void update(Integer id, Model entity);
+    Model findById(int id);
+    Map<Integer,Model> findAll();
     void delete(int id);
 }
