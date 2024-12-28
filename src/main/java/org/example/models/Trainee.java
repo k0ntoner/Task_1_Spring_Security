@@ -1,16 +1,19 @@
 package org.example.models;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.interfaces.Model;
 import java.util.Date;
 import java.util.Objects;
 
-public class Trainee extends User{
+public class Trainee extends User implements Model {
     private Date dateOfBirth;
     private String address;
     private int userId;
     public Trainee() {
         super();
     }
-    public Trainee(String firstName, String lastName, String username, String password, boolean isActive, Date dateOfBirth, String address, int userId) {
+    public Trainee( int userId,String firstName, String lastName, String username, String password, boolean isActive, Date dateOfBirth, String address) {
         super(firstName, lastName, username, password, isActive);
         this.dateOfBirth = dateOfBirth;
         this.address = address;
@@ -52,5 +55,21 @@ public class Trainee extends User{
     @Override
     public int hashCode() {
         return Objects.hash(dateOfBirth, address, userId);
+    }
+
+    @Override
+    public String toJson() {
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        }
+        catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public void fromJson(String json) {
+
     }
 }

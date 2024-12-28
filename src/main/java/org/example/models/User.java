@@ -1,5 +1,6 @@
 package org.example.models;
 
+
 public abstract class User {
     private String firstName;
     private String lastName;
