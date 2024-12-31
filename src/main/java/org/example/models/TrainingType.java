@@ -1,18 +1,15 @@
 package org.example.models;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-public class TrainingType {
-    private String trainingTypeName;
+@Getter
+@AllArgsConstructor
+public enum TrainingType {
+    STRENGTH,
+    CARDIO,
+    FLEXIBILITY,
+    BALANCE,
+    ENDURANCE;
 
-    public TrainingType(String trainingTypeName) {
-        this.trainingTypeName = trainingTypeName;
-    }
-
-    public String getTrainingTypeName() {
-        return trainingTypeName;
-    }
-
-    public void setTrainingTypeName(String trainingTypeName) {
-        this.trainingTypeName = trainingTypeName;
-    }
 }

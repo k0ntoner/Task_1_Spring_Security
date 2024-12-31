@@ -1,34 +1,42 @@
 package org.example.configs;
 
-import org.example.DAOs.TraineeDAO;
-import org.example.interfaces.DAO;
-import org.example.interfaces.Loader;
-import org.example.interfaces.Model;
-import org.example.loaders.TraineeLoader;
+import org.example.models.Trainee;
+import org.example.models.Trainer;
+import org.example.models.Training;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
+
+import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
 @PropertySource("classpath:application.properties")
 @ComponentScan(basePackages = "org.example")
+@Import({LogConfig.class})
 public class Config {
-    @Value("${trainees.file.path}")
-    private String traineesFilePath;
     @Bean
-    public Map<Integer, Model> traineeStorage() {
-        return traineeLoader().load();
+    public Map<Long, Trainee> traineeStorage() {
+        return new HashMap<>();
     }
     @Bean
-    public Loader traineeLoader() {
-        return new TraineeLoader(traineesFilePath);
+    public Map<Long, Trainer> trainerStorage() {
+        return new HashMap<>();
     }
     @Bean
-    public DAO traineeDAO() {
-        return new TraineeDAO(traineeStorage(), traineesFilePath);
+    public Map<Long, Training> trainingStorage() {
+        return new HashMap<>();
+    }
+    @Bean
+    public String traineesFilePath(@Value("${trainees.file.path}") String filePath) {
+        return filePath;
+    }
+    @Bean
+    public String trainersFilePath(@Value("${trainers.file.path}") String filePath) {
+        return filePath;
+    }
+    @Bean
+    public String trainingsFilePath(@Value("${trainings.file.path}") String filePath) {
+        return filePath;
     }
 
 }

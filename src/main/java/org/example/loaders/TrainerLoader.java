@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.example.models.Trainee;
+import org.example.models.Trainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -20,13 +20,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 @Component
-public class TraineeLoader implements Loader<Trainee> {
+public class TrainerLoader implements Loader<Trainer> {
     private String filePath;
-    private Map<Long, Trainee> trainees;
+    private Map<Long, Trainer> trainers;
     @Autowired
-    public TraineeLoader(@Qualifier("traineesFilePath") String  filePath, @Qualifier("traineeStorage") Map<Long, Trainee> trainees) {
+    public TrainerLoader(@Qualifier("trainersFilePath") String  filePath, @Qualifier("trainerStorage") Map<Long, Trainer> trainers) {
         this.filePath = filePath;
-        this.trainees = trainees;
+        this.trainers = trainers;
     }
     @PostConstruct
     public void init() {
@@ -37,22 +37,21 @@ public class TraineeLoader implements Loader<Trainee> {
         try{
             ObjectMapper mapper = new ObjectMapper();
             mapper.registerModule(new JavaTimeModule());
-            List<Trainee> traineeList=trainees.values().stream().toList();
-            mapper.writeValue(new File(filePath), traineeList);
+            List<Trainer> trainerList=trainers.values().stream().toList();
+            mapper.writeValue(new File(filePath), trainerList);
         }
         catch (Exception e){
-            e.printStackTrace();
+
         }
     }
     @Override
-    public Map<Long, Trainee> load() {
+    public Map<Long, Trainer> load() {
         try{
             ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.registerModule(new JavaTimeModule());
-            List<Trainee> traineesList = objectMapper.readValue(new File(filePath), new TypeReference<List<Trainee>>() {});
-            Map<Long, Trainee> map = this.trainees;
-            for(Trainee trainee : traineesList){
-                map.put(trainee.getUserId(), trainee);
+            List<Trainer> trainersList = objectMapper.readValue(new File(filePath), new TypeReference<List<Trainer>>() {});
+            Map<Long, Trainer> map = this.trainers;
+            for(Trainer trainer : trainersList){
+                map.put(trainer.getUserId(), trainer);
             }
             return map;
         }
@@ -65,9 +64,9 @@ public class TraineeLoader implements Loader<Trainee> {
     @Override
     public void clear() {
         try (FileWriter writer = new FileWriter(new File(filePath))) {
-            this.trainees.clear();
+            trainers.clear();
         } catch (IOException e) {
-            e.printStackTrace();
+
         }
     }
 }
