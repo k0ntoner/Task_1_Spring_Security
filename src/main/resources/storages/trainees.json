@@ -1,1 +1,52 @@
-{"1":{"firstName":"firstName","lastName":"lastName","username":"firstName.lastName","password":"XYzzTAMdbV","dateOfBirth"
+[
+  {
+    "userId": 1,
+    "firstName": "John",
+    "lastName": "Doe",
+    "username": "johndoe",
+    "password": "password123",
+    "isActive": true,
+    "dateOfBirth": "1995-05-15",
+    "address": "123 Main St"
+  },
+  {
+    "userId": 2,
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "username": "janesmith",
+    "password": "password456",
+    "isActive": true,
+    "dateOfBirth": "1998-07-20",
+    "address": "456 Oak St"
+  },
+  {
+    "userId": 3,
+    "firstName": "Tom",
+    "lastName": "Brown",
+    "username": "tombrown",
+    "password": "password789",
+    "isActive": false,
+    "dateOfBirth": "1992-11-10",
+    "address": "789 Pine St"
+  },
+  {
+    "userId": 4,
+    "firstName": "Alice",
+    "lastName": "Johnson",
+    "username": "alicej",
+    "password": "password111",
+    "isActive": true,
+    "dateOfBirth": "1990-03-25",
+    "address": "321 Birch St"
+  },
+  {
+    "userId": 5,
+    "firstName": "Bob",
+    "lastName": "White",
+    "username": "bobwhite",
+    "password": "password222",
+    "isActive": false,
+    "dateOfBirth": "1988-12-30",
+    "address": "654 Cedar St"
+  }
+]

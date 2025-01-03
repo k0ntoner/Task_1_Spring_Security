@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.example.models.Trainee;
+import org.example.models.Training;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -44,23 +45,26 @@ public class TraineeLoader implements Loader<Trainee> {
             log.info("TraineeLoader: Data successfully saved to file {}", filePath);
         }
         catch (Exception e){
-            e.printStackTrace();
+            log.error("TraineeLoader: Data not saved to file {}", filePath);
         }
     }
     @Override
     public Map<Long, Trainee> load() {
-        try{
+        log.info("TraineeLoader: Loading data from file {}", filePath);
+        try {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.registerModule(new JavaTimeModule());
             List<Trainee> traineesList = objectMapper.readValue(new File(filePath), new TypeReference<List<Trainee>>() {});
             Map<Long, Trainee> map = this.trainees;
-            for(Trainee trainee : traineesList){
-                map.put(trainee.getUserId(), trainee);
+            long id = 0;
+            for (Trainee trainee : traineesList) {
+                id++;
+                map.put(id, trainee);
             }
+            log.info("TraineeLoader: Data loaded successfully");
             return map;
-        }
-        catch (IOException e){
-            log.error("TraineeLoader: Failed to save data to file {}", filePath, e);
+        } catch (IOException e) {
+            log.error("TraineeLoader: Failed to load data from file {}", filePath, e);
         }
         return new HashMap<>();
     }
