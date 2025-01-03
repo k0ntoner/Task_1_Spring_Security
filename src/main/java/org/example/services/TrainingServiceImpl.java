@@ -34,15 +34,15 @@ public class TrainingServiceImpl implements TrainingService<Training> {
         return trainingDAO.findAll();
     }
 
-    @Override
-    public boolean delete(long id) {
-        return trainingDAO.delete(id);
-    }
-
-    @Override
-    public Training update(long id, Training trainee) {
-        return trainingDAO.update(id, trainee);
-    }
+//    @Override
+//    public boolean delete(long id) {
+//        return trainingDAO.delete(id);
+//    }
+//
+//    @Override
+//    public Training update(long id, Training trainee) {
+//        return trainingDAO.update(id, trainee);
+//    }
 
     @Override
     public Training findByTrainer(long trainerId, LocalDateTime dateTime) {

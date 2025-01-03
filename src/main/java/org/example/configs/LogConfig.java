@@ -25,18 +25,23 @@ public class LogConfig {
 
     @Value("${log.error.file.path}")
     String errorFilePath;
-
+    @Value("${log.debug.file.path}")
+    String debugFilePath;
     @Bean
     public Logger infoLogger() {
-        return configureLogger("com.example.info", Level.INFO, infoFilePath,false);
+        return configureLogger("com.example.info", Level.INFO, infoFilePath,true);
     }
     @Bean
     public Logger warnLogger() {
-        return configureLogger("com.example.warn", Level.WARN, warnFilePath, false);
+        return configureLogger("com.example.warn", Level.WARN, warnFilePath, true);
     }
     @Bean
     public Logger errorLogger() {
         return configureLogger("com.example.error", Level.ERROR, errorFilePath, true);
+    }
+    @Bean
+    public Logger debugLogger() {
+        return configureLogger("com.example.debug", Level.DEBUG, debugFilePath, true);
     }
     private Logger configureLogger(String LoggerName, Level level, String filePath, boolean logToConsole){
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();

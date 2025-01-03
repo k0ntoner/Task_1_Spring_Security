@@ -10,11 +10,13 @@ public class LoggerManager {
     private Logger warnLogger;
     private Logger infoLogger;
     private Logger errorLogger;
+    private Logger debugLogger;
     @Autowired
-    public LoggerManager(@Qualifier("infoLogger") Logger infoLogger, @Qualifier("warnLogger") Logger warnLogger, @Qualifier("errorLogger") Logger errorLogger ) {
+    public LoggerManager(@Qualifier("infoLogger") Logger infoLogger, @Qualifier("warnLogger") Logger warnLogger, @Qualifier("errorLogger") Logger errorLogger,@Qualifier("debugLogger") Logger debugLogger ) {
         this.warnLogger = warnLogger;
         this.infoLogger = infoLogger;
         this.errorLogger = errorLogger;
+        this.debugLogger = debugLogger;
     }
 
     public void warn(String message) {
@@ -34,5 +36,11 @@ public class LoggerManager {
     }
     public void error(String message, Object... args) {
         errorLogger.error(message, args);
+    }
+    public void debug(String message) {
+        debugLogger.debug(message);
+    }
+    public void debug(String message, Object... args) {
+        debugLogger.debug(message, args);
     }
 }
