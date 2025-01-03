@@ -1,26 +1,21 @@
 package org.example.repositories;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.models.Trainee;
-import org.example.models.Trainer;
 import org.example.models.Training;
-import org.example.utils.LoggerManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
-
 import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.util.Map;
 @Repository
+@Slf4j
 public class TrainingDAOImpl implements TrainingDAO<Training> {
-    private LoggerManager log;
     private Map<Long, Training> trainings;
     private long head;
     @Autowired
-    public TrainingDAOImpl(@Qualifier("trainingStorage") Map<Long, Training> trainings, @Qualifier("loggerManager") LoggerManager loggerManager) {
+    public TrainingDAOImpl(@Qualifier("trainingStorage") Map<Long, Training> trainings) {
         this.trainings = trainings;
-        this.log = loggerManager;
     }
     @PostConstruct
     public void init() {

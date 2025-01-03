@@ -2,8 +2,6 @@ package org.example.repositories;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.models.Trainee;
-import org.example.models.Trainer;
-import org.example.utils.LoggerManager;
 import org.example.utils.PasswordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,15 +11,14 @@ import javax.annotation.PostConstruct;
 import java.util.Map;
 
 @Repository
+@Slf4j
 public class TraineeDAOImpl implements UserDAO<Trainee> {
-    private LoggerManager log;
     private Map<Long, Trainee> trainees;
     private long head=0;
 
     @Autowired
-    public TraineeDAOImpl(@Qualifier("traineeStorage") Map<Long, Trainee> trainees, @Qualifier("loggerManager") LoggerManager loggerManager) {
+    public TraineeDAOImpl(@Qualifier("traineeStorage") Map<Long, Trainee> trainees) {
         this.trainees = trainees;
-        this.log = loggerManager;
     }
     @PostConstruct
     public void init() {

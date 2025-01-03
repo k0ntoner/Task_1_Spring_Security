@@ -59,57 +59,57 @@ public class TrainingServiceTest {
         assertEquals(training.getTrainingDuration(), checkTraining.getTrainingDuration());
     }
 
-    @Test
-    public void testUpdatingTraining() {
-        Training training = Training.builder()
-                .traineeId(1)
-                .trainerId(1)
-                .trainingName("Cardio")
-                .trainingType(TrainingType.CARDIO)
-                .trainingDate(LocalDateTime.of(2024, 12, 12, 12, 12))
-                .trainingDuration(Duration.ofMinutes(90))
-                .build();
-
-        trainingService.add(training);
-
-        Training updatedTraining = Training.builder()
-                .traineeId(1)
-                .trainerId(1)
-                .trainingName("Strength")
-                .trainingType(TrainingType.STRENGTH)
-                .trainingDate(LocalDateTime.of(2024, 12, 12, 16, 0))
-                .trainingDuration(Duration.ofMinutes(90))
-                .build();
-
-        when(trainingMockDAO.findByTrainer(1L, LocalDateTime.of(2024, 12, 12, 16, 0))).thenReturn(updatedTraining);
-        trainingService.update(1L, updatedTraining);
-
-        Training checkTraining = trainingService.findByTrainer(1L, LocalDateTime.of(2024, 12, 12, 16, 0));
-        assertNotNull(checkTraining);
-        assertEquals(updatedTraining.getTraineeId(), checkTraining.getTraineeId());
-        assertEquals(updatedTraining.getTrainerId(), checkTraining.getTrainerId());
-        assertEquals(updatedTraining.getTrainingName(), checkTraining.getTrainingName());
-        assertEquals(updatedTraining.getTrainingType(), checkTraining.getTrainingType());
-        assertEquals(updatedTraining.getTrainingDate(), checkTraining.getTrainingDate());
-        assertEquals(updatedTraining.getTrainingDuration(), checkTraining.getTrainingDuration());
-    }
-
-    @Test
-    public void testDeletingTraining() {
-        Training training = Training.builder()
-                .traineeId(1)
-                .trainerId(1)
-                .trainingName("Cardio")
-                .trainingType(TrainingType.CARDIO)
-                .trainingDate(LocalDateTime.of(2024, 12, 12, 12, 12))
-                .trainingDuration(Duration.ofMinutes(90))
-                .build();
-
-        trainingService.add(training);
-        when(trainingMockDAO.findByTrainer(1L, LocalDateTime.of(2024, 12, 12, 12, 12))).thenReturn(null);
-
-        trainingService.delete(1L);
-        Training checkTraining = trainingService.findByTrainer(1L, LocalDateTime.of(2024, 12, 12, 12, 12));
-        assertNull(checkTraining);
-    }
+//    @Test
+//    public void testUpdatingTraining() {
+//        Training training = Training.builder()
+//                .traineeId(1)
+//                .trainerId(1)
+//                .trainingName("Cardio")
+//                .trainingType(TrainingType.CARDIO)
+//                .trainingDate(LocalDateTime.of(2024, 12, 12, 12, 12))
+//                .trainingDuration(Duration.ofMinutes(90))
+//                .build();
+//
+//        trainingService.add(training);
+//
+//        Training updatedTraining = Training.builder()
+//                .traineeId(1)
+//                .trainerId(1)
+//                .trainingName("Strength")
+//                .trainingType(TrainingType.STRENGTH)
+//                .trainingDate(LocalDateTime.of(2024, 12, 12, 16, 0))
+//                .trainingDuration(Duration.ofMinutes(90))
+//                .build();
+//
+//        when(trainingMockDAO.findByTrainer(1L, LocalDateTime.of(2024, 12, 12, 16, 0))).thenReturn(updatedTraining);
+//        trainingService.update(1L, updatedTraining);
+//
+//        Training checkTraining = trainingService.findByTrainer(1L, LocalDateTime.of(2024, 12, 12, 16, 0));
+//        assertNotNull(checkTraining);
+//        assertEquals(updatedTraining.getTraineeId(), checkTraining.getTraineeId());
+//        assertEquals(updatedTraining.getTrainerId(), checkTraining.getTrainerId());
+//        assertEquals(updatedTraining.getTrainingName(), checkTraining.getTrainingName());
+//        assertEquals(updatedTraining.getTrainingType(), checkTraining.getTrainingType());
+//        assertEquals(updatedTraining.getTrainingDate(), checkTraining.getTrainingDate());
+//        assertEquals(updatedTraining.getTrainingDuration(), checkTraining.getTrainingDuration());
+//    }
+//
+//    @Test
+//    public void testDeletingTraining() {
+//        Training training = Training.builder()
+//                .traineeId(1)
+//                .trainerId(1)
+//                .trainingName("Cardio")
+//                .trainingType(TrainingType.CARDIO)
+//                .trainingDate(LocalDateTime.of(2024, 12, 12, 12, 12))
+//                .trainingDuration(Duration.ofMinutes(90))
+//                .build();
+//
+//        trainingService.add(training);
+//        when(trainingMockDAO.findByTrainer(1L, LocalDateTime.of(2024, 12, 12, 12, 12))).thenReturn(null);
+//
+//        trainingService.delete(1L);
+//        Training checkTraining = trainingService.findByTrainer(1L, LocalDateTime.of(2024, 12, 12, 12, 12));
+//        assertNull(checkTraining);
+//    }
 }

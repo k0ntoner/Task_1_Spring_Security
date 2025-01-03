@@ -1,0 +1,18 @@
+2025-01-03 19:33:10 [main] INFO  org.example.loaders.TraineeLoader - TraineeLoader: Clearing data in memory and file src/main/resources/storages/traineesTest.json
+2025-01-03 19:33:10 [main] INFO  org.example.loaders.TraineeLoader - TraineeLoader: Data cleared successfully
+2025-01-03 19:33:10 [main] INFO  o.e.repositories.TraineeDAOImpl - Preparing model for trainee: org.example.models.Trainee@588ab592
+2025-01-03 19:33:10 [main] INFO  o.e.repositories.TraineeDAOImpl - Generate id 1 for trainee: org.example.models.Trainee@588ab592
+2025-01-03 19:33:10 [main] INFO  o.e.repositories.TraineeDAOImpl - Generating username for trainee: org.example.models.Trainee@588ab592 . . .
+2025-01-03 19:33:10 [main] INFO  o.e.repositories.TraineeDAOImpl - Checking if username firstName.lastName already exists: false
+2025-01-03 19:33:10 [main] INFO  o.e.repositories.TraineeDAOImpl - Checking if username firstName.lastName already exists: false
+2025-01-03 19:33:10 [main] INFO  o.e.repositories.TraineeDAOImpl - Generated username firstName.lastName for trainee: org.example.models.Trainee@588ab592
+2025-01-03 19:33:10 [main] INFO  o.e.repositories.TraineeDAOImpl - Added new trainee: org.example.models.Trainee@588ab592
+2025-01-03 19:33:10 [main] INFO  o.e.repositories.TraineeDAOImpl - Deleted trainee with id 1
+2025-01-03 19:33:10 [main] WARN  o.e.repositories.TraineeDAOImpl - No trainee found with id 1
+2025-01-03 19:33:10 [main] DEBUG o.s.c.a.AnnotationConfigApplicationContext - Closing org.springframework.context.annotation.AnnotationConfigApplicationContext@72f926e6, started on Fri Jan 03 19:33:10 EET 2025
+2025-01-03 19:33:10 [main] INFO  org.example.loaders.TrainingLoader - TrainingLoader: PreDestroy method started . . .
+2025-01-03 19:33:10 [main] INFO  org.example.loaders.TrainingLoader - TrainingLoader: Data successfully saved to file src/main/resources/storages/trainingsTest.json
+2025-01-03 19:33:10 [main] INFO  org.example.loaders.TrainerLoader - TrainerLoader: PreDestroy method started...
+2025-01-03 19:33:10 [main] INFO  org.example.loaders.TrainerLoader - TrainerLoader: Data successfully saved to file src/main/resources/storages/trainersTest.json
+2025-01-03 19:33:10 [main] INFO  org.example.loaders.TraineeLoader - TraineeLoader: PreDestroy method started . . .
+2025-01-03 19:33:10 [main] INFO  org.example.loaders.TraineeLoader - TraineeLoader: Data successfully saved to file src/main/resources/storages/traineesTest.json

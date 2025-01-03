@@ -11,27 +11,67 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 @Component
+@Slf4j
 public class TrainingServiceImpl implements TrainingService<Training> {
 
-    private TrainingDAO<Training> trainingDAO;
+    private final TrainingDAO<Training> trainingDAO;
+
     @Autowired
     public TrainingServiceImpl(@Qualifier("trainingDAOImpl") TrainingDAO<Training> trainingDAO) {
         this.trainingDAO = trainingDAO;
+        log.info("TrainingServiceImpl initialized");
     }
 
     @Override
     public Training add(Training entity) {
-        return trainingDAO.add(entity);
+        log.info("Request to add training: {}", entity.getTrainingName());
+        Training addedTraining = trainingDAO.add(entity);
+        log.info("Service completed action successfully");
+        return addedTraining;
     }
 
     @Override
     public Training findById(long id) {
-        return trainingDAO.findById(id);
+        log.info("Request to find training by ID: {}", id);
+        Training training = trainingDAO.findById(id);
+        if (training != null) {
+            log.info("Service completed action successfully");
+        } else {
+            log.warn("No training found with ID: {}", id);
+        }
+        return training;
     }
 
     @Override
     public Map<Long, Training> findAll() {
-        return trainingDAO.findAll();
+        log.info("Request to find all trainings");
+        Map<Long, Training> trainings = trainingDAO.findAll();
+        log.info("Service completed action successfully");
+        return trainings;
+    }
+
+    @Override
+    public Training findByTrainer(long trainerId, LocalDateTime dateTime) {
+        log.info("Request to find training by trainer ID: {} at time: {}", trainerId, dateTime);
+        Training training = trainingDAO.findByTrainer(trainerId, dateTime);
+        if (training != null) {
+            log.info("Service completed action successfully");
+        } else {
+            log.warn("No training found for trainer ID: {} at time: {}", trainerId, dateTime);
+        }
+        return training;
+    }
+
+    @Override
+    public Training findByTrainee(long traineeId, LocalDateTime dateTime) {
+        log.info("Request to find training by trainee ID: {} at time: {}", traineeId, dateTime);
+        Training training = trainingDAO.findByTrainee(traineeId, dateTime);
+        if (training != null) {
+            log.info("Service completed action successfully");
+        } else {
+            log.warn("No training found for trainee ID: {} at time: {}", traineeId, dateTime);
+        }
+        return training;
     }
 
 //    @Override
@@ -43,14 +83,4 @@ public class TrainingServiceImpl implements TrainingService<Training> {
 //    public Training update(long id, Training trainee) {
 //        return trainingDAO.update(id, trainee);
 //    }
-
-    @Override
-    public Training findByTrainer(long trainerId, LocalDateTime dateTime) {
-        return trainingDAO.findByTrainer(trainerId, dateTime);
-    }
-
-    @Override
-    public Training findByTrainee(long traineeId, LocalDateTime dateTime) {
-        return trainingDAO.findByTrainee(traineeId, dateTime);
-    }
 }

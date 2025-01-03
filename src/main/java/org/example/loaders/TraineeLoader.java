@@ -5,13 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.example.models.Trainee;
-import org.example.utils.LoggerManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.File;
@@ -21,13 +17,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 @Component
+@Slf4j
 public class TraineeLoader implements Loader<Trainee> {
     private String filePath;
     private Map<Long, Trainee> trainees;
-    private LoggerManager log;
     @Autowired
-    public TraineeLoader(@Qualifier("traineesFilePath") String  filePath, @Qualifier("traineeStorage") Map<Long, Trainee> trainees,@Qualifier("loggerManager") LoggerManager loggerManager) {
-        this.log = loggerManager;
+    public TraineeLoader(@Qualifier("traineesFilePath") String  filePath, @Qualifier("traineeStorage") Map<Long, Trainee> trainees) {
         this.filePath = filePath;
         this.trainees = trainees;
         log.info("TraineeLoader initialized with file {}", filePath);
