@@ -9,17 +9,18 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Map;
 
 @Component
 public class ServiceFacade {
 
-    private final TrainingService<Training> trainingService;
+    private final TrainingService trainingService;
     private final UserService<Trainee> traineeService;
     private final UserService<Trainer> trainerService;
 
     @Autowired
-    public ServiceFacade(@Qualifier("trainingServiceImpl") TrainingService<Training> trainingService, @Qualifier("traineeServiceImpl") UserService<Trainee> traineeService, @Qualifier("trainerServiceImpl") UserService<Trainer> trainerService) {
+    public ServiceFacade(@Qualifier("trainingServiceImpl") TrainingService trainingService, @Qualifier("traineeServiceImpl") UserService<Trainee> traineeService, @Qualifier("trainerServiceImpl") UserService<Trainer> trainerService) {
         this.trainingService = trainingService;
         this.traineeService = traineeService;
         this.trainerService = trainerService;
@@ -33,16 +34,16 @@ public class ServiceFacade {
         return traineeService.findById(id);
     }
 
-    public Map<Long, Trainee> findAllTrainees() {
+    public Collection<Trainee> findAllTrainees() {
         return traineeService.findAll();
     }
 
-    public boolean deleteTrainee(long id) {
-        return traineeService.delete(id);
+    public boolean deleteTrainee(Trainee trainee) {
+        return traineeService.delete(trainee);
     }
 
-    public Trainee updateTrainee(long id, Trainee trainee) {
-        return traineeService.update(id, trainee);
+    public Trainee updateTrainee(Trainee trainee) {
+        return traineeService.update(trainee);
     }
 
     public Trainer addTrainer(Trainer trainer) {
@@ -53,16 +54,16 @@ public class ServiceFacade {
         return trainerService.findById(id);
     }
 
-    public Map<Long, Trainer> findAllTrainers() {
+    public Collection<Trainer> findAllTrainers() {
         return trainerService.findAll();
     }
 
-    public boolean deleteTrainer(long id) {
-        return trainerService.delete(id);
+    public boolean deleteTrainer(Trainer trainer) {
+        return trainerService.delete(trainer);
     }
 
-    public Trainer updateTrainer(long id, Trainer trainer) {
-        return trainerService.update(id, trainer);
+    public Trainer updateTrainer(Trainer trainer) {
+        return trainerService.update(trainer);
     }
 
     public Training addTraining(Training training) {
@@ -73,7 +74,7 @@ public class ServiceFacade {
         return trainingService.findById(id);
     }
 
-    public Map<Long, Training> findAllTrainings() {
+    public Collection<Training> findAllTrainings() {
         return trainingService.findAll();
     }
 

@@ -1,5 +1,6 @@
-package org.example.configs;
+package configs;
 
+import org.example.configs.LogConfig;
 import org.example.models.Trainee;
 import org.example.models.Trainer;
 import org.example.models.Training;

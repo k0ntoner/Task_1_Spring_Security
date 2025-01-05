@@ -2,51 +2,41 @@
   {
     "firstName": "Michael",
     "lastName": "Johnson",
-    "username": "michael.johnson",
     "password": "pass123",
-    "isActive": true,
     "specialization": "Strength Training",
     "trainingType": "STRENGTH",
-    "userId": 1
+    "isActive": true
   },
   {
     "firstName": "Emily",
     "lastName": "Clark",
-    "username": "emily.clark",
     "password": "pass456",
-    "isActive": true,
     "specialization": "Cardio Training",
     "trainingType": "CARDIO",
-    "userId": 2
+    "isActive": true
   },
   {
     "firstName": "David",
     "lastName": "White",
-    "username": "david.white",
     "password": "pass789",
-    "isActive": true,
     "specialization": "Flexibility Training",
     "trainingType": "FLEXIBILITY",
-    "userId": 3
+    "isActive": true
   },
   {
     "firstName": "Sophia",
     "lastName": "Lewis",
-    "username": "sophia.lewis",
     "password": "pass321",
-    "isActive": true,
     "specialization": "Balance Training",
     "trainingType": "BALANCE",
-    "userId": 4
+    "isActive": true
   },
   {
     "firstName": "Daniel",
     "lastName": "Walker",
-    "username": "daniel.walker",
     "password": "pass654",
-    "isActive": true,
     "specialization": "Endurance Training",
     "trainingType": "ENDURANCE",
-    "userId": 5
+    "isActive": true
   }
 ]

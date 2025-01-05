@@ -1,52 +1,42 @@
 [
   {
-    "userId": 1,
     "firstName": "John",
     "lastName": "Doe",
-    "username": "johndoe",
     "password": "password123",
-    "isActive": true,
     "dateOfBirth": "1995-05-15",
-    "address": "123 Main St"
+    "address": "123 Main St",
+    "isActive": true
   },
   {
-    "userId": 2,
     "firstName": "Jane",
     "lastName": "Smith",
-    "username": "janesmith",
     "password": "password456",
-    "isActive": true,
     "dateOfBirth": "1998-07-20",
-    "address": "456 Oak St"
+    "address": "456 Oak St",
+    "isActive": true
   },
   {
-    "userId": 3,
     "firstName": "Tom",
     "lastName": "Brown",
-    "username": "tombrown",
     "password": "password789",
-    "isActive": false,
     "dateOfBirth": "1992-11-10",
-    "address": "789 Pine St"
+    "address": "789 Pine St",
+    "isActive": false
   },
   {
-    "userId": 4,
     "firstName": "Alice",
     "lastName": "Johnson",
-    "username": "alicej",
     "password": "password111",
-    "isActive": true,
     "dateOfBirth": "1990-03-25",
-    "address": "321 Birch St"
+    "address": "321 Birch St",
+    "isActive": true
   },
   {
-    "userId": 5,
     "firstName": "Bob",
     "lastName": "White",
-    "username": "bobwhite",
     "password": "password222",
-    "isActive": false,
     "dateOfBirth": "1988-12-30",
-    "address": "654 Cedar St"
+    "address": "654 Cedar St",
+    "isActive": false
   }
 ]

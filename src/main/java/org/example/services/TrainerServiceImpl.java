@@ -2,68 +2,61 @@ package org.example.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.models.Trainer;
-import org.example.repositories.UserDAO;
+import org.example.repositories.UserDao;
+import org.example.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import java.util.Map;
+
+import java.util.Collection;
 
 @Component
 @Slf4j
 public class TrainerServiceImpl implements UserService<Trainer> {
-    private final UserDAO<Trainer> trainerDAO;
+    private final UserDao<Trainer> trainerDAO;
 
     @Autowired
-    public TrainerServiceImpl(@Qualifier("trainerDAOImpl") UserDAO<Trainer> trainerDAO) {
+    public TrainerServiceImpl(@Qualifier("trainerDaoImpl") UserDao<Trainer> trainerDAO) {
         this.trainerDAO = trainerDAO;
         log.info("TrainerServiceImpl initialized");
     }
 
     @Override
     public Trainer add(Trainer entity) {
-        log.info("Request to add trainer: {}", entity.getUsername());
-        Trainer addedTrainer = trainerDAO.add(entity);
-        log.info("Service completed action successfully");
-        return addedTrainer;
+        log.info("Request to add trainer");
+        entity.setUsername(UserUtils.generateUserName(entity, trainerDAO::isUsernameExist));
+        entity.setPassword(UserUtils.generatePassword());
+        return trainerDAO.add(entity);
     }
 
     @Override
     public Trainer findById(long id) {
         log.info("Request to find trainer by ID: {}", id);
-        Trainer trainer = trainerDAO.findById(id);
-        if (trainer != null) {
-            log.info("Service completed action successfully");
-        } else {
-            log.warn("Service completed action unsuccessfully");
-        }
-        return trainer;
+        return trainerDAO.findById(id);
     }
 
     @Override
-    public Map<Long, Trainer> findAll() {
+    public Collection<Trainer> findAll() {
         log.info("Request to find all trainers");
-        Map<Long, Trainer> trainers = trainerDAO.findAll();
-        log.info("Service completed action successfully");
-        return trainers;
+        return trainerDAO.findAll();
     }
 
     @Override
-    public boolean delete(long id) {
-        log.info("Request to delete trainer with ID: {}", id);
-        boolean result = trainerDAO.delete(id);
-        if (result) {
-            log.info("Service completed action successfully");
-        } else {
-            log.warn("Service completed action unsuccessfully");
-        }
-        return result;
+    public boolean delete(Trainer trainer) {
+        log.info("Request to delete trainer with ID: {}", trainer.getUserId());
+        if(trainerDAO.findById(trainer.getUserId()) == null)
+            throw new IllegalArgumentException("Trainer with id " + trainer.getUserId() + " not found");
+
+        return trainerDAO.delete(trainer);
+
     }
 
     @Override
-    public Trainer update(long id, Trainer trainer) {
-        log.info("Request to update trainer with ID: {}", id);
-        Trainer updatedTrainer = trainerDAO.update(id, trainer);
-        log.info("Service completed action successfully");
-        return updatedTrainer;
+    public Trainer update(Trainer trainer) {
+        log.info("Request to update trainer with ID: {}", trainer.getUserId());
+        if(trainerDAO.findById(trainer.getUserId()) == null)
+            throw new IllegalArgumentException("Trainer with id " + trainer.getUserId() + " not found");
+
+        return trainerDAO.update(trainer);
     }
 }

@@ -1,11 +1,11 @@
-package org.example.services;
+package org.example.repositories;
 
 import org.example.models.Training;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 
-public interface TrainingService extends BasicService<Training> {
+public interface TrainingDao extends BasicDao<Training>{
     Training findByTrainer(long trainerId, LocalDateTime dateTime);
     Training findByTrainee(long traineeId, LocalDateTime dateTime);
+
 }

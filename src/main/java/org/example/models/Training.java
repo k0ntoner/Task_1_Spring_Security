@@ -5,14 +5,13 @@ import lombok.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-@Setter
-@Getter
+@Data
 @AllArgsConstructor
-@EqualsAndHashCode
 @Builder
 @NoArgsConstructor
 @ToString
 public class Training {
+    private long id;
     private long traineeId;
     private long trainerId;
     private String trainingName;

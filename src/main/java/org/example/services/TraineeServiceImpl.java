@@ -1,69 +1,62 @@
 package org.example.services;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.repositories.UserDAO;
+import org.example.repositories.UserDao;
 import org.example.models.Trainee;
+import org.example.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import java.util.Map;
+
+import java.util.Collection;
 
 
 @Component
 @Slf4j
 public class TraineeServiceImpl implements UserService<Trainee> {
-    private UserDAO<Trainee> traineeDAO;
+    private UserDao<Trainee> traineeDAO;
     @Autowired
-    public TraineeServiceImpl(@Qualifier("traineeDAOImpl") UserDAO<Trainee> traineeDAO) {
+    public TraineeServiceImpl(@Qualifier("traineeDaoImpl") UserDao<Trainee> traineeDAO) {
         this.traineeDAO = traineeDAO;
         log.info("TraineeServiceImpl initialized");
     }
 
     @Override
     public Trainee add(Trainee trainee) {
-        log.info("Request to add trainee: {}", trainee.getUsername());
-        Trainee addedTrainee = traineeDAO.add(trainee);
-        log.info("Service completed action successfully");
-        return addedTrainee;
+        log.info("Request to add trainee");
+        trainee.setPassword(UserUtils.generatePassword());
+        trainee.setUsername(UserUtils.generateUserName(trainee, traineeDAO::isUsernameExist));
+        return traineeDAO.add(trainee);
     }
 
     @Override
     public Trainee findById(long id) {
         log.info("Request to find trainee by ID: {}", id);
-        Trainee trainee = traineeDAO.findById(id);
-        if (trainee != null) {
-            log.info("Service completed action successfully");
-        } else {
-            log.warn("Service completed action unsuccessfully");
-        }
-        return trainee;
+        return traineeDAO.findById(id);
     }
 
     @Override
-    public Map<Long, Trainee> findAll() {
+    public Collection<Trainee> findAll() {
         log.info("Request to find all trainees");
-        Map<Long, Trainee> trainees = traineeDAO.findAll();
-        log.info("Service completed action successfully");
-        return trainees;
+        return traineeDAO.findAll();
     }
 
     @Override
-    public boolean delete(long id) {
-        log.info("Request to delete trainee with ID: {}", id);
-        boolean result = traineeDAO.delete(id);
-        if (result) {
-            log.info("Service completed action successfully");
-        } else {
-            log.warn("Service completed action unsuccessfully");
-        }
-        return result;
+    public boolean delete(Trainee trainee) {
+        log.info("Request to delete trainee with ID: {}", trainee.getUserId());
+        if(traineeDAO.findById(trainee.getUserId()) == null)
+            throw new IllegalArgumentException("Trainee with id " + trainee.getUserId() + " not found");
+
+        return traineeDAO.delete(trainee);
     }
 
     @Override
-    public Trainee update(long id, Trainee trainee) {
-        log.info("Request to update trainee with ID: {}", id);
-        Trainee updatedTrainee = traineeDAO.update(id, trainee);
-        log.info("Service completed action successfully");
-        return updatedTrainee;
+    public Trainee update(Trainee trainee) {
+        log.info("Request to update trainee with ID: {}",trainee.getUserId());
+        if(traineeDAO.findById(trainee.getUserId()) == null)
+            throw new IllegalArgumentException("Trainee with id " + trainee.getUserId() + " not found");
+
+        return traineeDAO.update(trainee);
     }
+
 }

@@ -2,22 +2,22 @@ package org.example.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.models.Training;
-import org.example.repositories.TrainingDAO;
+import org.example.repositories.TrainingDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.Map;
+import java.util.Collection;
 
 @Component
 @Slf4j
-public class TrainingServiceImpl implements TrainingService<Training> {
+public class TrainingServiceImpl implements TrainingService {
 
-    private final TrainingDAO<Training> trainingDAO;
+    private final TrainingDao trainingDAO;
 
     @Autowired
-    public TrainingServiceImpl(@Qualifier("trainingDAOImpl") TrainingDAO<Training> trainingDAO) {
+    public TrainingServiceImpl(@Qualifier("trainingDaoImpl") TrainingDao trainingDAO) {
         this.trainingDAO = trainingDAO;
         log.info("TrainingServiceImpl initialized");
     }
@@ -25,62 +25,34 @@ public class TrainingServiceImpl implements TrainingService<Training> {
     @Override
     public Training add(Training entity) {
         log.info("Request to add training: {}", entity.getTrainingName());
-        Training addedTraining = trainingDAO.add(entity);
-        log.info("Service completed action successfully");
-        return addedTraining;
+        return trainingDAO.add(entity);
+
     }
 
     @Override
     public Training findById(long id) {
         log.info("Request to find training by ID: {}", id);
-        Training training = trainingDAO.findById(id);
-        if (training != null) {
-            log.info("Service completed action successfully");
-        } else {
-            log.warn("No training found with ID: {}", id);
-        }
-        return training;
+        return trainingDAO.findById(id);
     }
 
     @Override
-    public Map<Long, Training> findAll() {
+    public Collection<Training> findAll() {
         log.info("Request to find all trainings");
-        Map<Long, Training> trainings = trainingDAO.findAll();
-        log.info("Service completed action successfully");
-        return trainings;
+        return trainingDAO.findAll();
     }
 
     @Override
     public Training findByTrainer(long trainerId, LocalDateTime dateTime) {
         log.info("Request to find training by trainer ID: {} at time: {}", trainerId, dateTime);
-        Training training = trainingDAO.findByTrainer(trainerId, dateTime);
-        if (training != null) {
-            log.info("Service completed action successfully");
-        } else {
-            log.warn("No training found for trainer ID: {} at time: {}", trainerId, dateTime);
-        }
-        return training;
+        return trainingDAO.findByTrainer(trainerId, dateTime);
+
     }
 
     @Override
     public Training findByTrainee(long traineeId, LocalDateTime dateTime) {
         log.info("Request to find training by trainee ID: {} at time: {}", traineeId, dateTime);
-        Training training = trainingDAO.findByTrainee(traineeId, dateTime);
-        if (training != null) {
-            log.info("Service completed action successfully");
-        } else {
-            log.warn("No training found for trainee ID: {} at time: {}", traineeId, dateTime);
-        }
-        return training;
+        return trainingDAO.findByTrainee(traineeId, dateTime);
+
     }
 
-//    @Override
-//    public boolean delete(long id) {
-//        return trainingDAO.delete(id);
-//    }
-//
-//    @Override
-//    public Training update(long id, Training trainee) {
-//        return trainingDAO.update(id, trainee);
-//    }
 }

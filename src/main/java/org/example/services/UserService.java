@@ -2,10 +2,7 @@ package org.example.services;
 
 import java.util.Map;
 
-public interface UserService<T> {
-    T add(T entity);
-    T findById(long id);
-    Map<Long, T> findAll();
-    boolean delete(long id);
-    T update(long id, T trainee);
+public interface UserService<T> extends BasicService<T> {
+    boolean delete(T entity);
+    T update(T entity);
 }

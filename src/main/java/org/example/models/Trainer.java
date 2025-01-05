@@ -3,8 +3,7 @@ package org.example.models;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-@Setter
-@Getter
+@Data
 @AllArgsConstructor
 @SuperBuilder
 @NoArgsConstructor
