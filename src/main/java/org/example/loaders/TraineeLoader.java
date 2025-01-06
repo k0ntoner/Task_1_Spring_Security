@@ -41,7 +41,6 @@ public class TraineeLoader implements Loader<Trainee> {
             objectMapper.registerModule(new JavaTimeModule());
             List<Trainee> traineesList = objectMapper.readValue(new File(filePath), new TypeReference<List<Trainee>>() {});
             traineesList.forEach(trainee -> traineeDaoImpl.add(trainee));
-            log.info("TraineeLoader: Data loaded successfully");
         } catch (IOException e) {
             log.error("TraineeLoader: Failed to load data from file {}", filePath, e);
         }

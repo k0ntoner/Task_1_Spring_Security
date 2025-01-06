@@ -45,7 +45,6 @@ public class TrainingLoader implements Loader<Training> {
             List<Training> trainingsList = objectMapper.readValue(new File(filePath), new TypeReference<List<Training>>() {});
             trainingsList.forEach(training -> {
                 trainingDaoImpl.add(training);});
-            log.info("TrainingLoader: Data loaded successfully");
         } catch (IOException e) {
             log.error("TrainingLoader: Failed to load data from file {}", filePath, e);
         }
