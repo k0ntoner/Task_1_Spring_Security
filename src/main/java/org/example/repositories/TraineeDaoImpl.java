@@ -55,11 +55,12 @@ public class TraineeDaoImpl implements UserDao<Trainee> {
 
     @Override
     public boolean delete(Trainee entity) {
-        trainees.remove(entity.getUserId());
-        log.info("Deleted trainee with id {}", entity.getUserId());
-        return true;
-
-
+        if(trainees.containsKey(entity.getUserId())) {
+            trainees.remove(entity.getUserId());
+            log.info("Deleted trainee with id {}", entity.getUserId());
+            return true;
+        }
+        return false;
     }
     @Override
     public boolean isUsernameExist(String username) {

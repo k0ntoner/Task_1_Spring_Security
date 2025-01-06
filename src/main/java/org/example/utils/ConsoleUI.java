@@ -150,10 +150,7 @@ public class ConsoleUI {
                     System.out.println("Trainee deleted successfully!");
                 }
                 case 7 -> {
-                    System.out.print("Enter Trainer ID to Delete: ");
-                    long id = scanner.nextLong();
-                    serviceFacade.deleteTrainer(serviceFacade.findTrainerById(id));
-                    System.out.println("Trainer deleted successfully!");
+                    System.out.println("Unsupported operation!");
                 }
                 case 8 -> {
                     System.out.print("Enter Trainee ID: ");

@@ -2,30 +2,28 @@ package repositories;
 
 import configs.ConfigTest;
 import org.example.models.Trainee;
+import org.example.repositories.TraineeDaoImpl;
 import org.example.repositories.UserDao;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TraineeDaoTest {
-    AnnotationConfigApplicationContext context;
-    UserDao<Trainee> traineeDAO;
+    UserDao<Trainee> traineeDao;
 
     @BeforeEach
     public void setUp() {
-        context = new AnnotationConfigApplicationContext(ConfigTest.class);
-        traineeDAO = (UserDao<Trainee>) context.getBean("traineeDaoImpl");
-    }
-    @AfterEach
-    public void tearDown() {
-        context.close();
+        traineeDao = new TraineeDaoImpl(new HashMap<>());
     }
     public Trainee buildTraineeForAdding(long id) {
         return Trainee.builder()
@@ -45,16 +43,16 @@ public class TraineeDaoTest {
                 .password("fullPassword"+id)
                 .isActive(true)
                 .dateOfBirth(LocalDate.of(2024, 12, 12))
-                .address("address"+id)
+                .address("fullAddress"+id)
                 .build();
     }
     @Test
     public void testAddingTrainee() {
         Trainee trainee= buildTraineeForAdding(1L);
 
-        Trainee checkTrainee = traineeDAO.add(trainee);
-
-        assertEquals(trainee.getUserId(), checkTrainee.getUserId());
+        Trainee checkTrainee = traineeDao.add(trainee);
+        assertNotEquals(0,checkTrainee.getUserId());
+        assertEquals(trainee.getUserId(),checkTrainee.getUserId());
         assertEquals(trainee.getFirstName(), checkTrainee.getFirstName());
         assertEquals(trainee.getLastName(), checkTrainee.getLastName());
         assertEquals(trainee.getUsername(), checkTrainee.getUsername());
@@ -64,32 +62,39 @@ public class TraineeDaoTest {
     }
     @Test
     public void testUpdatingTrainee() {
-            Trainee trainee=traineeDAO.add(buildTraineeForAdding(1L));
+        Trainee trainee= traineeDao.add(buildTraineeForAdding(1L));
 
-            Trainee secondTrainee = buildTraineeForAdding(1L);
-            Trainee checkTrainee = traineeDAO.update(secondTrainee);
+        Trainee secondTrainee = buildFullTrainee(   1L);
+        secondTrainee.setUserId(trainee.getUserId());
+        Trainee checkTrainee = traineeDao.update(secondTrainee);
+        assertNotEquals(0,checkTrainee.getUserId());
+        assertNotEquals(trainee.getFirstName(), checkTrainee.getFirstName());
+        assertNotEquals(trainee.getLastName(), checkTrainee.getLastName());
+        assertNotEquals(trainee.getUsername(), checkTrainee.getUsername());
+        assertNotEquals(trainee.getPassword(), checkTrainee.getPassword());
+        assertNotEquals(trainee.getAddress(), checkTrainee.getAddress());
 
-            assertEquals(secondTrainee.getUserId(), checkTrainee.getUserId());
-            assertEquals(secondTrainee.getFirstName(), checkTrainee.getFirstName());
-            assertEquals(secondTrainee.getLastName(), checkTrainee.getLastName());
-            assertEquals(secondTrainee.getUsername(), checkTrainee.getUsername());
-            assertEquals(secondTrainee.getPassword(), checkTrainee.getPassword());
-            assertEquals(secondTrainee.getAddress(), checkTrainee.getAddress());
-            assertEquals(secondTrainee.isActive(), checkTrainee.isActive());
+        assertEquals(trainee.getUserId(),checkTrainee.getUserId());
+        assertEquals(secondTrainee.getFirstName(), checkTrainee.getFirstName());
+        assertEquals(secondTrainee.getLastName(), checkTrainee.getLastName());
+        assertEquals(secondTrainee.getUsername(), checkTrainee.getUsername());
+        assertEquals(secondTrainee.getPassword(), checkTrainee.getPassword());
+        assertEquals(secondTrainee.getAddress(), checkTrainee.getAddress());
+        assertEquals(secondTrainee.isActive(), checkTrainee.isActive());
     }
     @Test
     public void testDeletingTrainee() {
-        Trainee checkTrainee = traineeDAO.add(buildTraineeForAdding(1L));
-        traineeDAO.delete(checkTrainee);
-        assertNull(traineeDAO.findById(checkTrainee.getUserId()));
-
+        Trainee checkTrainee = traineeDao.add(buildTraineeForAdding(1L));
+        assertTrue(traineeDao.delete(checkTrainee));
+        assertNull(traineeDao.findById(checkTrainee.getUserId()));
+        assertEquals(0, traineeDao.findAll().size());
     }
     @Test void testFindAllTrainee() {
 
-        Trainee trainee=traineeDAO.add(buildTraineeForAdding(1L));
+        Trainee trainee= traineeDao.add(buildTraineeForAdding(1L));
 
-        Trainee secondTrainee=traineeDAO.add(buildTraineeForAdding(2L));
-        Collection<Trainee> traineeList = traineeDAO.findAll();
+        Trainee secondTrainee= traineeDao.add(buildTraineeForAdding(2L));
+        Collection<Trainee> traineeList = traineeDao.findAll();
         assertEquals(2, traineeList.size());
         List<Trainee> trainees = traineeList.stream().toList();
 
@@ -110,7 +115,8 @@ public class TraineeDaoTest {
     @Test void testUpdateNotExistingTrainee() {
         //Will not throw an Exception because this logic located in Service class.
         Trainee trainee = buildFullTrainee(1L);
-        assertDoesNotThrow(() -> {traineeDAO.update(trainee);});
+        assertDoesNotThrow(() -> {
+            traineeDao.update(trainee);});
 
 
     }
@@ -118,6 +124,11 @@ public class TraineeDaoTest {
         //Will not throw an Exception because this logic located in Service class.
 
         Trainee trainee = buildFullTrainee(1L);
-        assertDoesNotThrow(() -> {traineeDAO.delete(trainee);});
+
+        assertDoesNotThrow(() -> {
+            traineeDao.delete(trainee);});
+        assertFalse(traineeDao.delete(trainee));
+        assertNull(traineeDao.findById(trainee.getUserId()));
+        assertEquals(0, traineeDao.findAll().size());
     }
 }

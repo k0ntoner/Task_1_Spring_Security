@@ -20,13 +20,13 @@ import static org.mockito.Mockito.when;
 
 public class TrainingServiceTest {
 
-    private TrainingDao trainingMockDAO;
+    private TrainingDao trainingMockDao;
     private TrainingService trainingService;
 
     @BeforeEach
     public void setUp() {
-        trainingMockDAO = Mockito.mock(TrainingDaoImpl.class);
-        trainingService = new TrainingServiceImpl(trainingMockDAO);
+        trainingMockDao = Mockito.mock(TrainingDaoImpl.class);
+        trainingService = new TrainingServiceImpl(trainingMockDao);
     }
     public Training buildTrainingForAdding(long id) {
         return Training.builder()
@@ -53,11 +53,12 @@ public class TrainingServiceTest {
     public void testAddingTraining() {
         Training training = buildFullTraining(1L);
 
-        when(trainingMockDAO.add(training)).thenReturn(training);
+        when(trainingMockDao.add(training)).thenReturn(training);
 
 
         Training checkTraining = trainingService.add(training);
         assertNotNull(checkTraining);
+        assertNotEquals(0, checkTraining.getId());
         assertEquals(training.getTraineeId(), checkTraining.getTraineeId());
         assertEquals(training.getTrainerId(), checkTraining.getTrainerId());
         assertEquals(training.getTrainingName(), checkTraining.getTrainingName());
@@ -70,7 +71,7 @@ public class TrainingServiceTest {
         Training training=buildFullTraining(1L);
 
         Training secondTraining=buildFullTraining(2L);
-        when(trainingMockDAO.findAll()).thenReturn(List.of(training,secondTraining));
+        when(trainingMockDao.findAll()).thenReturn(List.of(training,secondTraining));
         Collection<Training> trainingList = trainingService.findAll();
         assertEquals(2, trainingList.size());
         List<Training> trainings = trainingList.stream().toList();

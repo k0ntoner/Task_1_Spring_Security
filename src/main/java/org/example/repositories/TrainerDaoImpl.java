@@ -1,6 +1,7 @@
 package org.example.repositories;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.NotImplementedException;
 import org.example.models.Trainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -54,9 +55,7 @@ public class TrainerDaoImpl implements UserDao<Trainer> {
 
     @Override
     public boolean delete(Trainer entity) {
-        trainers.remove(entity.getUserId());
-        log.info("Deleted trainer with id {}", entity.getUserId());
-        return true;
+        throw new NotImplementedException();
 
     }
     @Override

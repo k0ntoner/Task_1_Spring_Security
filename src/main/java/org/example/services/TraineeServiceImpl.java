@@ -14,10 +14,10 @@ import java.util.Collection;
 @Component
 @Slf4j
 public class TraineeServiceImpl implements UserService<Trainee> {
-    private UserDao<Trainee> traineeDAO;
+    private UserDao<Trainee> traineeDao;
     @Autowired
-    public TraineeServiceImpl(@Qualifier("traineeDaoImpl") UserDao<Trainee> traineeDAO) {
-        this.traineeDAO = traineeDAO;
+    public TraineeServiceImpl(@Qualifier("traineeDaoImpl") UserDao<Trainee> traineeDao) {
+        this.traineeDao = traineeDao;
         log.info("TraineeServiceImpl initialized");
     }
 
@@ -25,38 +25,38 @@ public class TraineeServiceImpl implements UserService<Trainee> {
     public Trainee add(Trainee trainee) {
         log.info("Request to add trainee");
         trainee.setPassword(UserUtils.generatePassword());
-        trainee.setUsername(UserUtils.generateUserName(trainee, traineeDAO::isUsernameExist));
-        return traineeDAO.add(trainee);
+        trainee.setUsername(UserUtils.generateUserName(trainee, traineeDao::isUsernameExist));
+        return traineeDao.add(trainee);
     }
 
     @Override
     public Trainee findById(long id) {
         log.info("Request to find trainee by ID: {}", id);
-        return traineeDAO.findById(id);
+        return traineeDao.findById(id);
     }
 
     @Override
     public Collection<Trainee> findAll() {
         log.info("Request to find all trainees");
-        return traineeDAO.findAll();
+        return traineeDao.findAll();
     }
 
     @Override
     public boolean delete(Trainee trainee) {
         log.info("Request to delete trainee with ID: {}", trainee.getUserId());
-        if(traineeDAO.findById(trainee.getUserId()) == null)
+        if(traineeDao.findById(trainee.getUserId()) == null)
             throw new IllegalArgumentException("Trainee with id " + trainee.getUserId() + " not found");
 
-        return traineeDAO.delete(trainee);
+        return traineeDao.delete(trainee);
     }
 
     @Override
     public Trainee update(Trainee trainee) {
         log.info("Request to update trainee with ID: {}",trainee.getUserId());
-        if(traineeDAO.findById(trainee.getUserId()) == null)
+        if(traineeDao.findById(trainee.getUserId()) == null)
             throw new IllegalArgumentException("Trainee with id " + trainee.getUserId() + " not found");
 
-        return traineeDAO.update(trainee);
+        return traineeDao.update(trainee);
     }
 
 }

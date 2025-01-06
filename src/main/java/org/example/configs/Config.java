@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-@PropertySource("classpath:application.properties")
 @ComponentScan(basePackages = "org.example")
 @Import({LogConfig.class})
 public class Config {
@@ -25,18 +24,6 @@ public class Config {
     @Bean
     public Map<Long, Training> trainingStorage() {
         return new HashMap<>();
-    }
-    @Bean
-    public String traineesFilePath(@Value("${trainees.file.path}") String filePath) {
-        return filePath;
-    }
-    @Bean
-    public String trainersFilePath(@Value("${trainers.file.path}") String filePath) {
-        return filePath;
-    }
-    @Bean
-    public String trainingsFilePath(@Value("${trainings.file.path}") String filePath) {
-        return filePath;
     }
 
 }

@@ -4,6 +4,7 @@ import configs.ConfigTest;
 import org.example.models.Training;
 import org.example.models.TrainingType;
 import org.example.repositories.TrainingDao;
+import org.example.repositories.TrainingDaoImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,21 +13,16 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TrainingDaoTest {
-    AnnotationConfigApplicationContext context;
-    TrainingDao trainingDAO;
+    TrainingDao trainingDao;
     @BeforeEach
     public void setUp() {
-        context = new AnnotationConfigApplicationContext(ConfigTest.class);
-        trainingDAO = (TrainingDao) context.getBean("trainingDaoImpl");
-    }
-    @AfterEach
-    public void tearDown() {
-        context.close();
+        trainingDao =new TrainingDaoImpl(new HashMap<>());
     }
     public Training buildTrainingForAdding(long id) {
         return Training.builder()
@@ -52,9 +48,11 @@ public class TrainingDaoTest {
     @Test
     public void testAddingTrainee() {
         Training training=buildTrainingForAdding(1L);
-        trainingDAO.add(training);
-        Training checkTraining= trainingDAO.findByTrainer(1L, LocalDateTime.of(2024,12,12,12,12));
+        trainingDao.add(training);
+        Training checkTraining= trainingDao.findByTrainer(1L, LocalDateTime.of(2024,12,12,12,12));
         assertNotNull(checkTraining);
+        assertNotEquals(0,checkTraining.getId());
+        assertEquals(training.getId(),checkTraining.getId());
         assertEquals(training.getTraineeId(),checkTraining.getTraineeId());
         assertEquals(training.getTrainerId(),checkTraining.getTrainerId());
         assertEquals(training.getTrainingName(),checkTraining.getTrainingName());
@@ -64,10 +62,10 @@ public class TrainingDaoTest {
     }
     @Test void testFindAllTrainee() {
 
-        Training training=trainingDAO.add(buildTrainingForAdding(1L));
+        Training training= trainingDao.add(buildTrainingForAdding(1L));
 
-        Training secondTraining=trainingDAO.add(buildTrainingForAdding(2L));
-        Collection<Training> trainingList = trainingDAO.findAll();
+        Training secondTraining= trainingDao.add(buildTrainingForAdding(2L));
+        Collection<Training> trainingList = trainingDao.findAll();
         assertEquals(2, trainingList.size());
         List<Training> trainings = trainingList.stream().toList();
 

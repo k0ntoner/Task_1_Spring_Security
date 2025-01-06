@@ -8,6 +8,8 @@ import org.example.models.Trainer;
 import org.example.repositories.TrainerDaoImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -15,24 +17,23 @@ import java.io.IOException;
 import java.util.List;
 
 @Component
+@PropertySource("classpath:application.properties")
 @Slf4j
 public class TrainerLoader implements Loader<Trainer> {
+    @Value("${trainers.file.path}")
     private String filePath;
-    private TrainerDaoImpl trainerDAOImpl;
+
+    private TrainerDaoImpl trainerDaoImpl;
 
     @Autowired
-    public TrainerLoader(@Qualifier("trainersFilePath") String filePath,
-                         @Qualifier("trainerDaoImpl") TrainerDaoImpl trainerDAOImpl){
-        this.filePath = filePath;
-        this.trainerDAOImpl = trainerDAOImpl;
+    public TrainerLoader(@Qualifier("trainerDaoImpl") TrainerDaoImpl trainerDAOImpl){
+        this.trainerDaoImpl = trainerDAOImpl;
         log.info("TrainerLoader initialized with file {}", filePath);
     }
 
     @PostConstruct
     public void init() {
-        log.info("TrainerLoader: PostConstruct initialization started...");
         load();
-        log.info("TrainerLoader: PostConstruct initialization completed");
     }
 
     @Override
@@ -42,7 +43,7 @@ public class TrainerLoader implements Loader<Trainer> {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.registerModule(new JavaTimeModule());
             List<Trainer> trainersList = objectMapper.readValue(new File(filePath), new TypeReference<List<Trainer>>() {});
-            trainersList.forEach(trainee -> trainerDAOImpl.add(trainee));
+            trainersList.forEach(trainee -> trainerDaoImpl.add(trainee));
             log.info("TrainerLoader: Data loaded successfully from file {}", filePath);
         } catch (IOException e) {
             log.error("TrainerLoader: Failed to load data from file {}", filePath, e);

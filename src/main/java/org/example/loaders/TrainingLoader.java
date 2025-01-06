@@ -8,6 +8,8 @@ import org.example.models.Training;
 import org.example.repositories.TrainingDaoImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -15,25 +17,24 @@ import java.io.IOException;
 import java.util.List;
 
 @Component
+@PropertySource("classpath:application.properties")
 @Slf4j
 public class TrainingLoader implements Loader<Training> {
+    @Value("${trainings.file.path}")
     private String filePath;
-    private TrainingDaoImpl trainingDAOImpl;
+
+    private TrainingDaoImpl trainingDaoImpl;
 
     @Autowired
-    public TrainingLoader(@Qualifier("trainingsFilePath") String filePath, @Qualifier("trainingDaoImpl") TrainingDaoImpl trainingDAOImpl) {
-        this.filePath = filePath;
-        this.trainingDAOImpl = trainingDAOImpl;
+    public TrainingLoader(@Qualifier("trainingDaoImpl") TrainingDaoImpl trainingDAOImpl) {
+        this.trainingDaoImpl = trainingDAOImpl;
         log.info("TrainingLoader initialized with file {}", filePath);
     }
 
     @PostConstruct
     public void init() {
-        log.info("TrainingLoader: PostConstruct initialization started . . .");
         load();
-        log.info("TrainingLoader: PostConstruct initialization completed");
     }
-
 
     @Override
     public void load() {
@@ -42,7 +43,8 @@ public class TrainingLoader implements Loader<Training> {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.registerModule(new JavaTimeModule());
             List<Training> trainingsList = objectMapper.readValue(new File(filePath), new TypeReference<List<Training>>() {});
-            trainingsList.forEach(training -> {trainingDAOImpl.add(training);});
+            trainingsList.forEach(training -> {
+                trainingDaoImpl.add(training);});
             log.info("TrainingLoader: Data loaded successfully");
         } catch (IOException e) {
             log.error("TrainingLoader: Failed to load data from file {}", filePath, e);
