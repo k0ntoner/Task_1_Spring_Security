@@ -13,7 +13,7 @@ import java.util.Map;
 @Slf4j
 public class TraineeDaoImpl implements UserDao<Trainee> {
     private Map<Long, Trainee> trainees;
-    private long head=0;
+    private long head = 0;
 
     @Autowired
     public TraineeDaoImpl(@Qualifier("traineeStorage") Map<Long, Trainee> trainees) {
@@ -23,7 +23,7 @@ public class TraineeDaoImpl implements UserDao<Trainee> {
     @Override
     public Trainee add(Trainee entity) {
         entity.setUserId(++head);
-        trainees.put(entity.getUserId(),entity);
+        trainees.put(entity.getUserId(), entity);
         log.info("Added new trainee: {}", entity);
         return entity;
     }
@@ -50,18 +50,14 @@ public class TraineeDaoImpl implements UserDao<Trainee> {
     @Override
     public Collection<Trainee> findAll() {
         log.info("Retrieving all trainees");
-        return trainees.values().stream().toList();
+        return trainees.values();
     }
 
     @Override
     public boolean delete(Trainee entity) {
-        if(trainees.containsKey(entity.getUserId())) {
-            trainees.remove(entity.getUserId());
-            log.info("Deleted trainee with id {}", entity.getUserId());
-            return true;
-        }
-        return false;
+        return trainees.remove(entity.getUserId()) != null;
     }
+
     @Override
     public boolean isUsernameExist(String username) {
         boolean exists = trainees.values().stream().anyMatch(trainee -> trainee.getUsername().equals(username));

@@ -16,6 +16,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
+
 public class TrainerServiceTest {
     private UserDao<Trainer> trainerMockDao;
     private UserService<Trainer> trainerService;
@@ -23,29 +24,32 @@ public class TrainerServiceTest {
     @BeforeEach
     public void setUp() {
         trainerMockDao = Mockito.mock(TrainerDaoImpl.class);
-        trainerService=new TrainerServiceImpl(trainerMockDao);
+        trainerService = new TrainerServiceImpl(trainerMockDao);
     }
+
     public Trainer buildTrainerForAdding(long id) {
         return Trainer.builder()
-                .firstName("firstName"+id)
-                .lastName("lastName"+id)
+                .firstName("firstName" + id)
+                .lastName("lastName" + id)
                 .isActive(true)
                 .specialization("Fitness Coach")
                 .trainingType(TrainingType.STRENGTH)
                 .build();
     }
+
     public Trainer buildFullTrainer(long id) {
         return Trainer.builder()
                 .userId(id)
-                .firstName("fullFirstName"+id)
-                .lastName("fullLastName"+id)
-                .username("fullUsername"+id)
-                .password("fullPassword"+id)
+                .firstName("fullFirstName" + id)
+                .lastName("fullLastName" + id)
+                .username("fullUsername" + id)
+                .password("fullPassword" + id)
                 .isActive(true)
                 .specialization("Fitness Coach")
                 .trainingType(TrainingType.STRENGTH)
                 .build();
     }
+
     @Test
     public void testAddingTrainer() {
         Trainer trainer = buildFullTrainer(1L);
@@ -54,7 +58,7 @@ public class TrainerServiceTest {
 
         Trainer checkTrainer = trainerService.add(trainer);
 
-        assertNotEquals(0,checkTrainer.getUserId());
+        assertNotEquals(0, checkTrainer.getUserId());
         assertEquals(trainer.getUserId(), checkTrainer.getUserId());
         assertEquals(trainer.getFirstName(), checkTrainer.getFirstName());
         assertEquals(trainer.getLastName(), checkTrainer.getLastName());
@@ -67,44 +71,55 @@ public class TrainerServiceTest {
 
     @Test
     public void testUpdatingTrainer() {
+        String newFirstName = "newFirstName";
+        String newLastName = "newLastName";
+        String newUsername = "newUsername";
+        String newPassword = "newPassword";
+        boolean newActive = true;
+        String newSpecialization = "newSpecialization";
+        TrainingType newTrainingType = TrainingType.FLEXIBILITY;
+
         Trainer trainer = buildFullTrainer(1L);
-        trainerService.add(trainer);
 
-        Trainer updatedTrainer = buildFullTrainer(2L);
-        updatedTrainer.setUserId(trainer.getUserId());
+        when(trainerMockDao.update(trainer)).thenReturn(trainer);
+        when(trainerMockDao.add(trainer)).thenReturn(trainer);
+        when(trainerMockDao.findById(trainer.getUserId())).thenReturn(trainer);
 
-        when(trainerMockDao.update(updatedTrainer)).thenReturn(updatedTrainer);
-        when(trainerMockDao.findById(1L)).thenReturn(trainer);
-        Trainer checkTrainer = trainerService.update(updatedTrainer);;
+        trainer = trainerService.add(trainer);
 
-        assertNotEquals(0,checkTrainer.getUserId());
-        assertNotEquals(trainer.getFirstName(), checkTrainer.getFirstName());
-        assertNotEquals(trainer.getLastName(), checkTrainer.getLastName());
-        assertNotEquals(trainer.getUsername(), checkTrainer.getUsername());
-        assertNotEquals(trainer.getPassword(), checkTrainer.getPassword());
+        trainer.setFirstName(newFirstName);
+        trainer.setLastName(newLastName);
+        trainer.setUsername(newUsername);
+        trainer.setPassword(newPassword);
+        trainer.setActive(newActive);
+        trainer.setSpecialization(newSpecialization);
+        trainer.setTrainingType(newTrainingType);
 
-        assertEquals(trainer.getUserId(),checkTrainer.getUserId());
-        assertEquals(updatedTrainer.getFirstName(), checkTrainer.getFirstName());
-        assertEquals(updatedTrainer.getLastName(), checkTrainer.getLastName());
-        assertEquals(updatedTrainer.getUsername(), checkTrainer.getUsername());
-        assertEquals(updatedTrainer.getPassword(), checkTrainer.getPassword());
-        assertEquals(updatedTrainer.getSpecialization(), checkTrainer.getSpecialization());
-        assertEquals(updatedTrainer.isActive(), checkTrainer.isActive());
-        assertEquals(updatedTrainer.getTrainingType(), checkTrainer.getTrainingType());
+        Trainer checkTrainer = trainerService.update(trainer);
+
+        assertNotEquals(0, checkTrainer.getUserId());
+        assertEquals(newFirstName, checkTrainer.getFirstName());
+        assertEquals(newLastName, checkTrainer.getLastName());
+        assertEquals(newUsername, checkTrainer.getUsername());
+        assertEquals(newPassword, checkTrainer.getPassword());
+        assertEquals(newSpecialization, checkTrainer.getSpecialization());
+        assertEquals(newActive, checkTrainer.isActive());
+        assertEquals(newTrainingType, checkTrainer.getTrainingType());
     }
 
     @Test
     public void testDeletingTrainer() {
         Trainer trainer = buildFullTrainer(1L);
 
-        assertThrows(NotImplementedException.class, ()->trainerService.delete(trainer));
+        assertThrows(NotImplementedException.class, () -> trainerService.delete(trainer));
     }
-    @Test void testFindAllTrainee() {
 
-        Trainer trainer=buildFullTrainer(1L);
+    @Test
+    void testFindAllTrainee() {
+        Trainer trainer = buildFullTrainer(1L);
 
-        Trainer secondTrainer=buildFullTrainer(2L);
-        when(trainerMockDao.findAll()).thenReturn(List.of(trainer,secondTrainer));
+        Trainer secondTrainer = buildFullTrainer(2L);
+        when(trainerMockDao.findAll()).thenReturn(List.of(trainer, secondTrainer));
         Collection<Trainer> trainerList = trainerService.findAll();
         assertEquals(2, trainerList.size());
         List<Trainer> trainers = trainerList.stream().toList();
@@ -116,7 +131,7 @@ public class TrainerServiceTest {
                 () -> assertEquals("fullLastName2", trainers.get(1).getLastName())
         );
         trainerList.forEach(t -> {
-            assertNotEquals(0,t.getUserId());
+            assertNotEquals(0, t.getUserId());
             assertNotNull(t.getFirstName());
             assertNotNull(t.getLastName());
             assertNotNull(t.getUsername());
@@ -126,15 +141,23 @@ public class TrainerServiceTest {
             assertTrue(t.isActive());
         });
     }
-    @Test void testUpdateNotExistingTrainee() {
+
+    @Test
+    void testUpdateNotExistingTrainee() {
         Trainer trainer = buildFullTrainer(1L);
         when(trainerMockDao.findById(1L)).thenReturn(null);
-        assertThrows(IllegalArgumentException.class, () -> {trainerService.update(trainer);});
+        assertThrows(IllegalArgumentException.class, () -> {
+            trainerService.update(trainer);
+        });
 
 
     }
-    @Test void testDeleteNotExistingTrainee() {
+
+    @Test
+    void testDeleteNotExistingTrainee() {
         Trainer trainer = buildFullTrainer(1L);
-        assertThrows(NotImplementedException.class, () -> {trainerService.delete(trainer);});
+        assertThrows(NotImplementedException.class, () -> {
+            trainerService.delete(trainer);
+        });
     }
 }

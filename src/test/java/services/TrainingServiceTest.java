@@ -28,33 +28,35 @@ public class TrainingServiceTest {
         trainingMockDao = Mockito.mock(TrainingDaoImpl.class);
         trainingService = new TrainingServiceImpl(trainingMockDao);
     }
+
     public Training buildTrainingForAdding(long id) {
         return Training.builder()
                 .traineeId(id)
-                .trainerId(id).
-                trainingName("Cardio").
-                trainingType(TrainingType.CARDIO).
-                trainingDate(LocalDateTime.of(2024,12,12,12,12))
+                .trainerId(id)
+                .trainingName("Cardio")
+                .trainingType(TrainingType.CARDIO)
+                .trainingDate(LocalDateTime.of(2024, 12, 12, 12, 12))
                 .trainingDuration(Duration.ofMinutes(90))
                 .build();
     }
+
     public Training buildFullTraining(long id) {
         return Training.builder()
                 .id(id)
                 .traineeId(id)
-                .trainerId(id).
-                trainingName("Strength").
-                trainingType(TrainingType.STRENGTH).
-                trainingDate(LocalDateTime.of(2024,12,12,16,0))
+                .trainerId(id)
+                .trainingName("Strength")
+                .trainingType(TrainingType.STRENGTH)
+                .trainingDate(LocalDateTime.of(2024, 12, 12, 16, 0))
                 .trainingDuration(Duration.ofMinutes(90))
                 .build();
     }
+
     @Test
     public void testAddingTraining() {
         Training training = buildFullTraining(1L);
 
         when(trainingMockDao.add(training)).thenReturn(training);
-
 
         Training checkTraining = trainingService.add(training);
         assertNotNull(checkTraining);
@@ -66,20 +68,21 @@ public class TrainingServiceTest {
         assertEquals(training.getTrainingDate(), checkTraining.getTrainingDate());
         assertEquals(training.getTrainingDuration(), checkTraining.getTrainingDuration());
     }
-    @Test void testFindAllTrainee() {
 
-        Training training=buildFullTraining(1L);
+    @Test
+    void testFindAllTrainee() {
+        Training training = buildFullTraining(1L);
 
-        Training secondTraining=buildFullTraining(2L);
-        when(trainingMockDao.findAll()).thenReturn(List.of(training,secondTraining));
+        Training secondTraining = buildFullTraining(2L);
+        when(trainingMockDao.findAll()).thenReturn(List.of(training, secondTraining));
         Collection<Training> trainingList = trainingService.findAll();
         assertEquals(2, trainingList.size());
         List<Training> trainings = trainingList.stream().toList();
 
         trainings.forEach(t -> {
-            assertNotEquals(0,t.getId());
-            assertNotEquals(0,t.getTraineeId());
-            assertNotEquals(0,t.getTrainerId());
+            assertNotEquals(0, t.getId());
+            assertNotEquals(0, t.getTraineeId());
+            assertNotEquals(0, t.getTrainerId());
             assertNotNull(t.getTrainingName());
             assertNotNull(t.getTrainingType());
             assertNotNull(t.getTrainingDate());

@@ -20,43 +20,45 @@ import java.util.List;
 public class TraineeServiceTest {
     private UserDao<Trainee> traineeMockDao;
     private UserService<Trainee> traineeService;
+
     @BeforeEach
     public void setUp() {
         traineeMockDao = Mockito.mock(TraineeDaoImpl.class);
         traineeService = new TraineeServiceImpl(traineeMockDao);
     }
+
     public Trainee buildTraineeForAdding(long id) {
         return Trainee.builder()
-                .firstName("firstName"+id)
-                .lastName("lastName"+id)
-                .isActive(false).
-                dateOfBirth(LocalDate.of(2024, 12, 12))
-                .address("address"+id)
+                .firstName("firstName" + id)
+                .lastName("lastName" + id)
+                .isActive(false)
+                .dateOfBirth(LocalDate.of(2024, 12, 12))
+                .address("address" + id)
                 .build();
     }
+
     public Trainee buildFullTrainee(long id) {
         return Trainee.builder()
                 .userId(id)
-                .firstName("fullFirstName"+id)
-                .lastName("fullLastName"+id)
-                .username("fullUsername"+id)
-                .password("fullPassword"+id)
+                .firstName("fullFirstName" + id)
+                .lastName("fullLastName" + id)
+                .username("fullUsername" + id)
+                .password("fullPassword" + id)
                 .isActive(false)
                 .dateOfBirth(LocalDate.of(2024, 12, 12))
-                .address("address"+id)
+                .address("address" + id)
                 .build();
     }
+
     @Test
     public void testAddingTrainee() {
-
-
         Trainee trainee = buildFullTrainee(1L);
         when(traineeMockDao.add(trainee)).thenReturn(trainee);
         traineeService.add(trainee);
 
         Trainee checkTrainee = traineeService.add(trainee);
-        assertNotEquals(0,checkTrainee.getUserId());
-        assertEquals(trainee.getUserId(),checkTrainee.getUserId());
+        assertNotEquals(0, checkTrainee.getUserId());
+        assertEquals(trainee.getUserId(), checkTrainee.getUserId());
         assertEquals(trainee.getFirstName(), checkTrainee.getFirstName());
         assertEquals(trainee.getLastName(), checkTrainee.getLastName());
         assertEquals(trainee.getUsername(), checkTrainee.getUsername());
@@ -64,49 +66,60 @@ public class TraineeServiceTest {
         assertEquals(trainee.getAddress(), checkTrainee.getAddress());
         assertEquals(trainee.isActive(), checkTrainee.isActive());
     }
+
     @Test
     public void testUpdatingTrainee() {
+        String newFirstName = "newFirstName";
+        String newLastName = "newLastName";
+        String newUsername = "newUsername";
+        String newPassword = "newPassword";
+        String newAddress = "newAddress";
+        boolean newActive = true;
+        LocalDate newDateOfBirth = LocalDate.of(2024, 12, 16);
 
         Trainee trainee = buildFullTrainee(1L);
+
+        when(traineeMockDao.update(trainee)).thenReturn(trainee);
+        when(traineeMockDao.add(trainee)).thenReturn(trainee);
+        when(traineeMockDao.findById(trainee.getUserId())).thenReturn(trainee);
+
         traineeService.add(trainee);
 
-        Trainee secondTrainee = buildFullTrainee(2L);
-        secondTrainee.setUserId(trainee.getUserId());
+        trainee.setFirstName(newFirstName);
+        trainee.setLastName(newLastName);
+        trainee.setUsername(newUsername);
+        trainee.setPassword(newPassword);
+        trainee.setAddress(newAddress);
+        trainee.setActive(newActive);
+        trainee.setDateOfBirth(newDateOfBirth);
 
-        when(traineeMockDao.update(secondTrainee)).thenReturn(secondTrainee);
-        when(traineeMockDao.findById(secondTrainee.getUserId())).thenReturn(secondTrainee);
-        Trainee checkTrainee=traineeService.update(secondTrainee);
-        assertNotEquals(0,checkTrainee.getUserId());
-        assertNotEquals(trainee.getFirstName(), checkTrainee.getFirstName());
-        assertNotEquals(trainee.getLastName(), checkTrainee.getLastName());
-        assertNotEquals(trainee.getUsername(), checkTrainee.getUsername());
-        assertNotEquals(trainee.getPassword(), checkTrainee.getPassword());
-        assertNotEquals(trainee.getAddress(), checkTrainee.getAddress());
+        Trainee checkTrainee = traineeService.update(trainee);
 
-        assertEquals(trainee.getUserId(),checkTrainee.getUserId());
-        assertEquals(secondTrainee.getFirstName(), checkTrainee.getFirstName());
-        assertEquals(secondTrainee.getLastName(), checkTrainee.getLastName());
-        assertEquals(secondTrainee.getUsername(), checkTrainee.getUsername());
-        assertEquals(secondTrainee.getPassword(), checkTrainee.getPassword());
-        assertEquals(secondTrainee.getAddress(), checkTrainee.getAddress());
-        assertEquals(secondTrainee.isActive(), checkTrainee.isActive());
-
+        assertNotEquals(0, checkTrainee.getUserId());
+        assertEquals(newFirstName, checkTrainee.getFirstName());
+        assertEquals(newLastName, checkTrainee.getLastName());
+        assertEquals(newUsername, checkTrainee.getUsername());
+        assertEquals(newPassword, checkTrainee.getPassword());
+        assertEquals(newAddress, checkTrainee.getAddress());
+        assertEquals(newActive, checkTrainee.isActive());
+        assertEquals(newDateOfBirth, checkTrainee.getDateOfBirth());
     }
+
     @Test
     public void testDeletingTrainee() {
-
         Trainee trainee = buildFullTrainee(1L);
         when(traineeMockDao.delete(trainee)).thenReturn(true);
         when(traineeMockDao.findById(trainee.getUserId())).thenReturn(trainee);
         assertTrue(traineeService.delete(trainee));
 
     }
-    @Test void testFindAllTrainee() {
 
-        Trainee trainee=buildFullTrainee(1L);
-        Trainee secondTrainee=buildFullTrainee(2L);
+    @Test
+    void testFindAllTrainee() {
+        Trainee trainee = buildFullTrainee(1L);
+        Trainee secondTrainee = buildFullTrainee(2L);
 
-        when(traineeMockDao.findAll()).thenReturn(List.of(trainee,secondTrainee));
+        when(traineeMockDao.findAll()).thenReturn(List.of(trainee, secondTrainee));
         Collection<Trainee> traineeList = traineeService.findAll();
         assertEquals(2, traineeList.size());
         List<Trainee> trainees = traineeList.stream().toList();
@@ -118,7 +131,7 @@ public class TraineeServiceTest {
                 () -> assertEquals("fullLastName2", trainees.get(1).getLastName())
         );
         traineeList.forEach(t -> {
-            assertNotEquals(0,t.getUserId());
+            assertNotEquals(0, t.getUserId());
             assertNotNull(t.getFirstName());
             assertNotNull(t.getLastName());
             assertNotNull(t.getUsername());
@@ -128,15 +141,21 @@ public class TraineeServiceTest {
         });
     }
 
-    @Test void testUpdateNotExistingTrainee() {
+    @Test
+    void testUpdateNotExistingTrainee() {
         Trainee trainee = buildFullTrainee(1L);
         when(traineeMockDao.findById(1L)).thenReturn(null);
-        assertThrows(IllegalArgumentException.class, () -> {traineeService.update(trainee);});
+        assertThrows(IllegalArgumentException.class, () -> {
+            traineeService.update(trainee);
+        });
     }
 
-    @Test void testDeleteNotExistingTrainee() {
+    @Test
+    void testDeleteNotExistingTrainee() {
         Trainee trainee = buildFullTrainee(1L);
         when(traineeMockDao.findById(1L)).thenReturn(null);
-        assertThrows(IllegalArgumentException.class,() -> {traineeService.delete(trainee);});
+        assertThrows(IllegalArgumentException.class, () -> {
+            traineeService.delete(trainee);
+        });
     }
 }

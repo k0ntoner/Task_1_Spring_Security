@@ -9,15 +9,18 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Map;
+
 @Repository
 @Slf4j
 public class TrainingDaoImpl implements TrainingDao {
     private Map<Long, Training> trainings;
     private long head;
+
     @Autowired
     public TrainingDaoImpl(@Qualifier("trainingStorage") Map<Long, Training> trainings) {
         this.trainings = trainings;
     }
+
     @Override
     public Training add(Training entity) {
         entity.setId(++head);
@@ -28,14 +31,14 @@ public class TrainingDaoImpl implements TrainingDao {
 
     @Override
     public Training findByTrainer(long trainerId, LocalDateTime dateTime) {
-        Training training=trainings.values().stream()
+        Training training = trainings.values().stream()
                 .filter(t -> t.getTrainerId() == trainerId)
                 .filter(t -> t.getTrainingDate().equals(dateTime))
                 .findFirst()
                 .orElse(null);
 
         if (training != null) {
-            log.info("Found training with trainerId {} and localDateTime {}: {}", trainerId, dateTime,training);
+            log.info("Found training with trainerId {} and localDateTime {}: {}", trainerId, dateTime, training);
         } else {
             log.warn("No training found with trainerId {} and localDateTime {}", trainerId, dateTime);
         }
@@ -44,13 +47,13 @@ public class TrainingDaoImpl implements TrainingDao {
 
     @Override
     public Training findByTrainee(long traineeId, LocalDateTime dateTime) {
-        Training training=trainings.values().stream()
+        Training training = trainings.values().stream()
                 .filter(t -> t.getTrainerId() == traineeId)
                 .filter(t -> t.getTrainingDate().equals(dateTime))
                 .findFirst()
                 .orElse(null);
         if (training != null) {
-            log.info("Found training with traineeId {} and localDateTime {}: {}", traineeId, dateTime,training);
+            log.info("Found training with traineeId {} and localDateTime {}: {}", traineeId, dateTime, training);
         } else {
             log.warn("No training found with traineeId {} and localDateTime {}", traineeId, dateTime);
         }
@@ -71,7 +74,7 @@ public class TrainingDaoImpl implements TrainingDao {
     @Override
     public Collection<Training> findAll() {
         log.info("Retrieving all trainings");
-        return trainings.values().stream().toList();
+        return trainings.values();
     }
 
 }

@@ -17,11 +17,13 @@ import java.util.Scanner;
 public class ConsoleUI {
     private ServiceFacade serviceFacade;
     private AnnotationConfigApplicationContext context;
+
     public ConsoleUI(AnnotationConfigApplicationContext context) {
         this.serviceFacade = context.getBean(ServiceFacade.class);
         this.context = context;
     }
-    public void start(){
+
+    public void start() {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 

@@ -18,10 +18,12 @@ public class ConfigTest {
     public Map<Long, Trainee> traineeStorage() {
         return new HashMap<>();
     }
+
     @Bean
     public Map<Long, Trainer> trainerStorage() {
         return new HashMap<>();
     }
+
     @Bean
     public Map<Long, Training> trainingStorage() {
         return new HashMap<>();

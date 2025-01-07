@@ -15,6 +15,7 @@ import java.util.Collection;
 @Slf4j
 public class TraineeServiceImpl implements UserService<Trainee> {
     private UserDao<Trainee> traineeDao;
+
     @Autowired
     public TraineeServiceImpl(@Qualifier("traineeDaoImpl") UserDao<Trainee> traineeDao) {
         this.traineeDao = traineeDao;
@@ -44,7 +45,7 @@ public class TraineeServiceImpl implements UserService<Trainee> {
     @Override
     public boolean delete(Trainee trainee) {
         log.info("Request to delete trainee with ID: {}", trainee.getUserId());
-        if(traineeDao.findById(trainee.getUserId()) == null)
+        if (traineeDao.findById(trainee.getUserId()) == null)
             throw new IllegalArgumentException("Trainee with id " + trainee.getUserId() + " not found");
 
         return traineeDao.delete(trainee);
@@ -52,8 +53,8 @@ public class TraineeServiceImpl implements UserService<Trainee> {
 
     @Override
     public Trainee update(Trainee trainee) {
-        log.info("Request to update trainee with ID: {}",trainee.getUserId());
-        if(traineeDao.findById(trainee.getUserId()) == null)
+        log.info("Request to update trainee with ID: {}", trainee.getUserId());
+        if (traineeDao.findById(trainee.getUserId()) == null)
             throw new IllegalArgumentException("Trainee with id " + trainee.getUserId() + " not found");
 
         return traineeDao.update(trainee);

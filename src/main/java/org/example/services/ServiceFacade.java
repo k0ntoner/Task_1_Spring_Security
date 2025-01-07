@@ -83,7 +83,7 @@ public class ServiceFacade {
     }
 
     public Training findTrainingByTrainee(long traineeId, LocalDateTime dateTime) {
-        return findTrainingByTrainee(traineeId,dateTime);
+        return findTrainingByTrainee(traineeId, dateTime);
     }
 }
 

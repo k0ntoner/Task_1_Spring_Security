@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
+
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
@@ -26,8 +27,8 @@ public class TrainerLoader implements Loader<Trainer> {
     private TrainerDaoImpl trainerDaoImpl;
 
     @Autowired
-    public TrainerLoader(@Qualifier("trainerDaoImpl") TrainerDaoImpl trainerDAOImpl){
-        this.trainerDaoImpl = trainerDAOImpl;
+    public TrainerLoader(@Qualifier("trainerDaoImpl") TrainerDaoImpl trainerDaoImpl) {
+        this.trainerDaoImpl = trainerDaoImpl;
         log.info("TrainerLoader initialized with file {}", filePath);
     }
 
@@ -42,7 +43,8 @@ public class TrainerLoader implements Loader<Trainer> {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.registerModule(new JavaTimeModule());
-            List<Trainer> trainersList = objectMapper.readValue(new File(filePath), new TypeReference<List<Trainer>>() {});
+            List<Trainer> trainersList = objectMapper.readValue(new File(filePath), new TypeReference<List<Trainer>>() {
+            });
             trainersList.forEach(trainee -> trainerDaoImpl.add(trainee));
         } catch (IOException e) {
             log.error("TrainerLoader: Failed to load data from file {}", filePath, e);

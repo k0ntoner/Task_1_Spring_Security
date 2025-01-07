@@ -1,4 +1,5 @@
 package org.example.configs;
+
 import ch.qos.logback.classic.*;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
@@ -40,21 +41,5 @@ public class LogConfig {
         rootLogger.addAppender(fileAppender);
 
         return rootLogger;
-    }
-
-    private FileAppender<ILoggingEvent> createFileAppender(LoggerContext context, String filePath, Level level) {
-        FileAppender<ILoggingEvent> fileAppender = new FileAppender<>();
-        fileAppender.setContext(context);
-        fileAppender.setFile(filePath);
-
-        PatternLayoutEncoder encoder = new PatternLayoutEncoder();
-        encoder.setContext(context);
-        encoder.setPattern("%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n");
-        encoder.start();
-
-        fileAppender.setEncoder(encoder);
-        fileAppender.start();
-
-        return fileAppender;
     }
 }

@@ -9,11 +9,13 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
 import java.util.Map;
+
 @Repository
 @Slf4j
 public class TrainerDaoImpl implements UserDao<Trainer> {
     private Map<Long, Trainer> trainers;
     private long head;
+
     @Autowired
     public TrainerDaoImpl(@Qualifier("trainerStorage") Map<Long, Trainer> trainers) {
         this.trainers = trainers;
@@ -50,7 +52,7 @@ public class TrainerDaoImpl implements UserDao<Trainer> {
     @Override
     public Collection<Trainer> findAll() {
         log.info("Retrieving all trainers");
-        return trainers.values().stream().toList();
+        return trainers.values();
     }
 
     @Override
@@ -58,10 +60,11 @@ public class TrainerDaoImpl implements UserDao<Trainer> {
         throw new NotImplementedException();
 
     }
+
     @Override
     public boolean isUsernameExist(String username) {
         boolean exists = trainers.values().stream().anyMatch(trainer -> trainer.getUsername().equals(username));
-        log.info("Checking if username {} already exists: {}",username, exists);
+        log.info("Checking if username {} already exists: {}", username, exists);
         return exists;
     }
 

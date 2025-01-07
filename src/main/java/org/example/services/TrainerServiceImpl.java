@@ -51,7 +51,7 @@ public class TrainerServiceImpl implements UserService<Trainer> {
     @Override
     public Trainer update(Trainer trainer) {
         log.info("Request to update trainer with ID: {}", trainer.getUserId());
-        if(trainerDao.findById(trainer.getUserId()) == null)
+        if (trainerDao.findById(trainer.getUserId()) == null)
             throw new IllegalArgumentException("Trainer with id " + trainer.getUserId() + " not found");
 
         return trainerDao.update(trainer);
