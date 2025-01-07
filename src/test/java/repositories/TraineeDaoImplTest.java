@@ -1,24 +1,19 @@
 package repositories;
 
-import configs.ConfigTest;
 import org.example.models.Trainee;
 import org.example.repositories.TraineeDaoImpl;
 import org.example.repositories.UserDao;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TraineeDaoTest {
+public class TraineeDaoImplTest {
     UserDao<Trainee> traineeDao;
 
     @BeforeEach

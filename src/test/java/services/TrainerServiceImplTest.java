@@ -17,7 +17,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-public class TrainerServiceTest {
+public class TrainerServiceImplTest {
     private UserDao<Trainer> trainerMockDao;
     private UserService<Trainer> trainerService;
 

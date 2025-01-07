@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.List;
 
 
-public class TraineeServiceTest {
+public class TraineeServiceImplTest {
     private UserDao<Trainee> traineeMockDao;
     private UserService<Trainee> traineeService;
 
@@ -153,9 +153,7 @@ public class TraineeServiceTest {
     @Test
     void testDeleteNotExistingTrainee() {
         Trainee trainee = buildFullTrainee(1L);
-        when(traineeMockDao.findById(1L)).thenReturn(null);
-        assertThrows(IllegalArgumentException.class, () -> {
-            traineeService.delete(trainee);
-        });
+        when(traineeMockDao.delete(trainee)).thenReturn(false);
+        assertFalse(traineeService.delete(trainee));
     }
 }

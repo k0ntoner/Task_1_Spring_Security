@@ -1,29 +1,32 @@
-package repositories;
+package services;
 
-import configs.ConfigTest;
 import org.example.models.Training;
 import org.example.models.TrainingType;
 import org.example.repositories.TrainingDao;
 import org.example.repositories.TrainingDaoImpl;
-import org.junit.jupiter.api.AfterEach;
+import org.example.services.TrainingService;
+import org.example.services.TrainingServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.mockito.Mockito;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
-public class TrainingDaoTest {
-    TrainingDao trainingDao;
+public class TrainingServiceImplTest {
+
+    private TrainingDao trainingMockDao;
+    private TrainingService trainingService;
 
     @BeforeEach
     public void setUp() {
-        trainingDao = new TrainingDaoImpl(new HashMap<>());
+        trainingMockDao = Mockito.mock(TrainingDaoImpl.class);
+        trainingService = new TrainingServiceImpl(trainingMockDao);
     }
 
     public Training buildTrainingForAdding(long id) {
@@ -50,16 +53,14 @@ public class TrainingDaoTest {
     }
 
     @Test
-    public void testAddingTrainee() {
-        Training training = buildTrainingForAdding(1L);
+    public void testAddingTraining() {
+        Training training = buildFullTraining(1L);
 
-        trainingDao.add(training);
+        when(trainingMockDao.add(training)).thenReturn(training);
 
-        Training checkTraining = trainingDao.findByTrainer(1L, LocalDateTime.of(2024, 12, 12, 12, 12));
-
+        Training checkTraining = trainingService.add(training);
         assertNotNull(checkTraining);
         assertNotEquals(0, checkTraining.getId());
-        assertEquals(training.getId(), checkTraining.getId());
         assertEquals(training.getTraineeId(), checkTraining.getTraineeId());
         assertEquals(training.getTrainerId(), checkTraining.getTrainerId());
         assertEquals(training.getTrainingName(), checkTraining.getTrainingName());
@@ -70,10 +71,11 @@ public class TrainingDaoTest {
 
     @Test
     void testFindAllTrainee() {
-        Training training = trainingDao.add(buildTrainingForAdding(1L));
+        Training training = buildFullTraining(1L);
 
-        Training secondTraining = trainingDao.add(buildTrainingForAdding(2L));
-        Collection<Training> trainingList = trainingDao.findAll();
+        Training secondTraining = buildFullTraining(2L);
+        when(trainingMockDao.findAll()).thenReturn(List.of(training, secondTraining));
+        Collection<Training> trainingList = trainingService.findAll();
         assertEquals(2, trainingList.size());
         List<Training> trainings = trainingList.stream().toList();
 
@@ -87,4 +89,5 @@ public class TrainingDaoTest {
             assertNotNull(t.getTrainingDuration());
         });
     }
+
 }

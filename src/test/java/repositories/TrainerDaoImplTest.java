@@ -1,7 +1,6 @@
 package repositories;
 
 import org.apache.commons.lang3.NotImplementedException;
-import org.example.models.Trainee;
 import org.example.models.Trainer;
 import org.example.models.TrainingType;
 import org.example.repositories.TrainerDaoImpl;
@@ -15,7 +14,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TrainerDaoTest {
+public class TrainerDaoImplTest {
     UserDao<Trainer> trainerDao;
 
     @BeforeEach

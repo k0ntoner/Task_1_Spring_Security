@@ -15,5 +15,5 @@ public class Trainee extends User {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
     private String address;
-    private long userId;
+    private Long userId;
 }

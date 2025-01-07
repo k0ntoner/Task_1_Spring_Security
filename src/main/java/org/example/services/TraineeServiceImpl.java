@@ -45,9 +45,6 @@ public class TraineeServiceImpl implements UserService<Trainee> {
     @Override
     public boolean delete(Trainee trainee) {
         log.info("Request to delete trainee with ID: {}", trainee.getUserId());
-        if (traineeDao.findById(trainee.getUserId()) == null)
-            throw new IllegalArgumentException("Trainee with id " + trainee.getUserId() + " not found");
-
         return traineeDao.delete(trainee);
     }
 

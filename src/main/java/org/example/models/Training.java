@@ -12,9 +12,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @ToString
 public class Training {
-    private long id;
-    private long traineeId;
-    private long trainerId;
+    private Long id;
+    private Long traineeId;
+    private Long trainerId;
     private String trainingName;
     private TrainingType trainingType;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm")
