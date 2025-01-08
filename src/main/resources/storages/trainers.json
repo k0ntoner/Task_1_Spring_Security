@@ -1,0 +1,42 @@
+[
+  {
+    "firstName": "Michael",
+    "lastName": "Johnson",
+    "password": "pass123",
+    "specialization": "Strength Training",
+    "trainingType": "STRENGTH",
+    "isActive": true
+  },
+  {
+    "firstName": "Emily",
+    "lastName": "Clark",
+    "password": "pass456",
+    "specialization": "Cardio Training",
+    "trainingType": "CARDIO",
+    "isActive": true
+  },
+  {
+    "firstName": "David",
+    "lastName": "White",
+    "password": "pass789",
+    "specialization": "Flexibility Training",
+    "trainingType": "FLEXIBILITY",
+    "isActive": true
+  },
+  {
+    "firstName": "Sophia",
+    "lastName": "Lewis",
+    "password": "pass321",
+    "specialization": "Balance Training",
+    "trainingType": "BALANCE",
+    "isActive": true
+  },
+  {
+    "firstName": "Daniel",
+    "lastName": "Walker",
+    "password": "pass654",
+    "specialization": "Endurance Training",
+    "trainingType": "ENDURANCE",
+    "isActive": true
+  }
+]
