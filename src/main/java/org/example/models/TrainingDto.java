@@ -2,6 +2,7 @@ package org.example.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
+import org.example.repositories.entities.TrainingType;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -16,7 +17,7 @@ public class TrainingDto {
     private Long traineeId;
     private Long trainerId;
     private String trainingName;
-    private TrainingTypeDto trainingType;
+    private TrainingType trainingType;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime trainingDate;
     private Duration trainingDuration;

@@ -2,6 +2,7 @@ package org.example.models;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.example.repositories.entities.TrainingType;
 
 @Data
 @AllArgsConstructor
@@ -11,5 +12,5 @@ import lombok.experimental.SuperBuilder;
 public class TrainerDto extends UserDto {
     private String specialization;
     private Long userId;
-    private TrainingTypeDto trainingType;
+    private TrainingType trainingType;
 }

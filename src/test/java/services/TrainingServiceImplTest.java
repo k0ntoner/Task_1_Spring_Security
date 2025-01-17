@@ -5,14 +5,8 @@ import org.example.repositories.entities.Trainee;
 import org.example.repositories.entities.Trainer;
 import org.example.repositories.entities.Training;
 import org.example.repositories.entities.TrainingType;
-import org.example.services.TraineeServiceImpl;
-import org.example.services.TrainerServiceImpl;
-import org.example.services.TrainingServiceImpl;
+import org.example.services.impl.TrainingServiceImpl;
 import org.example.utils.UserUtils;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.hibernate.query.Query;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -49,7 +43,7 @@ public class TrainingServiceImplTest {
         doAnswer(invocation -> {
             Training training = invocation.getArgument(0);
             training.setId(1L);
-            return Optional.of(training);
+            return training;
         }).when(trainingDao).save(any(Training.class));
     }
 
@@ -65,6 +59,7 @@ public class TrainingServiceImplTest {
                 .isActive(true)
                 .build();
     }
+
     public Trainer buildTrainer() {
         return Trainer.builder()
                 .id(2L)
@@ -77,41 +72,44 @@ public class TrainingServiceImplTest {
                 .isActive(true)
                 .build();
     }
+
     public Training buildTrainingForAdding() {
         return Training.builder()
                 .trainer(buildTrainer())
                 .trainee(buildTrainee())
                 .trainingName("name")
-                .trainingDate(LocalDateTime.of(2024,12,12,15,30))
+                .trainingDate(LocalDateTime.of(2024, 12, 12, 15, 30))
                 .trainingDuration(Duration.ofHours(1))
                 .trainingType(TrainingType.STRENGTH)
                 .build();
     }
+
     @Test
     @DisplayName("Should return saved training")
     public void save_ShouldReturnSavedTraining() {
 
 
-        Optional<Training> newTraining = trainingService.add(testTraining);
+        Training newTraining = trainingService.add(testTraining);
 
-        assertTrue(newTraining.isPresent());
-        assertNotNull(newTraining.get().getId());
-        assertEquals(testTraining.getTrainingName(), newTraining.get().getTrainingName());
-        assertEquals(testTraining.getTrainingDate(), newTraining.get().getTrainingDate());
-        assertEquals(testTraining.getTrainingDuration(), newTraining.get().getTrainingDuration());
-        assertEquals(testTraining.getTrainingType(), newTraining.get().getTrainingType());
-        assertEquals(testTraining.getTrainee().getId(), newTraining.get().getTrainee().getId());
-        assertEquals(testTraining.getTrainer().getId(), newTraining.get().getTrainer().getId());
+        assertNotNull(newTraining);
+        assertNotNull(newTraining.getId());
+        assertEquals(testTraining.getTrainingName(), newTraining.getTrainingName());
+        assertEquals(testTraining.getTrainingDate(), newTraining.getTrainingDate());
+        assertEquals(testTraining.getTrainingDuration(), newTraining.getTrainingDuration());
+        assertEquals(testTraining.getTrainingType(), newTraining.getTrainingType());
+        assertEquals(testTraining.getTrainee().getId(), newTraining.getTrainee().getId());
+        assertEquals(testTraining.getTrainer().getId(), newTraining.getTrainer().getId());
     }
+
     @Test
     @DisplayName("Should find training by id")
     public void findById_ShouldReturnTrainingById() {
 
 
-        Optional<Training> newTraining = trainingDao.save(testTraining);
+        Training newTraining = trainingService.add(testTraining);
 
-        when(trainingDao.findById(newTraining.get().getId())).thenReturn(Optional.of(testTraining));
-        Optional<Training> foundTraining = trainingService.findById(newTraining.get().getId());
+        when(trainingDao.findById(newTraining.getId())).thenReturn(Optional.of(testTraining));
+        Optional<Training> foundTraining = trainingService.findById(newTraining.getId());
         assertTrue(foundTraining.isPresent());
         assertNotNull(foundTraining.get().getId());
 
@@ -122,25 +120,27 @@ public class TrainingServiceImplTest {
         assertEquals(testTraining.getTrainer().getId(), foundTraining.get().getTrainer().getId());
         assertEquals(testTraining.getTrainee().getId(), foundTraining.get().getTrainee().getId());
     }
+
     @Test
     @DisplayName("Should find collection of trainings")
     public void findAllTrainings_ShouldReturnAllTrainings() {
 
 
-        Optional<Training> newTraining = trainingDao.save(testTraining);
-        assertTrue(newTraining.isPresent());
-        assertNotNull(newTraining.get().getId());
+        Training newTraining = trainingService.add(testTraining);
 
-        List<Training> trainings=new ArrayList<>();
-        trainings.add(newTraining.get());
+        assertNotNull(newTraining);
+        assertNotNull(newTraining.getId());
 
-        when(trainingDao.findAll()).thenReturn(Optional.of(trainings));
+        List<Training> trainings = new ArrayList<>();
+        trainings.add(newTraining);
+
+        when(trainingDao.findAll()).thenReturn(trainings);
 
 
-        Optional<Collection<Training>> foundTrainings = trainingService.findAll();
-        assertTrue(foundTrainings.isPresent());
-        assertEquals(foundTrainings.get().size(), 1);
-        foundTrainings.get().forEach(training -> {
+        Collection<Training> foundTrainings = trainingService.findAll();
+        assertNotNull(foundTrainings);
+        assertEquals(foundTrainings.size(), 1);
+        foundTrainings.forEach(training -> {
             assertNotNull(training.getId());
             assertNotNull(training.getTrainee());
             assertNotNull(training.getTrainer());

@@ -2,10 +2,9 @@ package services;
 
 
 import org.example.repositories.TrainerDao;
-import org.example.repositories.entities.Trainee;
 import org.example.repositories.entities.Trainer;
 import org.example.repositories.entities.TrainingType;
-import org.example.services.TrainerServiceImpl;
+import org.example.services.impl.TrainerServiceImpl;
 import org.example.utils.UserUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -38,7 +37,7 @@ public class TrainerServiceImplTest {
         doAnswer(invocation -> {
             Trainer trainer = invocation.getArgument(0);
             trainer.setId(1L);
-            return Optional.of(trainer);
+            return trainer;
         }).when(trainerDao).save(any(Trainer.class));
 
     }
@@ -53,36 +52,26 @@ public class TrainerServiceImplTest {
                 .isActive(true)
                 .build();
     }
-    public Trainer buildTrainerForUpdating() {
-        return Trainer.builder()
-                .id(1L)
-                .firstName("Mike")
-                .lastName("Tyson")
-                .username("Mike.Tyson")
-                .password(UserUtils.hashPassword("MikeTyson"))
-                .specialization("Boxing")
-                .trainingType(TrainingType.STRENGTH)
-                .isActive(true)
-                .build();
-    }
 
     @Test
     @DisplayName("Should return saved Trainer")
     public void save_ShouldReturnSavedTrainer() {
 
-        Optional<Trainer> newTrainer= trainerService.add(testTrainer);
-        assertTrue(newTrainer.isPresent());
-        assertNotNull(newTrainer.get().getId());
-        assertEquals(testTrainer.getUsername(), newTrainer.get().getUsername());
-        assertEquals(testTrainer.getFirstName(), newTrainer.get().getFirstName());
-        assertEquals(testTrainer.getLastName(), newTrainer.get().getLastName());
-        assertEquals(testTrainer.getSpecialization(), newTrainer.get().getSpecialization());
-        assertEquals(testTrainer.getTrainingType(), newTrainer.get().getTrainingType());
-        assertEquals(testTrainer.getPassword(), newTrainer.get().getPassword());
-        assertTrue(UserUtils.passwordMatch("MikeTyson", newTrainer.get().getPassword()));
+        Trainer newTrainer = trainerService.add(testTrainer);
+
+        assertNotNull(newTrainer);
+        assertNotNull(newTrainer.getId());
+        assertEquals(testTrainer.getUsername(), newTrainer.getUsername());
+        assertEquals(testTrainer.getFirstName(), newTrainer.getFirstName());
+        assertEquals(testTrainer.getLastName(), newTrainer.getLastName());
+        assertEquals(testTrainer.getSpecialization(), newTrainer.getSpecialization());
+        assertEquals(testTrainer.getTrainingType(), newTrainer.getTrainingType());
+        assertEquals(testTrainer.getPassword(), newTrainer.getPassword());
+        assertTrue(UserUtils.passwordMatch("MikeTyson", newTrainer.getPassword()));
 
 
     }
+
     @Test
     @DisplayName("Should return updated Trainer")
     public void update_ShouldUpdateTrainer() {
@@ -95,7 +84,7 @@ public class TrainerServiceImplTest {
         String newSpecialization = "newSpecialization";
 
 
-        Trainer newTrainer = trainerDao.save(testTrainer).get();
+        Trainer newTrainer = trainerDao.save(testTrainer);
 
         newTrainer.setFirstName(newFirstName);
         newTrainer.setLastName(newLastName);
@@ -104,35 +93,35 @@ public class TrainerServiceImplTest {
         newTrainer.setTrainingType(newTrainingType);
         newTrainer.setSpecialization(newSpecialization);
 
-        when(trainerDao.save(newTrainer)).thenReturn(Optional.of(newTrainer));
-        Optional<Trainer> updatedTrainer = trainerDao.save(newTrainer);
+        when(trainerDao.update(newTrainer)).thenReturn(newTrainer);
+        Trainer updatedTrainer = trainerDao.update(newTrainer);
 
-        assertTrue(updatedTrainer.isPresent());
-        assertNotNull(updatedTrainer.get().getId());
-        assertEquals(newUsername, updatedTrainer.get().getUsername());
-        assertEquals(newFirstName, updatedTrainer.get().getFirstName());
-        assertEquals(newLastName, updatedTrainer.get().getLastName());
-        assertEquals(newSpecialization, updatedTrainer.get().getSpecialization());
-        assertEquals(newTrainingType, updatedTrainer.get().getTrainingType());
-        assertTrue(UserUtils.passwordMatch("newPass", updatedTrainer.get().getPassword()));
+        assertNotNull(updatedTrainer);
+        assertNotNull(updatedTrainer.getId());
+        assertEquals(newUsername, updatedTrainer.getUsername());
+        assertEquals(newFirstName, updatedTrainer.getFirstName());
+        assertEquals(newLastName, updatedTrainer.getLastName());
+        assertEquals(newSpecialization, updatedTrainer.getSpecialization());
+        assertEquals(newTrainingType, updatedTrainer.getTrainingType());
+        assertTrue(UserUtils.passwordMatch("newPass", updatedTrainer.getPassword()));
 
     }
 
     @Test
     @DisplayName("Should update not existing trainer")
     public void update_ShouldUpdateNotExistingTrainer() {
-        testTrainer=buildTrainerForUpdating();
+        testTrainer = trainerService.add(testTrainer);
         when(trainerDao.findById(1L)).thenReturn(Optional.empty());
-        assertFalse(trainerService.update(testTrainer).isPresent());
+        assertThrows(IllegalArgumentException.class, () -> trainerService.update(testTrainer));
     }
 
     @Test
     @DisplayName("Should find Trainer by id")
     public void findById_ShouldFindTrainerById() {
-        testTrainer=buildTrainerForUpdating();
+        testTrainer = trainerService.add(testTrainer);
         when(trainerDao.findById(1L)).thenReturn(Optional.of(testTrainer));
 
-        Trainer foundTrainer= trainerService.findById(1L).get();
+        Trainer foundTrainer = trainerService.findById(1L).get();
         assertNotNull(foundTrainer);
         assertEquals(testTrainer.getId(), foundTrainer.getId());
         assertEquals(testTrainer.getUsername(), foundTrainer.getUsername());
@@ -141,18 +130,17 @@ public class TrainerServiceImplTest {
         assertEquals(testTrainer.getSpecialization(), foundTrainer.getSpecialization());
         assertEquals(testTrainer.getTrainingType(), foundTrainer.getTrainingType());
         assertEquals(testTrainer.getPassword(), foundTrainer.getPassword());
-        assertEquals(testTrainer.getIsActive(), foundTrainer.getIsActive());
     }
 
     @Test
     @DisplayName("Should find Collection of all Trainers")
     public void findAll_ShouldFindAllTrainers() {
 
-        testTrainer=buildTrainerForUpdating();
-        List<Trainer> trainers=new ArrayList<>();
+        testTrainer = trainerService.add(testTrainer);
+        List<Trainer> trainers = new ArrayList<>();
         trainers.add(testTrainer);
-        when(trainerDao.findAll()).thenReturn(Optional.of(trainers));
-        Collection<Trainer> foundTrainers= trainerDao.findAll().get();
+        when(trainerDao.findAll()).thenReturn(trainers);
+        Collection<Trainer> foundTrainers = trainerDao.findAll();
 
         assertNotNull(trainers);
         assertEquals(trainers.size(), 1);
@@ -166,18 +154,18 @@ public class TrainerServiceImplTest {
                     assertNotNull(trainer.getSpecialization());
                     assertNotNull(trainer.getTrainingType());
                     assertNotNull(trainer.getPassword());
-                    assertNotNull(trainer.getIsActive());
                 }
         );
     }
+
     @Test
     @DisplayName("Should find Trainer by username")
     public void findByUsername_ShouldFindTrainerByUserName() {
-        testTrainer=buildTrainerForUpdating();
+        testTrainer = trainerService.add(testTrainer);
 
         when(trainerDao.findByUsername(testTrainer.getUsername())).thenReturn(Optional.of(testTrainer));
 
-        Trainer foundTrainer= trainerService.findByUsername(testTrainer.getUsername()).get();
+        Trainer foundTrainer = trainerService.findByUsername(testTrainer.getUsername()).get();
         assertNotNull(foundTrainer);
         assertEquals(testTrainer.getId(), foundTrainer.getId());
         assertEquals(testTrainer.getUsername(), foundTrainer.getUsername());
@@ -186,41 +174,40 @@ public class TrainerServiceImplTest {
         assertEquals(testTrainer.getSpecialization(), foundTrainer.getSpecialization());
         assertEquals(testTrainer.getTrainingType(), foundTrainer.getTrainingType());
         assertEquals(testTrainer.getPassword(), foundTrainer.getPassword());
-        assertEquals(testTrainer.getIsActive(), foundTrainer.getIsActive());
     }
+
     @Test
     @DisplayName("Should change trainer password")
     public void changePassword_ShouldChangeTrainerPassword() {
-        testTrainer=buildTrainerForUpdating();
+        testTrainer = trainerService.add(testTrainer);
         when(trainerDao.findByUsername(testTrainer.getUsername())).thenReturn(Optional.of(testTrainer));
-        when(trainerDao.save(testTrainer)).thenReturn(Optional.of(testTrainer));
+        when(trainerDao.update(testTrainer)).thenReturn(testTrainer);
 
-        Optional<Trainer> updatedTrainer= trainerService.changePassword(testTrainer.getUsername(),"MikeTyson","newPass");
-        assertTrue(updatedTrainer.isPresent());
-        assertTrue(UserUtils.passwordMatch("newPass", updatedTrainer.get().getPassword()));
+        trainerService.changePassword(testTrainer.getUsername(), "MikeTyson", "newPass");
+        verify(trainerDao).update(testTrainer);
     }
+
     @Test
     @DisplayName("Should activate Trainer")
     public void activate_ShouldActivateTrainer() {
-        testTrainer=buildTrainerForUpdating();
+        testTrainer = trainerService.add(testTrainer);
         when(trainerDao.findById(testTrainer.getId())).thenReturn(Optional.of(testTrainer));
-        when(trainerDao.save(testTrainer)).thenReturn(Optional.of(testTrainer));
-        Optional<Trainer> activatedTrainer = trainerService.activate(testTrainer);
-        assertTrue(activatedTrainer.isPresent());
-        assertTrue(activatedTrainer.get().getIsActive());
-        verify(trainerDao).save(testTrainer);
+        when(trainerDao.update(testTrainer)).thenReturn(testTrainer);
+        trainerService.activate(testTrainer);
+
+        verify(trainerDao).update(testTrainer);
 
     }
+
     @Test
     @DisplayName("Should deactivate Trainer")
     public void activate_ShouldDeactivateTrainer() {
-        testTrainer=buildTrainerForUpdating();
+        testTrainer = trainerService.add(testTrainer);
         when(trainerDao.findById(testTrainer.getId())).thenReturn(Optional.of(testTrainer));
-        when(trainerDao.save(testTrainer)).thenReturn(Optional.of(testTrainer));
-        Optional<Trainer> deactivatedTrainer= trainerService.deactivate(testTrainer);
-        assertTrue(deactivatedTrainer.isPresent());
-        assertFalse(deactivatedTrainer.get().getIsActive());
-        verify(trainerDao).save(testTrainer);
+        when(trainerDao.update(testTrainer)).thenReturn(testTrainer);
+        trainerService.deactivate(testTrainer);
+
+        verify(trainerDao).update(testTrainer);
 
     }
 

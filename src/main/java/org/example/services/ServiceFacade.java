@@ -27,7 +27,7 @@ public class ServiceFacade {
     }
 
     public Trainee addTrainee(Trainee trainee) {
-        return traineeService.add(trainee).get();
+        return traineeService.add(trainee);
     }
 
     public Trainee findTraineeById(long id) {
@@ -35,19 +35,19 @@ public class ServiceFacade {
     }
 
     public Collection<Trainee> findAllTrainees() {
-        return traineeService.findAll().get();
+        return traineeService.findAll();
     }
 
-    public boolean deleteTrainee(Trainee trainee) {
-        return traineeService.delete(trainee);
+    public void deleteTrainee(Trainee trainee) {
+        traineeService.delete(trainee);
     }
 
     public Trainee updateTrainee(Trainee trainee) {
-        return traineeService.update(trainee).get();
+        return traineeService.update(trainee);
     }
 
     public Trainer addTrainer(Trainer trainer) {
-        return trainerService.add(trainer).get();
+        return trainerService.add(trainer);
     }
 
     public Trainer findTrainerById(long id) {
@@ -55,15 +55,15 @@ public class ServiceFacade {
     }
 
     public Collection<Trainer> findAllTrainers() {
-        return trainerService.findAll().get();
+        return trainerService.findAll();
     }
 
     public Trainer updateTrainer(Trainer trainer) {
-        return trainerService.update(trainer).get();
+        return trainerService.update(trainer);
     }
 
     public Training addTraining(Training training) {
-        return trainingService.add(training).get();
+        return trainingService.add(training);
     }
 
     public Training findTrainingById(long id) {
@@ -71,7 +71,7 @@ public class ServiceFacade {
     }
 
     public Collection<Training> findAllTrainings() {
-        return trainingService.findAll().get();
+        return trainingService.findAll();
     }
 }
 

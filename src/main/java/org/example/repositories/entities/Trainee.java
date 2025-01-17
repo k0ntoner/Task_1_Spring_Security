@@ -10,14 +10,14 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Entity
-@Table(name="trainees")
+@Table(name = "trainees")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
 @ToString(callSuper = true)
 public class Trainee extends User {
-    @Column(name="date_of_birth")
+    @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
     private String address;
     @OneToMany(mappedBy = "trainee", cascade = CascadeType.ALL)

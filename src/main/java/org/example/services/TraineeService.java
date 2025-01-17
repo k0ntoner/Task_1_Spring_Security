@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 public interface TraineeService extends UserService<Trainee> {
-    boolean delete(Trainee entity);
-    boolean deleteByUsername(String username);
+    void delete(Trainee entity);
+
+    void deleteByUsername(String username);
 }

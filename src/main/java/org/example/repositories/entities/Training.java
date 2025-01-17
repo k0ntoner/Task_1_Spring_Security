@@ -9,7 +9,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name="trainings")
+@Table(name = "trainings")
 @Data
 @AllArgsConstructor
 @Builder
@@ -29,19 +29,19 @@ public class Training {
     @JoinColumn(name = "trainer_id")
     private Trainer trainer;
     @NotNull
-    @Column(name="training_name", nullable = false)
+    @Column(name = "training_name", nullable = false)
     private String trainingName;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name="training_type", nullable = false)
+    @Column(name = "training_type", nullable = false)
     private TrainingType trainingType;
 
     @NotNull
-    @Column(name="training_date", nullable = false)
+    @Column(name = "training_date", nullable = false)
     private LocalDateTime trainingDate;
     @NotNull
-    @Column(name="training_duration", nullable = false)
+    @Column(name = "training_duration", nullable = false)
     private Duration trainingDuration;
 }
 

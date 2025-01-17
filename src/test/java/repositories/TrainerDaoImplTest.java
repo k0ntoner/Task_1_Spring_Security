@@ -1,8 +1,7 @@
 package repositories;
 
 
-import org.example.repositories.TrainerDaoImpl;
-import org.example.repositories.entities.Trainee;
+import org.example.repositories.impl.TrainerDaoImpl;
 import org.example.repositories.entities.Trainer;
 import org.example.repositories.entities.TrainingType;
 import org.example.utils.UserUtils;
@@ -40,6 +39,7 @@ public class TrainerDaoImplTest {
     private TrainerDaoImpl trainerDao;
 
     private Trainer testTrainer;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -67,18 +67,20 @@ public class TrainerDaoImplTest {
                 .isActive(true)
                 .build();
     }
+
     @Test
     @DisplayName("Should return new Trainer")
     public void save_ShouldSaveNewTrainer() {
-        Optional<Trainer> newTrainer = trainerDao.save(testTrainer);
-        assertTrue(newTrainer.isPresent());
-        assertNotNull(newTrainer.get().getId());
-        assertEquals(testTrainer.getUsername(), newTrainer.get().getUsername());
-        assertEquals(testTrainer.getFirstName(), newTrainer.get().getFirstName());
-        assertEquals(testTrainer.getLastName(), newTrainer.get().getLastName());
-        assertEquals(testTrainer.getSpecialization(), newTrainer.get().getSpecialization());
-        assertEquals(testTrainer.getTrainingType(), newTrainer.get().getTrainingType());
-        assertEquals(testTrainer.getPassword(), newTrainer.get().getPassword());
+        Trainer newTrainer = trainerDao.save(testTrainer);
+
+        assertNotNull(newTrainer);
+        assertNotNull(newTrainer.getId());
+        assertEquals(testTrainer.getUsername(), newTrainer.getUsername());
+        assertEquals(testTrainer.getFirstName(), newTrainer.getFirstName());
+        assertEquals(testTrainer.getLastName(), newTrainer.getLastName());
+        assertEquals(testTrainer.getSpecialization(), newTrainer.getSpecialization());
+        assertEquals(testTrainer.getTrainingType(), newTrainer.getTrainingType());
+        assertEquals(testTrainer.getPassword(), newTrainer.getPassword());
     }
 
     @Test
@@ -92,7 +94,7 @@ public class TrainerDaoImplTest {
         TrainingType newTrainingType = TrainingType.CARDIO;
         String newSpecialization = "newSpecialization";
 
-        Trainer newTrainer = trainerDao.save(testTrainer).get();
+        Trainer newTrainer = trainerDao.save(testTrainer);
 
         newTrainer.setFirstName(newFirstName);
         newTrainer.setLastName(newLastName);
@@ -101,16 +103,16 @@ public class TrainerDaoImplTest {
         newTrainer.setTrainingType(newTrainingType);
         newTrainer.setSpecialization(newSpecialization);
 
-        Optional<Trainer> updatedTrainer = trainerDao.save(newTrainer);
+        Trainer updatedTrainer = trainerDao.update(newTrainer);
 
-        assertTrue(updatedTrainer.isPresent());
-        assertNotNull(updatedTrainer.get().getId());
-        assertEquals(newUsername, updatedTrainer.get().getUsername());
-        assertEquals(newFirstName, updatedTrainer.get().getFirstName());
-        assertEquals(newLastName, updatedTrainer.get().getLastName());
-        assertEquals(newSpecialization, updatedTrainer.get().getSpecialization());
-        assertEquals(newTrainingType, updatedTrainer.get().getTrainingType());
-        assertTrue(UserUtils.passwordMatch("newPass", updatedTrainer.get().getPassword()));
+        assertNotNull(updatedTrainer);
+        assertNotNull(updatedTrainer.getId());
+        assertEquals(newUsername, updatedTrainer.getUsername());
+        assertEquals(newFirstName, updatedTrainer.getFirstName());
+        assertEquals(newLastName, updatedTrainer.getLastName());
+        assertEquals(newSpecialization, updatedTrainer.getSpecialization());
+        assertEquals(newTrainingType, updatedTrainer.getTrainingType());
+        assertTrue(UserUtils.passwordMatch("newPass", updatedTrainer.getPassword()));
 
     }
 
@@ -119,12 +121,13 @@ public class TrainerDaoImplTest {
     public void update_ShouldUpdateNotExistingTrainer() {
         testTrainer.setId(1L);
         when(session.merge(testTrainer)).thenThrow(HibernateException.class);
-        assertFalse(trainerDao.save(testTrainer).isPresent());
+        assertNull(trainerDao.update(testTrainer));
     }
+
     @Test
     @DisplayName("Should find Trainer by id")
     public void findById_ShouldFindTraineeById() {
-        Trainer newTrainer = trainerDao.save(testTrainer).get();
+        Trainer newTrainer = trainerDao.save(testTrainer);
 
         assertNotNull(newTrainer);
         assertNotNull(newTrainer.getId());
@@ -145,16 +148,16 @@ public class TrainerDaoImplTest {
     @Test
     @DisplayName("Should find Collection of all Trainers")
     public void findAll_ShouldFindAllTrainers() {
-        Trainer newTrainer=trainerDao.save(testTrainer).get();
+        Trainer newTrainer = trainerDao.save(testTrainer);
         assertNotNull(newTrainer);
-        List<Trainer> trainers=new ArrayList<>();
+        List<Trainer> trainers = new ArrayList<>();
         trainers.add(newTrainer);
         Query<Trainer> mockQuery = mock(Query.class);
 
         when(session.createQuery("select t from Trainer t", Trainer.class)).thenReturn(mockQuery);
 
         when(mockQuery.list()).thenReturn(trainers);
-        Collection<Trainer> foundTrainees=trainerDao.findAll().get();
+        Collection<Trainer> foundTrainees = trainerDao.findAll();
 
         assertNotNull(trainers);
         assertEquals(trainers.size(), 1);
@@ -168,14 +171,14 @@ public class TrainerDaoImplTest {
                     assertNotNull(trainer.getSpecialization());
                     assertNotNull(trainer.getTrainingType());
                     assertNotNull(trainer.getPassword());
-                    assertNotNull(trainer.getIsActive());
                 }
         );
     }
+
     @Test
     @DisplayName("Should find Trainer by username")
     public void findByUsername_ShouldFindTrainerByUserName() {
-        Trainer newTrainer=trainerDao.save(testTrainer).get();
+        Trainer newTrainer = trainerDao.save(testTrainer);
         assertNotNull(newTrainer);
         assertNotNull(newTrainer.getId());
 
@@ -185,7 +188,7 @@ public class TrainerDaoImplTest {
         when(mockQuery.setParameter("username", newTrainer.getUsername())).thenReturn(mockQuery);
         when(mockQuery.uniqueResult()).thenReturn(newTrainer);
 
-        Trainer foundTrainer=trainerDao.findByUsername(newTrainer.getUsername()).get();
+        Trainer foundTrainer = trainerDao.findByUsername(newTrainer.getUsername()).get();
         assertNotNull(foundTrainer);
         assertEquals(newTrainer.getId(), foundTrainer.getId());
         assertEquals(newTrainer.getUsername(), foundTrainer.getUsername());
@@ -194,6 +197,5 @@ public class TrainerDaoImplTest {
         assertEquals(newTrainer.getSpecialization(), foundTrainer.getSpecialization());
         assertEquals(newTrainer.getTrainingType(), foundTrainer.getTrainingType());
         assertEquals(newTrainer.getPassword(), foundTrainer.getPassword());
-        assertEquals(newTrainer.getIsActive(), foundTrainer.getIsActive());
     }
 }

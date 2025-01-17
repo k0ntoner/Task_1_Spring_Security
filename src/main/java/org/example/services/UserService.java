@@ -5,14 +5,13 @@ import java.util.Optional;
 
 public interface UserService<T> extends BasicService<T> {
 
-
-    Optional<T> update(T entity);
+    T update(T entity);
 
     Optional<T> findByUsername(String username);
 
-    Optional<T> changePassword(String username, String oldPassword, String newPassword);
+    void changePassword(String username, String oldPassword, String newPassword);
 
-    Optional<T> activate(T entity);
+    void activate(T entity);
 
-    Optional<T> deactivate(T entity);
+    void deactivate(T entity);
 }

@@ -7,7 +7,7 @@ import lombok.experimental.SuperBuilder;
 import java.util.List;
 
 @Entity
-@Table(name="trainers")
+@Table(name = "trainers")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,7 +15,7 @@ import java.util.List;
 @ToString(callSuper = true)
 public class Trainer extends User {
     @Enumerated(EnumType.STRING)
-    @Column(name="training_type", nullable=false)
+    @Column(name = "training_type", nullable = false)
     private TrainingType trainingType;
     private String specialization;
     @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL)

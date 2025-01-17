@@ -9,5 +9,5 @@ import java.util.Collection;
 import java.util.Optional;
 
 public interface TrainerService extends UserService<Trainer> {
-    public Optional<Collection<Trainer>> findTrainersNotAssignedToTrainee(String traineeUsername);
+    public Collection<Trainer> findTrainersNotAssignedToTrainee(String traineeUsername);
 }

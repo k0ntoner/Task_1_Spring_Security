@@ -10,7 +10,7 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Entity
-@Table(name="users")
+@Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)
 @Data
 @AllArgsConstructor
@@ -22,16 +22,16 @@ public abstract class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotNull
-    @Column(name="first_name", nullable = false)
+    @Column(name = "first_name", nullable = false)
     private String firstName;
     @NotNull
-    @Column(name="last_name", nullable=false)
+    @Column(name = "last_name", nullable = false)
     private String lastName;
-    @Column(name="username", unique = true, nullable = false)
+    @Column(name = "username", unique = true, nullable = false)
     private String username;
     @Column(nullable = false)
     private String password;
     @NotNull
-    @Column(columnDefinition = "BOOLEAN",nullable = false)
-    private Boolean isActive;
+    @Column(columnDefinition = "BOOLEAN", nullable = false)
+    private boolean isActive;
 }

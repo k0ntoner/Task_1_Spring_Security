@@ -8,13 +8,20 @@ import org.example.repositories.entities.Trainee;
 import org.example.repositories.entities.Trainer;
 import org.example.repositories.entities.Training;
 import org.example.repositories.entities.TrainingType;
+import org.example.repositories.impl.TraineeDaoImpl;
+import org.example.repositories.impl.TrainerDaoImpl;
+import org.example.repositories.impl.TrainingDaoImpl;
+import org.example.utils.HibernateTestUtil;
 import org.example.utils.UserUtils;
+import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
 import static org.junit.jupiter.api.Assertions.*;
+
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,17 +32,17 @@ public class TrainingDaoImplIntegrationTest {
     private TrainingDao trainingDao;
     private TrainerDao trainerDao;
     private TraineeDao traineeDao;
-    private AnnotationConfigApplicationContext context;
+    private SessionFactory sessionFactory;
     private Training testTraining;
     private Trainer testTrainer;
     private Trainee testTrainee;
 
     @BeforeEach
     public void setUp() {
-        context = new AnnotationConfigApplicationContext(Config.class);
-        trainingDao = context.getBean(TrainingDao.class);
-        trainerDao = context.getBean(TrainerDao.class);
-        traineeDao = context.getBean(TraineeDao.class);
+        sessionFactory = HibernateTestUtil.getSessionFactory();
+        trainingDao = new TrainingDaoImpl(sessionFactory);
+        trainerDao = new TrainerDaoImpl(sessionFactory);
+        traineeDao = new TraineeDaoImpl(sessionFactory);
         testTraining = buildTrainingForAdding();
         testTrainer = buildTrainerForAdding();
         testTrainee = buildTraineeForAdding();
@@ -43,8 +50,9 @@ public class TrainingDaoImplIntegrationTest {
 
     @AfterEach
     public void tearDown() {
-        context.close();
+        HibernateTestUtil.shutdown();
     }
+
     public Trainee buildTraineeForAdding() {
         return Trainee.builder()
                 .firstName("John")
@@ -56,6 +64,7 @@ public class TrainingDaoImplIntegrationTest {
                 .isActive(true)
                 .build();
     }
+
     public Trainer buildTrainerForAdding() {
         return Trainer.builder()
                 .firstName("Mike")
@@ -67,56 +76,59 @@ public class TrainingDaoImplIntegrationTest {
                 .isActive(true)
                 .build();
     }
+
     public Training buildTrainingForAdding() {
         return Training.builder()
                 .trainingName("name")
-                .trainingDate(LocalDateTime.of(2024,12,12,15,30))
+                .trainingDate(LocalDateTime.of(2024, 12, 12, 15, 30))
                 .trainingDuration(Duration.ofHours(1))
                 .trainingType(TrainingType.STRENGTH)
                 .build();
     }
+
     @Test
     @DisplayName("Should return saved training")
     public void save_ShouldReturnSavedTraining() {
-        Optional<Trainer> newTrainer= trainerDao.save(testTrainer);
-        assertTrue(newTrainer.isPresent());
-        assertNotNull(newTrainer.get().getId());
-        Optional<Trainee> newTrainee= traineeDao.save(testTrainee);
-        assertTrue(newTrainee.isPresent());
-        assertNotNull(newTrainee.get().getId());
+        Trainer newTrainer = trainerDao.save(testTrainer);
+        assertNotNull(newTrainer);
+        assertNotNull(newTrainer.getId());
+        Trainee newTrainee = traineeDao.save(testTrainee);
+        assertNotNull(newTrainee);
+        assertNotNull(newTrainee.getId());
 
-        testTraining.setTrainee(newTrainee.get());
-        testTraining.setTrainer(newTrainer.get());
-        Optional<Training> newTraining = trainingDao.save(testTraining);
+        testTraining.setTrainee(newTrainee);
+        testTraining.setTrainer(newTrainer);
+        Training newTraining = trainingDao.save(testTraining);
 
-        assertTrue(newTraining.isPresent());
-        assertNotNull(newTraining.get().getId());
-        assertEquals(testTraining.getTrainingName(), newTraining.get().getTrainingName());
-        assertEquals(testTraining.getTrainingDate(), newTraining.get().getTrainingDate());
-        assertEquals(testTraining.getTrainingDuration(), newTraining.get().getTrainingDuration());
-        assertEquals(testTraining.getTrainingType(), newTraining.get().getTrainingType());
-        assertEquals(testTraining.getTrainee().getId(), newTraining.get().getTrainee().getId());
-        assertEquals(testTraining.getTrainer().getId(), newTraining.get().getTrainer().getId());
+        assertNotNull(newTraining);
+        assertNotNull(newTraining.getId());
+        assertEquals(testTraining.getTrainingName(), newTraining.getTrainingName());
+        assertEquals(testTraining.getTrainingDate(), newTraining.getTrainingDate());
+        assertEquals(testTraining.getTrainingDuration(), newTraining.getTrainingDuration());
+        assertEquals(testTraining.getTrainingType(), newTraining.getTrainingType());
+        assertEquals(testTraining.getTrainee().getId(), newTraining.getTrainee().getId());
+        assertEquals(testTraining.getTrainer().getId(), newTraining.getTrainer().getId());
     }
+
     @Test
     @DisplayName("Should find training by id")
     public void findById_ShouldReturnTrainingById() {
-        Optional<Trainer> newTrainer= trainerDao.save(testTrainer);
-        assertTrue(newTrainer.isPresent());
-        assertNotNull(newTrainer.get().getId());
+        Trainer newTrainer = trainerDao.save(testTrainer);
+        assertNotNull(newTrainer);
+        assertNotNull(newTrainer.getId());
+        Trainee newTrainee = traineeDao.save(testTrainee);
+        assertNotNull(newTrainee);
+        assertNotNull(newTrainee.getId());
 
-        Optional<Trainee> newTrainee= traineeDao.save(testTrainee);
-        assertTrue(newTrainee.isPresent());
-        assertNotNull(newTrainee.get().getId());
+        testTraining.setTrainee(newTrainee);
+        testTraining.setTrainer(newTrainer);
 
-        testTraining.setTrainee(newTrainee.get());
-        testTraining.setTrainer(newTrainer.get());
+        Training newTraining = trainingDao.save(testTraining);
 
-        Optional<Training> newTraining = trainingDao.save(testTraining);
-        assertTrue(newTraining.isPresent());
-        assertNotNull(newTraining.get().getId());
+        assertNotNull(newTraining);
+        assertNotNull(newTraining.getId());
 
-        Optional<Training> foundTraining = trainingDao.findById(newTraining.get().getId());
+        Optional<Training> foundTraining = trainingDao.findById(newTraining.getId());
         assertTrue(foundTraining.isPresent());
         assertNotNull(foundTraining.get().getId());
 
@@ -127,28 +139,30 @@ public class TrainingDaoImplIntegrationTest {
         assertEquals(testTraining.getTrainer().getId(), foundTraining.get().getTrainer().getId());
         assertEquals(testTraining.getTrainee().getId(), foundTraining.get().getTrainee().getId());
     }
+
     @Test
     @DisplayName("Should find collection of trainings")
     public void findAllTrainings_ShouldReturnAllTrainings() {
-        Optional<Trainer> newTrainer= trainerDao.save(testTrainer);
-        assertTrue(newTrainer.isPresent());
-        assertNotNull(newTrainer.get().getId());
+        Trainer newTrainer = trainerDao.save(testTrainer);
+        assertNotNull(newTrainer);
+        assertNotNull(newTrainer.getId());
+        Trainee newTrainee = traineeDao.save(testTrainee);
+        assertNotNull(newTrainee);
+        assertNotNull(newTrainee.getId());
 
-        Optional<Trainee> newTrainee= traineeDao.save(testTrainee);
-        assertTrue(newTrainee.isPresent());
-        assertNotNull(newTrainee.get().getId());
+        testTraining.setTrainee(newTrainee);
+        testTraining.setTrainer(newTrainer);
 
-        testTraining.setTrainee(newTrainee.get());
-        testTraining.setTrainer(newTrainer.get());
+        Training newTraining = trainingDao.save(testTraining);
 
-        Optional<Training> newTraining = trainingDao.save(testTraining);
-        assertTrue(newTraining.isPresent());
-        assertNotNull(newTraining.get().getId());
+        assertNotNull(newTraining);
+        assertNotNull(newTraining.getId());
 
-        Optional<Collection<Training>> trainings = trainingDao.findAll();
-        assertTrue(trainings.isPresent());
-        assertEquals(trainings.get().size(), 1);
-        trainings.get().forEach(training -> {
+        Collection<Training> trainings = trainingDao.findAll();
+
+        assertNotNull(trainings);
+        assertEquals(trainings.size(), 1);
+        trainings.forEach(training -> {
             assertNotNull(training.getId());
             assertNotNull(training.getTrainee());
             assertNotNull(training.getTrainer());
@@ -158,31 +172,32 @@ public class TrainingDaoImplIntegrationTest {
             assertNotNull(training.getTrainingType());
         });
     }
+
     @Test
     @DisplayName("Should find training by trainer username and criteria")
     public void findByTrainer_ShouldReturnTrainingByTrainer() {
-        Optional<Trainer> newTrainer= trainerDao.save(testTrainer);
-        assertTrue(newTrainer.isPresent());
-        assertNotNull(newTrainer.get().getId());
+        Trainer newTrainer = trainerDao.save(testTrainer);
+        assertNotNull(newTrainer);
+        assertNotNull(newTrainer.getId());
+        Trainee newTrainee = traineeDao.save(testTrainee);
+        assertNotNull(newTrainee);
+        assertNotNull(newTrainee.getId());
 
-        Optional<Trainee> newTrainee= traineeDao.save(testTrainee);
-        assertTrue(newTrainee.isPresent());
-        assertNotNull(newTrainee.get().getId());
+        testTraining.setTrainee(newTrainee);
+        testTraining.setTrainer(newTrainer);
 
-        testTraining.setTrainee(newTrainee.get());
-        testTraining.setTrainer(newTrainer.get());
+        Training newTraining = trainingDao.save(testTraining);
 
-        Optional<Training> newTraining = trainingDao.save(testTraining);
-        assertTrue(newTraining.isPresent());
-        assertNotNull(newTraining.get().getId());
+        assertNotNull(newTraining);
+        assertNotNull(newTraining.getId());
 
-        Optional<Collection<Training>> trainings = trainingDao.findByTrainer(testTrainer.getUsername()
-                ,LocalDateTime.of(2024,12,12,0,0)
-                ,LocalDateTime.of(2024,12,14,0,0)
+        Collection<Training> trainings = trainingDao.findByTrainer(testTrainer.getUsername()
+                , LocalDateTime.of(2024, 12, 12, 0, 0)
+                , LocalDateTime.of(2024, 12, 14, 0, 0)
                 , testTrainee.getUsername());
-        assertTrue(trainings.isPresent());
-        assertEquals(trainings.get().size(), 1);
-        trainings.get().forEach(training -> {
+        assertNotNull(trainings);
+        assertEquals(trainings.size(), 1);
+        trainings.forEach(training -> {
             assertNotNull(training.getId());
             assertNotNull(training.getTrainee());
             assertNotNull(training.getTrainer());
@@ -192,30 +207,33 @@ public class TrainingDaoImplIntegrationTest {
             assertNotNull(training.getTrainingType());
         });
     }
+
     @Test
     @DisplayName("Should find training by trainee username and criteria")
     public void findByTrainee_ShouldReturnTrainingByTrainee() {
-        Optional<Trainer> newTrainer = trainerDao.save(testTrainer);
-        assertTrue(newTrainer.isPresent());
-        assertNotNull(newTrainer.get().getId());
+        Trainer newTrainer = trainerDao.save(testTrainer);
+        assertNotNull(newTrainer);
+        assertNotNull(newTrainer.getId());
+        Trainee newTrainee = traineeDao.save(testTrainee);
+        assertNotNull(newTrainee);
+        assertNotNull(newTrainee.getId());
 
-        Optional<Trainee> newTrainee = traineeDao.save(testTrainee);
-        assertTrue(newTrainee.isPresent());
-        assertNotNull(newTrainee.get().getId());
+        testTraining.setTrainee(newTrainee);
+        testTraining.setTrainer(newTrainer);
 
-        testTraining.setTrainee(newTrainee.get());
-        testTraining.setTrainer(newTrainer.get());
+        Training newTraining = trainingDao.save(testTraining);
 
-        Optional<Training> newTraining = trainingDao.save(testTraining);
-        assertTrue(newTraining.isPresent());
-        assertNotNull(newTraining.get().getId());
-        Optional<Collection<Training>> trainings = trainingDao.findByTrainee(testTrainee.getUsername()
+        assertNotNull(newTraining);
+        assertNotNull(newTraining.getId());
+
+        Collection<Training> trainings = trainingDao.findByTrainee(testTrainee.getUsername()
                 , LocalDateTime.of(2024, 12, 12, 0, 0)
                 , LocalDateTime.of(2024, 12, 14, 0, 0)
-                , testTrainer.getUsername(),TrainingType.STRENGTH);
-        assertTrue(trainings.isPresent());
-        assertEquals(trainings.get().size(), 1);
-        trainings.get().forEach(training -> {
+                , testTrainer.getUsername(), TrainingType.STRENGTH);
+
+        assertNotNull(trainings);
+        assertEquals(trainings.size(), 1);
+        trainings.forEach(training -> {
             assertNotNull(training.getId());
             assertNotNull(training.getTrainee());
             assertNotNull(training.getTrainer());
