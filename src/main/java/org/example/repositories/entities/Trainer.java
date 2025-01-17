@@ -1,10 +1,7 @@
 package org.example.repositories.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
@@ -12,15 +9,15 @@ import java.util.List;
 @Entity
 @Table(name="trainers")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
+@ToString(callSuper = true)
 public class Trainer extends User {
     @Enumerated(EnumType.STRING)
+    @Column(name="training_type", nullable=false)
     private TrainingType trainingType;
     private String specialization;
-    @ManyToMany
-    @JoinTable(name="trainers_trainees",
-            joinColumns = @JoinColumn(name="trainer_id"),
-            inverseJoinColumns = @JoinColumn(name="trainee_id"))
-    private List<Trainee> trainees;
-    @OneToMany(mappedBy = "trainer")
+    @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL)
     private List<Training> trainings;
 }

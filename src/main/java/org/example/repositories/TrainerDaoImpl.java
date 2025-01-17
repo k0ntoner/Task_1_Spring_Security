@@ -2,70 +2,124 @@ package org.example.repositories;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
-import org.example.models.Trainer;
+import org.example.repositories.entities.Trainee;
+import org.example.repositories.entities.Trainer;
+import org.example.repositories.entities.User;
+import org.example.utils.UserUtils;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
-import java.util.Map;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Slf4j
-public class TrainerDaoImpl implements UserDao<Trainer> {
-    private Map<Long, Trainer> trainers;
-    private long head;
-
+public class TrainerDaoImpl implements TrainerDao {
+    private SessionFactory sessionFactory;
     @Autowired
-    public TrainerDaoImpl(@Qualifier("trainerStorage") Map<Long, Trainer> trainers) {
-        this.trainers = trainers;
+    public TrainerDaoImpl(@Qualifier("sessionFactory") SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
 
 
-    @Override
-    public Trainer add(Trainer entity) {
-        entity.setUserId(++head);
-        trainers.put(entity.getUserId(), entity);
-        log.info("Added new trainer: {}", entity);
-        return entity;
-    }
 
     @Override
-    public Trainer update(Trainer entity) {
-        trainers.put(entity.getUserId(), entity);
-        log.info("Updated trainer with id {} to: {}", entity.getUserId(), entity);
-        return entity;
-    }
-
-    @Override
-    public Trainer findById(long id) {
-        Trainer trainer = trainers.get(id);
-        if (trainer != null) {
-            log.info("Found trainer with id {}: {}", id, trainer);
-        } else {
-            log.warn("No trainer found with id {}", id);
+    public Optional<Trainer> save(Trainer entity) {
+        Transaction transaction =null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+            if(entity.getId()==null){
+                session.persist(entity);
+                log.info("Saved new Trainer: {}", entity);
+            }
+            else {
+                entity=session.merge(entity);
+                log.info("Updated Trainer: {}", entity);
+            }
+            transaction.commit();
+            return Optional.of(entity);
         }
-        return trainer;
+        catch(Exception e){
+            log.error(e.getMessage());
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Trainer> findById(long id) {
+        try (Session session = sessionFactory.openSession()) {
+            Trainer entity = session.get(Trainer.class, id);
+            log.info("Found Trainer: {}", entity);
+            return Optional.of(entity);
+        }
+        catch(Exception e){
+            log.error(e.getMessage());
+        }
+        return Optional.empty();
 
     }
 
     @Override
-    public Collection<Trainer> findAll() {
-        log.info("Retrieving all trainers");
-        return trainers.values();
+    public Optional<Collection<Trainer>> findAll() {
+        try (Session session = sessionFactory.openSession()) {
+            Collection<Trainer> entities = session.createQuery("select t from Trainer t",Trainer.class).list();
+            log.info("Found {} Trainers", entities.size());
+            return Optional.of(entities);
+        }
+        catch(Exception e){
+            log.error(e.getMessage());
+        }
+        return Optional.empty();
     }
 
-    @Override
-    public boolean delete(Trainer entity) {
-        throw new NotImplementedException();
-
-    }
 
     @Override
     public boolean isUsernameExist(String username) {
-        boolean exists = trainers.values().stream().anyMatch(trainer -> trainer.getUsername().equals(username));
-        log.info("Checking if username {} already exists: {}", username, exists);
-        return exists;
+        try (Session session = sessionFactory.openSession()) {
+            User user =session.createQuery("from User u where u.username=:username",User.class).setParameter("username", username).uniqueResult();
+            return user!=null;
+        }
+        catch(Exception e){
+            log.error(e.getMessage());
+        }
+        return false;
+    }
+    @Override
+    public boolean isPasswordMatch(Trainer entity, String password){
+        return UserUtils.passwordMatch(password, entity.getPassword());
+    }
+    @Override
+    public Optional<Trainer> findByUsername(String username) {
+        try (Session session = sessionFactory.openSession()) {
+            Trainer entity = session.createQuery(
+                            "FROM Trainer t where t.username = :username", Trainer.class)
+                    .setParameter("username", username)
+                    .uniqueResult();
+            return Optional.of(entity);
+
+        }
+        catch(Exception e){
+            log.error(e.getMessage());
+        }
+        return Optional.empty();
+    }
+    @Override
+    public Optional<Collection<Trainer>> findTrainersNotAssignedToTrainee(String traineeUsername) {
+        try (Session session = sessionFactory.openSession()) {
+            List<Trainer> trainers=session.createQuery("from Trainer t where t.id Not in (Select trainer.id from Training trainer join Trainee trainee where trainee.username!=:username  )", Trainer.class)
+                    .setParameter("username", traineeUsername)
+                    .list();
+            return Optional.of(trainers);
+        }
+        catch(Exception e){
+            log.error(e.getMessage());
+        }
+        return Optional.empty();
     }
 
 }

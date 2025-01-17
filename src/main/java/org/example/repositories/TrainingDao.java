@@ -1,12 +1,18 @@
 package org.example.repositories;
 
-import org.example.models.Training;
+
+
+import org.example.repositories.entities.Training;
+import org.example.repositories.entities.TrainingType;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Optional;
 
 public interface TrainingDao extends BasicDao<Training> {
-    Training findByTrainer(long trainerId, LocalDateTime dateTime);
+    Optional<Collection<Training>> findByTrainer(String trainerUsername, LocalDateTime startDateTime, LocalDateTime endDateTime, String traineeUsername);
 
-    Training findByTrainee(long traineeId, LocalDateTime dateTime);
+    Optional<Collection<Training>> findByTrainee(String traineeUsername, LocalDateTime startDateTime, LocalDateTime endDateTime, String trainerUsername, TrainingType trainingType);
+
 
 }

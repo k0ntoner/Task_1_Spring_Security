@@ -1,13 +1,13 @@
 package org.example.repositories;
 
 import java.util.Collection;
-import java.util.Map;
+import java.util.Optional;
 
 public interface BasicDao<T> {
-    T add(T entity);
+    Optional<T> save(T entity);
 
-    T findById(long id);
+    Optional<T> findById(long id);
 
-    Collection<T> findAll();
+    Optional<Collection<T>> findAll();
 
 }

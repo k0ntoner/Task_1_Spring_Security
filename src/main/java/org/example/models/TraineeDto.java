@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @SuperBuilder
 @ToString(callSuper = true)
-public class Trainee extends User {
+public class TraineeDto extends UserDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
     private String address;

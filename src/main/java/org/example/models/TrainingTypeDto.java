@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum TrainingType {
+public enum TrainingTypeDto {
     STRENGTH,
     CARDIO,
     FLEXIBILITY,

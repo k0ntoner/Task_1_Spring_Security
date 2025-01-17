@@ -1,58 +1,52 @@
 package org.example.services;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.models.Training;
+import org.example.repositories.entities.Training;
 import org.example.repositories.TrainingDao;
+import org.example.repositories.entities.TrainingType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Optional;
 
-@Component
+@Service
 @Slf4j
 public class TrainingServiceImpl implements TrainingService {
-
-    private final TrainingDao trainingDao;
-
     @Autowired
-    public TrainingServiceImpl(@Qualifier("trainingDaoImpl") TrainingDao trainingDao) {
-        this.trainingDao = trainingDao;
-        log.info("TrainingServiceImpl initialized");
+    @Qualifier("trainingDaoImpl")
+    private TrainingDao trainingDao;
+
+    @Override
+    public Optional<Training> add(Training entity) {
+        log.info("Request to save training: {}", entity.getTrainingName());
+        return trainingDao.save(entity);
+
     }
 
     @Override
-    public Training add(Training entity) {
-        log.info("Request to add training: {}", entity.getTrainingName());
-        return trainingDao.add(entity);
-
-    }
-
-    @Override
-    public Training findById(long id) {
+    public Optional<Training> findById(long id) {
         log.info("Request to find training by ID: {}", id);
         return trainingDao.findById(id);
     }
 
     @Override
-    public Collection<Training> findAll() {
+    public Optional<Collection<Training>> findAll() {
         log.info("Request to find all trainings");
         return trainingDao.findAll();
     }
 
     @Override
-    public Training findByTrainer(long trainerId, LocalDateTime dateTime) {
-        log.info("Request to find training by trainer ID: {} at time: {}", trainerId, dateTime);
-        return trainingDao.findByTrainer(trainerId, dateTime);
-
+    public Optional<Collection<Training>> findByTrainer(String trainerUsername, LocalDateTime startDateTime, LocalDateTime endDateTime, String traineeUsername) {
+        log.info("Request to find training by trainer username: {}, and criteria: startDateTime: {}, endDateTime: {}, traineeUsername: {}", trainerUsername, startDateTime, endDateTime, traineeUsername);
+        return trainingDao.findByTrainer(trainerUsername, startDateTime, endDateTime, traineeUsername);
     }
 
     @Override
-    public Training findByTrainee(long traineeId, LocalDateTime dateTime) {
-        log.info("Request to find training by trainee ID: {} at time: {}", traineeId, dateTime);
-        return trainingDao.findByTrainee(traineeId, dateTime);
-
+    public Optional<Collection<Training>> findByTrainee(String traineeUsername, LocalDateTime startDateTime, LocalDateTime endDateTime, String trainerUsername, TrainingType trainingType) {
+        log.info("Request to find training by trainee username: {}, and criteria: startDateTime: {}, endDateTime: {}, trainerUsername: {}, trainingType: {}", trainerUsername, startDateTime, endDateTime, traineeUsername, trainingType);
+        return trainingDao.findByTrainee(traineeUsername, startDateTime, endDateTime, trainerUsername, trainingType);
     }
-
 }

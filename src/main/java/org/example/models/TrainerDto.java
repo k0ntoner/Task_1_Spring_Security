@@ -8,8 +8,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @ToString(callSuper = true)
-public class Trainer extends User {
+public class TrainerDto extends UserDto {
     private String specialization;
     private Long userId;
-    private TrainingType trainingType;
+    private TrainingTypeDto trainingType;
 }

@@ -1,12 +1,12 @@
 package org.example.utils;
 
-import org.example.configs.Config;
-import org.example.models.Trainee;
-import org.example.models.Trainer;
-import org.example.models.Training;
-import org.example.models.TrainingType;
+
 import org.example.services.ServiceFacade;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.example.repositories.entities.Trainee;
+import org.example.repositories.entities.Trainer;
+import org.example.repositories.entities.Training;
+import org.example.repositories.entities.TrainingType;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -61,11 +61,14 @@ public class ConsoleUI {
                     LocalDate dateOfBirth = LocalDate.parse(scanner.nextLine(), dateFormatter);
                     System.out.print("Enter Address: ");
                     String address = scanner.nextLine();
+                    System.out.print("Enter Password: ");
+                    String password = scanner.nextLine();
                     Trainee trainee = Trainee.builder()
                             .firstName(firstName)
                             .lastName(lastName)
                             .dateOfBirth(dateOfBirth)
                             .address(address)
+                            .password(password)
                             .isActive(true)
                             .build();
                     serviceFacade.addTrainee(trainee);
@@ -105,8 +108,7 @@ public class ConsoleUI {
                     System.out.print("Enter Training Duration in minutes: ");
                     Duration trainingDuration = Duration.ofMinutes(scanner.nextLong());
                     Training training = Training.builder()
-                            .traineeId(traineeId)
-                            .trainerId(trainerId)
+
                             .trainingName(trainingName)
                             .trainingType(trainingType)
                             .trainingDate(trainingDate)
@@ -168,22 +170,6 @@ public class ConsoleUI {
                     System.out.print("Enter Training ID: ");
                     long id = scanner.nextLong();
                     System.out.println(serviceFacade.findTrainingById(id).toString());
-                }
-                case 11 -> {
-                    System.out.print("Enter trainer ID: ");
-                    long trainerId = scanner.nextLong();
-                    System.out.print("Enter training date (yyyy-MM-ddTHH:mm): ");
-                    scanner.nextLine();
-                    LocalDateTime dateTime = LocalDateTime.parse(scanner.nextLine());
-                    System.out.println(serviceFacade.findTrainingByTrainer(trainerId, dateTime).toString());
-                }
-                case 12 -> {
-                    System.out.print("Enter trainee ID: ");
-                    long traineeId = scanner.nextLong();
-                    System.out.print("Enter training date (yyyy-MM-ddTHH:mm): ");
-                    scanner.nextLine();
-                    LocalDateTime dateTime = LocalDateTime.parse(scanner.nextLine());
-                    System.out.println(serviceFacade.findTrainingByTrainee(traineeId, dateTime).toString());
                 }
                 case 13 -> {
                     System.out.println("All Trainees:");

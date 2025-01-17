@@ -1,12 +1,15 @@
 package org.example.services;
 
-import org.example.models.Training;
+import org.example.repositories.entities.Training;
+import org.example.repositories.entities.TrainingType;
 
 import java.time.LocalDateTime;
-import java.util.Map;
+import java.util.Collection;
+import java.util.Optional;
 
 public interface TrainingService extends BasicService<Training> {
-    Training findByTrainer(long trainerId, LocalDateTime dateTime);
+    Optional<Collection<Training>> findByTrainer(String trainerUsername, LocalDateTime startDateTime, LocalDateTime endDateTime, String traineeUsername);
 
-    Training findByTrainee(long traineeId, LocalDateTime dateTime);
+    Optional<Collection<Training>> findByTrainee(String traineeUsername, LocalDateTime startDateTime, LocalDateTime endDateTime, String trainerUsername, TrainingType trainingType);
+
 }

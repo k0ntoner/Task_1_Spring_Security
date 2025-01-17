@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.checkerframework.checker.units.qual.C;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -11,13 +12,15 @@ import java.util.List;
 @Entity
 @Table(name="trainees")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
+@ToString(callSuper = true)
 public class Trainee extends User {
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @Column(name="date_of_birth")
     private LocalDate dateOfBirth;
     private String address;
-    @ManyToMany(mappedBy = "trainee")
-    private List<Trainer> trainers;
-    @OneToMany(mappedBy = "trainees")
+    @OneToMany(mappedBy = "trainee", cascade = CascadeType.ALL)
     private List<Training> trainings;
 
 }

@@ -1,9 +1,12 @@
 package org.example.repositories;
 
-public interface UserDao<T> extends BasicDao<T> {
-    T update(T entity);
+import java.util.Collection;
+import java.util.Optional;
 
-    boolean delete(T entity);
+public interface UserDao<T> extends BasicDao<T> {
+
 
     boolean isUsernameExist(String username);
+    boolean isPasswordMatch(T entity, String password);
+    Optional<T> findByUsername(String username);
 }

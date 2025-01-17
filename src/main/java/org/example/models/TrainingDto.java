@@ -11,12 +11,12 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @ToString
-public class Training {
+public class TrainingDto {
     private Long id;
     private Long traineeId;
     private Long trainerId;
     private String trainingName;
-    private TrainingType trainingType;
+    private TrainingTypeDto trainingType;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime trainingDate;
     private Duration trainingDuration;

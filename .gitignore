@@ -39,3 +39,6 @@ build/
 .DS_Store
 
 *.log
+*cfg.xml
+
+META-INF/
