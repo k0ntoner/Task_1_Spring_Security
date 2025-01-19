@@ -1,9 +1,9 @@
 package org.example.repositories.entities;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sun.istack.NotNull;
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.enums.TrainingType;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -22,26 +22,24 @@ public class Training {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "trainee_id")
+    @JoinColumn(name = "trainee_id", nullable = false)
     private Trainee trainee;
 
     @ManyToOne
-    @JoinColumn(name = "trainer_id")
+    @JoinColumn(name = "trainer_id", nullable = false)
     private Trainer trainer;
-    @NotNull
-    @Column(name = "training_name", nullable = false)
+
+    @Column(name = "name", nullable = false)
     private String trainingName;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "training_type", nullable = false)
+    @Column(name = "type", nullable = false)
     private TrainingType trainingType;
 
-    @NotNull
-    @Column(name = "training_date", nullable = false)
+    @Column(name = "date", nullable = false)
     private LocalDateTime trainingDate;
-    @NotNull
-    @Column(name = "training_duration", nullable = false)
+
+    @Column(name = "duration", nullable = false)
     private Duration trainingDuration;
 }
 

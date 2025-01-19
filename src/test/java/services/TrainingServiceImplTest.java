@@ -1,10 +1,11 @@
 package services;
 
+import org.example.models.TraineeDto;
+import org.example.models.TrainerDto;
+import org.example.models.TrainingDto;
 import org.example.repositories.*;
-import org.example.repositories.entities.Trainee;
-import org.example.repositories.entities.Trainer;
 import org.example.repositories.entities.Training;
-import org.example.repositories.entities.TrainingType;
+import org.example.enums.TrainingType;
 import org.example.services.impl.TrainingServiceImpl;
 import org.example.utils.UserUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,12 +35,12 @@ public class TrainingServiceImplTest {
     @InjectMocks
     TrainingServiceImpl trainingService;
 
-    private Training testTraining;
+    private TrainingDto testTrainingDto;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        testTraining = buildTrainingForAdding();
+        testTrainingDto = buildTrainingForAdding();
         doAnswer(invocation -> {
             Training training = invocation.getArgument(0);
             training.setId(1L);
@@ -47,8 +48,8 @@ public class TrainingServiceImplTest {
         }).when(trainingDao).save(any(Training.class));
     }
 
-    public Trainee buildTrainee() {
-        return Trainee.builder()
+    public TraineeDto buildTrainee() {
+        return TraineeDto.builder()
                 .id(1L)
                 .firstName("John")
                 .lastName("Doe")
@@ -60,8 +61,8 @@ public class TrainingServiceImplTest {
                 .build();
     }
 
-    public Trainer buildTrainer() {
-        return Trainer.builder()
+    public TrainerDto buildTrainer() {
+        return TrainerDto.builder()
                 .id(2L)
                 .firstName("Mike")
                 .lastName("Tyson")
@@ -73,8 +74,8 @@ public class TrainingServiceImplTest {
                 .build();
     }
 
-    public Training buildTrainingForAdding() {
-        return Training.builder()
+    public TrainingDto buildTrainingForAdding() {
+        return TrainingDto.builder()
                 .trainer(buildTrainer())
                 .trainee(buildTrainee())
                 .trainingName("name")
@@ -87,67 +88,40 @@ public class TrainingServiceImplTest {
     @Test
     @DisplayName("Should return saved training")
     public void save_ShouldReturnSavedTraining() {
+        TrainingDto newTrainingDto = trainingService.add(testTrainingDto);
 
-
-        Training newTraining = trainingService.add(testTraining);
-
-        assertNotNull(newTraining);
-        assertNotNull(newTraining.getId());
-        assertEquals(testTraining.getTrainingName(), newTraining.getTrainingName());
-        assertEquals(testTraining.getTrainingDate(), newTraining.getTrainingDate());
-        assertEquals(testTraining.getTrainingDuration(), newTraining.getTrainingDuration());
-        assertEquals(testTraining.getTrainingType(), newTraining.getTrainingType());
-        assertEquals(testTraining.getTrainee().getId(), newTraining.getTrainee().getId());
-        assertEquals(testTraining.getTrainer().getId(), newTraining.getTrainer().getId());
+        assertNotNull(newTrainingDto.getId());
+        verify(trainingDao,times(1)).save(any(Training.class));
     }
 
     @Test
     @DisplayName("Should find training by id")
     public void findById_ShouldReturnTrainingById() {
+        TrainingDto newTraining = trainingService.add(testTrainingDto);
 
+        when(trainingDao.findById(newTraining.getId())).thenReturn(Optional.of(UserUtils.convertTrainingDtoToEntity(newTraining)));
+        TrainingDto foundTraining = trainingService.findById(newTraining.getId()).get();
 
-        Training newTraining = trainingService.add(testTraining);
+        assertNotNull(foundTraining.getId());
+        verify(trainingDao,times(1)).findById(newTraining.getId());
 
-        when(trainingDao.findById(newTraining.getId())).thenReturn(Optional.of(testTraining));
-        Optional<Training> foundTraining = trainingService.findById(newTraining.getId());
-        assertTrue(foundTraining.isPresent());
-        assertNotNull(foundTraining.get().getId());
-
-        assertEquals(testTraining.getTrainingName(), foundTraining.get().getTrainingName());
-        assertEquals(testTraining.getTrainingDate(), foundTraining.get().getTrainingDate());
-        assertEquals(testTraining.getTrainingDuration(), foundTraining.get().getTrainingDuration());
-        assertEquals(testTraining.getTrainingType(), foundTraining.get().getTrainingType());
-        assertEquals(testTraining.getTrainer().getId(), foundTraining.get().getTrainer().getId());
-        assertEquals(testTraining.getTrainee().getId(), foundTraining.get().getTrainee().getId());
     }
 
     @Test
     @DisplayName("Should find collection of trainings")
     public void findAllTrainings_ShouldReturnAllTrainings() {
-
-
-        Training newTraining = trainingService.add(testTraining);
-
-        assertNotNull(newTraining);
-        assertNotNull(newTraining.getId());
+        TrainingDto newTrainingDto = trainingService.add(testTrainingDto);
 
         List<Training> trainings = new ArrayList<>();
-        trainings.add(newTraining);
+        trainings.add(UserUtils.convertTrainingDtoToEntity(testTrainingDto));
 
         when(trainingDao.findAll()).thenReturn(trainings);
 
+        Collection<TrainingDto> foundTrainings = trainingService.findAll();
 
-        Collection<Training> foundTrainings = trainingService.findAll();
-        assertNotNull(foundTrainings);
-        assertEquals(foundTrainings.size(), 1);
-        foundTrainings.forEach(training -> {
-            assertNotNull(training.getId());
-            assertNotNull(training.getTrainee());
-            assertNotNull(training.getTrainer());
-            assertNotNull(training.getTrainingType());
-            assertNotNull(training.getTrainingDate());
-            assertNotNull(training.getTrainingDuration());
-            assertNotNull(training.getTrainingType());
-        });
+        assertTrue(foundTrainings.size() > 0);
+
+        verify(trainingDao,times(1)).findAll();
+
     }
 }

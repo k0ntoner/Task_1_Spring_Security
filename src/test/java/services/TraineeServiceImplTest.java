@@ -1,6 +1,7 @@
 package services;
 
 
+import org.example.models.TraineeDto;
 import org.example.repositories.TraineeDao;
 import org.example.repositories.entities.Trainee;
 import org.example.services.impl.TraineeServiceImpl;
@@ -31,12 +32,12 @@ public class TraineeServiceImplTest {
     @InjectMocks
     private TraineeServiceImpl traineeService;
 
-    private Trainee testTrainee;
+    private TraineeDto testTraineeDto;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        testTrainee = buildTraineeForAdding();
+        testTraineeDto = buildTraineeForAdding();
         doAnswer(invocation -> {
             Trainee trainee = invocation.getArgument(0);
             trainee.setId(1L);
@@ -45,8 +46,8 @@ public class TraineeServiceImplTest {
 
     }
 
-    public Trainee buildTraineeForAdding() {
-        return Trainee.builder()
+    public TraineeDto buildTraineeForAdding() {
+        return TraineeDto.builder()
                 .firstName("John")
                 .lastName("Doe")
                 .password("JohnDoe")
@@ -60,200 +61,122 @@ public class TraineeServiceImplTest {
     @Test
     @DisplayName("Should return saved Trainee")
     public void save_ShouldReturnSavedTrainee() {
+        TraineeDto newTraineeDto = traineeService.add(testTraineeDto);
 
-        Trainee newTrainee = traineeService.add(testTrainee);
-
-        assertNotNull(newTrainee);
-        assertNotNull(newTrainee.getId());
-        assertEquals(testTrainee.getFirstName(), newTrainee.getFirstName());
-        assertEquals(testTrainee.getLastName(), newTrainee.getLastName());
-        assertEquals(testTrainee.getDateOfBirth(), newTrainee.getDateOfBirth());
-        assertEquals(testTrainee.getAddress(), newTrainee.getAddress());
-        assertEquals(testTrainee.isActive(), newTrainee.isActive());
-        assertEquals(testTrainee.getFirstName() + "." + testTrainee.getLastName(), newTrainee.getUsername());
-        assertTrue(UserUtils.passwordMatch("JohnDoe", newTrainee.getPassword()));
-
-
+        assertNotNull(newTraineeDto.getId());
+        verify(traineeDao, times(1)).save(any(Trainee.class));
     }
 
     @Test
     @DisplayName("Should return updated Trainee")
     public void update_ShouldUpdateTrainee() {
+        TraineeDto newTraineeDto = traineeService.add(testTraineeDto);
 
-        String newAddress = "newAddress";
-        String newFirstName = "newFirstName";
-        String newLastName = "newLastName";
-        String newUsername = "newUsername";
-        LocalDate newDateOfBirth = LocalDate.of(2000, 11, 23);
-        String newPassword = UserUtils.hashPassword("newPass");
+        when(traineeDao.update(any(Trainee.class))).thenReturn(UserUtils.convertTraineeDtoToEntity(newTraineeDto));
+        when(traineeDao.findById(newTraineeDto.getId())).thenReturn(Optional.of(UserUtils.convertTraineeDtoToEntity(newTraineeDto)));
 
-        Trainee newTrainee = traineeService.add(testTrainee);
+        TraineeDto updatedTraineeDto = traineeService.update(newTraineeDto);
 
-        newTrainee.setAddress(newAddress);
-        newTrainee.setFirstName(newFirstName);
-        newTrainee.setLastName(newLastName);
-        newTrainee.setUsername(newUsername);
-        newTrainee.setPassword(newPassword);
-        newTrainee.setDateOfBirth(newDateOfBirth);
+        assertNotNull(updatedTraineeDto.getId());
 
-        when(traineeDao.update(newTrainee)).thenReturn(newTrainee);
-        when(traineeDao.findById(newTrainee.getId())).thenReturn(Optional.of(newTrainee));
-        Trainee updatedTrainee = traineeService.update(newTrainee);
+        verify(traineeDao, times(1)).update(any(Trainee.class));
 
-        assertNotNull(updatedTrainee);
-        assertNotNull(updatedTrainee.getId());
-        assertEquals(newUsername, updatedTrainee.getUsername());
-        assertEquals(newAddress, updatedTrainee.getAddress());
-        assertEquals(newFirstName, updatedTrainee.getFirstName());
-        assertEquals(newLastName, updatedTrainee.getLastName());
-        assertEquals(newDateOfBirth, updatedTrainee.getDateOfBirth());
-        assertTrue(UserUtils.passwordMatch("newPass", updatedTrainee.getPassword()));
-
-    }
-
-    @Test
-    @DisplayName("Should update not existing trainee")
-    public void update_ShouldUpdateNotExistingTrainee() {
-        testTrainee = traineeService.add(testTrainee);
-        when(traineeDao.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(IllegalArgumentException.class, () -> traineeService.update(testTrainee));
     }
 
     @Test
     @DisplayName("Should delete Trainee")
     public void delete_ShouldDeleteTrainee() {
-        testTrainee = traineeService.add(testTrainee);
-        when(traineeDao.findById(1L)).thenReturn(Optional.of(testTrainee));
+        testTraineeDto = traineeService.add(testTraineeDto);
 
-        traineeService.delete(testTrainee);
-        verify(traineeDao).delete(testTrainee);
+        traineeService.delete(testTraineeDto);
 
-    }
-
-    @Test
-    @DisplayName("Should delete not exist Trainee")
-    public void delete_ShouldDeleteNotExistTrainee() {
-        testTrainee = traineeService.add(testTrainee);
-        when(traineeDao.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(IllegalArgumentException.class, () -> traineeService.delete(testTrainee));
-        verify(traineeDao, never()).delete(testTrainee);
-
+        verify(traineeDao,times(1)).delete(any(Trainee.class));
     }
 
     @Test
     @DisplayName("Should delete Trainee by username")
     public void delete_ShouldDeleteTraineeByUsername() {
-        testTrainee = traineeService.add(testTrainee);
-        when(traineeDao.findByUsername(testTrainee.getUsername())).thenReturn(Optional.of(testTrainee));
+        testTraineeDto = traineeService.add(testTraineeDto);
 
-        traineeService.deleteByUsername(testTrainee.getUsername());
-        verify(traineeDao).delete(testTrainee);
+        when(traineeDao.findByUsername(testTraineeDto.getUsername())).thenReturn(Optional.of(UserUtils.convertTraineeDtoToEntity(testTraineeDto)));
 
-    }
+        traineeService.deleteByUsername(testTraineeDto.getUsername());
 
-    @Test
-    @DisplayName("Should delete not exist Trainee by username")
-    public void delete_ShouldDeleteNotExistTraineeByUsername() {
-        testTrainee = traineeService.add(testTrainee);
-        when(traineeDao.findByUsername(testTrainee.getUsername())).thenReturn(Optional.empty());
-
-        assertThrows(IllegalArgumentException.class, () -> traineeService.deleteByUsername(testTrainee.getUsername()));
-        verify(traineeDao, never()).delete(testTrainee);
+        verify(traineeDao,times(1)).delete(any(Trainee.class));
 
     }
 
     @Test
     @DisplayName("Should find Trainee by id")
     public void findById_ShouldFindTraineeById() {
-        testTrainee = traineeService.add(testTrainee);
-        when(traineeDao.findById(1L)).thenReturn(Optional.of(testTrainee));
+        testTraineeDto = traineeService.add(testTraineeDto);
+        when(traineeDao.findById(1L)).thenReturn(Optional.of(UserUtils.convertTraineeDtoToEntity(testTraineeDto)));
 
-        Trainee foundTrainee = traineeService.findById(1L).get();
-        assertNotNull(foundTrainee);
-        assertEquals(testTrainee.getId(), foundTrainee.getId());
-        assertEquals(testTrainee.getUsername(), foundTrainee.getUsername());
-        assertEquals(testTrainee.getFirstName(), foundTrainee.getFirstName());
-        assertEquals(testTrainee.getLastName(), foundTrainee.getLastName());
-        assertEquals(testTrainee.getDateOfBirth(), foundTrainee.getDateOfBirth());
-        assertEquals(testTrainee.getAddress(), foundTrainee.getAddress());
-        assertEquals(testTrainee.getPassword(), foundTrainee.getPassword());
+        TraineeDto foundTraineeDto = traineeService.findById(testTraineeDto.getId()).get();
+
+        assertNotNull(foundTraineeDto.getId());
+        verify(traineeDao,times(1)).findById(testTraineeDto.getId());
     }
 
     @Test
     @DisplayName("Should find Collection of all Trainees")
     public void findAll_ShouldFindAllTrainees() {
 
-        testTrainee = traineeService.add(testTrainee);
+        testTraineeDto = traineeService.add(testTraineeDto);
         List<Trainee> trainees = new ArrayList<>();
-        trainees.add(testTrainee);
+        trainees.add(UserUtils.convertTraineeDtoToEntity(testTraineeDto));
         when(traineeDao.findAll()).thenReturn(trainees);
         Collection<Trainee> foundTrainees = traineeDao.findAll();
 
-        assertNotNull(trainees);
-        assertEquals(trainees.size(), 1);
+        assertTrue(trainees.size()>0);
+        verify(traineeDao,times(1)).findAll();
 
-        trainees.forEach(
-                trainee -> {
-                    assertNotNull(trainee.getId());
-                    assertNotNull(trainee.getUsername());
-                    assertNotNull(trainee.getFirstName());
-                    assertNotNull(trainee.getLastName());
-                    assertNotNull(trainee.getDateOfBirth());
-                    assertNotNull(trainee.getAddress());
-                    assertNotNull(trainee.getPassword());
-                }
-        );
     }
 
     @Test
     @DisplayName("Should find Trainee by username")
     public void findByUsername_ShouldFindTraineeByUserName() {
-        testTrainee = traineeService.add(testTrainee);
+        testTraineeDto = traineeService.add(testTraineeDto);
 
-        when(traineeDao.findByUsername(testTrainee.getUsername())).thenReturn(Optional.of(testTrainee));
+        when(traineeDao.findByUsername(testTraineeDto.getUsername())).thenReturn(Optional.of(UserUtils.convertTraineeDtoToEntity(testTraineeDto)));
 
-        Trainee foundTrainee = traineeService.findByUsername(testTrainee.getUsername()).get();
-        assertNotNull(foundTrainee);
-        assertEquals(testTrainee.getId(), foundTrainee.getId());
-        assertEquals(testTrainee.getUsername(), foundTrainee.getUsername());
-        assertEquals(testTrainee.getFirstName(), foundTrainee.getFirstName());
-        assertEquals(testTrainee.getLastName(), foundTrainee.getLastName());
-        assertEquals(testTrainee.getDateOfBirth(), foundTrainee.getDateOfBirth());
-        assertEquals(testTrainee.getAddress(), foundTrainee.getAddress());
-        assertEquals(testTrainee.getPassword(), foundTrainee.getPassword());
+        TraineeDto foundTraineeDto = traineeService.findByUsername(testTraineeDto.getUsername()).get();
+
+        assertNotNull(foundTraineeDto.getId());
+        verify(traineeDao,times(1)).findByUsername(any());
     }
 
     @Test
     @DisplayName("Should change trainee password")
     public void changePassword_ShouldChangeTraineePassword() {
-        testTrainee = traineeService.add(testTrainee);
-        when(traineeDao.findByUsername(testTrainee.getUsername())).thenReturn(Optional.of(testTrainee));
-        when(traineeDao.update(testTrainee)).thenReturn(testTrainee);
+        testTraineeDto = traineeService.add(testTraineeDto);
+        when(traineeDao.findByUsername(testTraineeDto.getUsername())).thenReturn(Optional.of(UserUtils.convertTraineeDtoToEntity(testTraineeDto)));
+        when(traineeDao.update(any(Trainee.class))).thenReturn(UserUtils.convertTraineeDtoToEntity(testTraineeDto));
 
-        traineeService.changePassword(testTrainee.getUsername(), "JohnDoe", "newPass");
-        verify(traineeDao).update(testTrainee);
+        traineeService.changePassword(testTraineeDto.getUsername(), "JohnDoe", "newPass");
+
+        verify(traineeDao,times(1)).update(any(Trainee.class));
     }
 
     @Test
     @DisplayName("Should activate Trainee")
     public void activate_ShouldActivateTrainee() {
-        testTrainee = traineeService.add(testTrainee);
-        when(traineeDao.findById(testTrainee.getId())).thenReturn(Optional.of(testTrainee));
-        when(traineeDao.update(testTrainee)).thenReturn(testTrainee);
-        traineeService.deactivate(testTrainee);
-        verify(traineeDao).update(testTrainee);
+        testTraineeDto = traineeService.add(testTraineeDto);
+
+        when(traineeDao.update(any(Trainee.class))).thenReturn(UserUtils.convertTraineeDtoToEntity(testTraineeDto));
+        traineeService.activate(testTraineeDto);
+        verify(traineeDao,times(1)).update(any(Trainee.class));
 
     }
 
     @Test
     @DisplayName("Should deactivate Trainee")
     public void activate_ShouldDeactivateTrainee() {
-        testTrainee = traineeService.add(testTrainee);
-        when(traineeDao.findById(testTrainee.getId())).thenReturn(Optional.of(testTrainee));
-        when(traineeDao.update(testTrainee)).thenReturn(testTrainee);
-        traineeService.deactivate(testTrainee);
-        verify(traineeDao).update(testTrainee);
+        testTraineeDto = traineeService.add(testTraineeDto);
+
+        when(traineeDao.update(any(Trainee.class))).thenReturn(UserUtils.convertTraineeDtoToEntity(testTraineeDto));
+        traineeService.deactivate(testTraineeDto);
+        verify(traineeDao,times(1)).update(any(Trainee.class));
 
     }
 

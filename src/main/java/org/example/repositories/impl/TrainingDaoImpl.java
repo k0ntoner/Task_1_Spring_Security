@@ -1,10 +1,12 @@
 package org.example.repositories.impl;
 
 
+import jakarta.persistence.PersistenceException;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.example.repositories.TrainingDao;
 import org.example.repositories.entities.Training;
-import org.example.repositories.entities.TrainingType;
+import org.example.enums.TrainingType;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -30,23 +32,21 @@ public class TrainingDaoImpl implements TrainingDao {
     }
 
     @Override
+    @Transactional
     public Training save(Training entity) {
-        Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
-            if (entity.getId() == null) {
-                session.persist(entity);
-                log.info("Saved new Training: {}", entity);
-            } else {
-                entity = session.merge(entity);
-                log.info("Updated Training: {}", entity);
+        try {
+            if (entity.getId() != null) {
+                throw new IllegalArgumentException("Training must not have an id");
             }
-            transaction.commit();
+
+            sessionFactory.getCurrentSession().persist(entity);
+            log.info("Saved new Training: {}", entity);
+
             return entity;
         } catch (Exception e) {
             log.error(e.getMessage());
+            throw new PersistenceException(e);
         }
-        return null;
     }
 
     @Override
@@ -76,26 +76,34 @@ public class TrainingDaoImpl implements TrainingDao {
     @Override
     public Collection<Training> findByTrainer(String trainerUsername, LocalDateTime startDateTime, LocalDateTime endDateTime, String traineeUsername) {
         try (Session session = sessionFactory.openSession()) {
+
             HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
             JpaCriteriaQuery<Training> criteriaQuery = builder.createQuery(Training.class);
             JpaRoot<Training> trainingRoot = criteriaQuery.from(Training.class);
 
             List<JpaPredicate> predicates = new ArrayList<>();
+
             if (trainerUsername == null) {
                 log.info("Trainer username must be indicated");
                 return new ArrayList<>();
             }
+
             predicates.add(builder.equal(trainingRoot.get("trainer").get("username"), trainerUsername));
+
             if (startDateTime != null) {
                 predicates.add(builder.greaterThanOrEqualTo(trainingRoot.get("trainingDate"), startDateTime));
             }
+
             if (endDateTime != null) {
                 predicates.add(builder.lessThanOrEqualTo(trainingRoot.get("trainingDate"), endDateTime));
             }
+
             if (traineeUsername != null) {
                 predicates.add(builder.equal(trainingRoot.get("trainee").get("username"), traineeUsername));
             }
+
             criteriaQuery.select(trainingRoot).where(predicates.toArray(new JpaPredicate[0]));
+
             return session.createQuery(criteriaQuery).getResultList();
 
         }
@@ -104,29 +112,38 @@ public class TrainingDaoImpl implements TrainingDao {
     @Override
     public Collection<Training> findByTrainee(String traineeUsername, LocalDateTime startDateTime, LocalDateTime endDateTime, String trainerUsername, TrainingType trainingType) {
         try (Session session = sessionFactory.openSession()) {
+
             HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
             JpaCriteriaQuery<Training> criteriaQuery = builder.createQuery(Training.class);
             JpaRoot<Training> trainingRoot = criteriaQuery.from(Training.class);
 
             List<JpaPredicate> predicates = new ArrayList<>();
+
             if (traineeUsername == null) {
                 log.info("Trainee username must be indicated");
                 return new ArrayList<>();
             }
+
             predicates.add(builder.equal(trainingRoot.get("trainee").get("username"), traineeUsername));
+
             if (startDateTime != null) {
                 predicates.add(builder.greaterThanOrEqualTo(trainingRoot.get("trainingDate"), startDateTime));
             }
+
             if (endDateTime != null) {
                 predicates.add(builder.lessThanOrEqualTo(trainingRoot.get("trainingDate"), endDateTime));
             }
+
             if (trainerUsername != null) {
                 predicates.add(builder.equal(trainingRoot.get("trainer").get("username"), trainerUsername));
             }
+
             if (trainingType != null) {
                 predicates.add(builder.equal(trainingRoot.get("trainingType"), trainingType));
             }
+
             criteriaQuery.select(trainingRoot).where(predicates.toArray(new JpaPredicate[0]));
+
             return session.createQuery(criteriaQuery).getResultList();
 
         }

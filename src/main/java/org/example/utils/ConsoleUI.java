@@ -1,12 +1,15 @@
 package org.example.utils;
 
 
+import org.example.models.TraineeDto;
+import org.example.models.TrainerDto;
+import org.example.models.TrainingDto;
 import org.example.services.ServiceFacade;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.example.repositories.entities.Trainee;
 import org.example.repositories.entities.Trainer;
 import org.example.repositories.entities.Training;
-import org.example.repositories.entities.TrainingType;
+import org.example.enums.TrainingType;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -55,15 +58,20 @@ public class ConsoleUI {
                 case 1 -> {
                     System.out.print("Enter Trainee First Name: ");
                     String firstName = scanner.nextLine();
+
                     System.out.print("Enter Trainee Last Name: ");
                     String lastName = scanner.nextLine();
+
                     System.out.print("Enter Date of Birth (yyyy-MM-dd): ");
                     LocalDate dateOfBirth = LocalDate.parse(scanner.nextLine(), dateFormatter);
+
                     System.out.print("Enter Address: ");
                     String address = scanner.nextLine();
+
                     System.out.print("Enter Password: ");
                     String password = scanner.nextLine();
-                    Trainee trainee = Trainee.builder()
+
+                    TraineeDto trainee = TraineeDto.builder()
                             .firstName(firstName)
                             .lastName(lastName)
                             .dateOfBirth(dateOfBirth)
@@ -71,59 +79,80 @@ public class ConsoleUI {
                             .password(password)
                             .isActive(true)
                             .build();
-                    serviceFacade.addTrainee(trainee);
+
+                    TraineeDto newTrainee = serviceFacade.addTrainee(trainee);
+
                     System.out.println("Trainee added successfully!");
+                    System.out.println(newTrainee.toString());
                 }
                 case 2 -> {
                     System.out.print("Enter Trainer First Name: ");
                     String firstName = scanner.nextLine();
+
                     System.out.print("Enter Trainer Last Name: ");
                     String lastName = scanner.nextLine();
+
                     System.out.print("Enter Specialization: ");
                     String specialization = scanner.nextLine();
+
                     System.out.print("Enter Training Type (STRENGTH, CARDIO, FLEXIBILITY, BALANCE, ENDURANCE): ");
                     TrainingType trainingType = TrainingType.valueOf(scanner.nextLine().toUpperCase());
-                    Trainer trainer = Trainer.builder()
+
+                    TrainerDto trainer = TrainerDto.builder()
                             .firstName(firstName)
                             .lastName(lastName)
                             .specialization(specialization)
                             .trainingType(trainingType)
                             .isActive(true)
                             .build();
+
                     serviceFacade.addTrainer(trainer);
+
                     System.out.println("Trainer added successfully!");
                 }
                 case 3 -> {
                     System.out.print("Enter Trainee ID: ");
                     long traineeId = scanner.nextLong();
+
                     System.out.print("Enter Trainer ID: ");
                     long trainerId = scanner.nextLong();
+
                     scanner.nextLine();
                     System.out.print("Enter Training Name: ");
                     String trainingName = scanner.nextLine();
+
                     System.out.print("Enter Training Type (STRENGTH, CARDIO, FLEXIBILITY, BALANCE, ENDURANCE): ");
                     TrainingType trainingType = TrainingType.valueOf(scanner.nextLine().toUpperCase());
+
                     System.out.print("Enter Training Date and Time (yyyy-MM-dd'T'HH:mm): ");
                     LocalDateTime trainingDate = LocalDateTime.parse(scanner.nextLine(), dateTimeFormatter);
+
                     System.out.print("Enter Training Duration in minutes: ");
                     Duration trainingDuration = Duration.ofMinutes(scanner.nextLong());
-                    Training training = Training.builder()
+
+                    TrainingDto training = TrainingDto.builder()
 
                             .trainingName(trainingName)
                             .trainingType(trainingType)
                             .trainingDate(trainingDate)
                             .trainingDuration(trainingDuration)
                             .build();
+
                     serviceFacade.addTraining(training);
+
                     System.out.println("Training added successfully!");
                 }
                 case 4 -> {
                     System.out.print("Enter Trainee ID to Update: ");
                     long id = scanner.nextLong();
+
                     scanner.nextLine();
+
                     System.out.print("Enter New Address: ");
                     String address = scanner.nextLine();
-                    Trainee updatedTrainee = serviceFacade.findTraineeById(id);
+
+                    TraineeDto updatedTrainee = serviceFacade.findTraineeById(id);
+
                     if (updatedTrainee != null) {
                         updatedTrainee.setAddress(address);
                         serviceFacade.updateTrainee(updatedTrainee);
@@ -135,10 +164,14 @@ public class ConsoleUI {
                 case 5 -> {
                     System.out.print("Enter Trainer ID to Update: ");
                     long id = scanner.nextLong();
+
                     scanner.nextLine();
+
                     System.out.print("Enter New Specialization: ");
                     String specialization = scanner.nextLine();
-                    Trainer updatedTrainer = serviceFacade.findTrainerById(id);
+
+                    TrainerDto updatedTrainer = serviceFacade.findTrainerById(id);
+
                     if (updatedTrainer != null) {
                         updatedTrainer.setSpecialization(specialization);
                         serviceFacade.updateTrainer(updatedTrainer);

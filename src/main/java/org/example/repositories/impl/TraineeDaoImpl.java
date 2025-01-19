@@ -1,5 +1,7 @@
 package org.example.repositories.impl;
 
+
+import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,30 +32,35 @@ public class TraineeDaoImpl implements TraineeDao {
     @Override
     @Transactional
     public Trainee save(Trainee entity) {
+        try {
+            if (entity.getId() != null) {
+                throw new IllegalArgumentException("Trainee must not have an id");
+            }
 
-        try (Session session = sessionFactory.openSession()) {
-
-            session.persist(entity);
+            sessionFactory.getCurrentSession().persist(entity);
             log.info("Saved new Trainee: {}", entity);
-
             return entity;
         } catch (Exception e) {
             log.error(e.getMessage());
+            throw e;
         }
-        return null;
     }
 
     @Override
     @Transactional
     public Trainee update(Trainee entity) {
-        try (Session session = sessionFactory.openSession()) {
-            entity = session.merge(entity);
+        try {
+            if (findById(entity.getId()).isEmpty()) {
+                throw new IllegalArgumentException("Trainee with id " + entity.getId() + " not found");
+            }
+
+            entity = sessionFactory.getCurrentSession().merge(entity);
             log.info("Updated Trainee: {}", entity);
             return entity;
         } catch (Exception e) {
             log.error(e.getMessage());
+            throw e;
         }
-        return null;
     }
 
     @Override
@@ -83,10 +90,13 @@ public class TraineeDaoImpl implements TraineeDao {
     @Override
     @Transactional
     public void delete(Trainee entity) {
-        try (Session session = sessionFactory.openSession()) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+
             if (!session.contains(entity)) {
                 entity = session.merge(entity);
             }
+
             session.remove(entity);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -112,6 +122,7 @@ public class TraineeDaoImpl implements TraineeDao {
                             "FROM Trainee t where t.username = :username", Trainee.class)
                     .setParameter("username", username)
                     .uniqueResult();
+
             return Optional.of(entity);
 
         } catch (Exception e) {

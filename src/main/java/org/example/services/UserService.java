@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface UserService<T> extends BasicService<T> {
-
     T update(T entity);
 
     Optional<T> findByUsername(String username);

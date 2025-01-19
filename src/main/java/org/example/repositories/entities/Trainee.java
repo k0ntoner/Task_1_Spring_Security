@@ -19,8 +19,10 @@ import java.util.List;
 public class Trainee extends User {
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
+
     private String address;
-    @OneToMany(mappedBy = "trainee", cascade = CascadeType.ALL)
+
+    @OneToMany(mappedBy = "trainee", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Training> trainings;
 
 }

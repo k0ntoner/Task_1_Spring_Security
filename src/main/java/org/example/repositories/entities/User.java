@@ -21,17 +21,19 @@ public abstract class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotNull
+
     @Column(name = "first_name", nullable = false)
     private String firstName;
-    @NotNull
+
     @Column(name = "last_name", nullable = false)
     private String lastName;
+
     @Column(name = "username", unique = true, nullable = false)
     private String username;
+
     @Column(nullable = false)
     private String password;
-    @NotNull
+
     @Column(columnDefinition = "BOOLEAN", nullable = false)
     private boolean isActive;
 }

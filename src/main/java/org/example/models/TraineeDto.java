@@ -1,10 +1,18 @@
 package org.example.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.sun.istack.NotNull;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.OneToMany;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.example.repositories.entities.Training;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -12,8 +20,11 @@ import java.time.LocalDate;
 @SuperBuilder
 @ToString(callSuper = true)
 public class TraineeDto extends UserDto {
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
+
     private String address;
-    private Long userId;
+
+    @NotNull
+    @Builder.Default
+    private Collection<TrainingDto> trainings = new ArrayList<>();
 }

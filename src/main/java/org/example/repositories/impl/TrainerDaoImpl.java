@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.PersistenceException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -32,31 +33,37 @@ public class TrainerDaoImpl implements TrainerDao {
     @Override
     @Transactional
     public Trainer save(Trainer entity) {
-        try (Session session = sessionFactory.openSession()) {
+        try {
+            if (entity.getId() != null) {
+                throw new IllegalArgumentException("Trainee must not have an id");
+            }
 
-            session.persist(entity);
+            sessionFactory.getCurrentSession().persist(entity);
             log.info("Saved new Trainer: {}", entity);
 
             return entity;
         } catch (Exception e) {
             log.error(e.getMessage());
+            throw e;
         }
-        return null;
     }
 
     @Override
     @Transactional
     public Trainer update(Trainer entity) {
-        try (Session session = sessionFactory.openSession()) {
+        try {
+            if (findById(entity.getId()).isEmpty()) {
+                throw new IllegalArgumentException("Trainer with id " + entity.getId() + " not found");
+            }
 
-            entity = session.merge(entity);
+            entity = sessionFactory.getCurrentSession().merge(entity);
             log.info("Updated Trainer: {}", entity);
 
             return entity;
         } catch (Exception e) {
             log.error(e.getMessage());
+            throw e;
         }
-        return null;
     }
 
     @Override
@@ -103,6 +110,7 @@ public class TrainerDaoImpl implements TrainerDao {
                             "FROM Trainer t where t.username = :username", Trainer.class)
                     .setParameter("username", username)
                     .uniqueResult();
+
             return Optional.of(entity);
 
         } catch (Exception e) {
@@ -117,6 +125,7 @@ public class TrainerDaoImpl implements TrainerDao {
             List<Trainer> trainers = session.createQuery("from Trainer t where t.id Not in (Select trainer.id from Training trainer join Trainee trainee where trainee.username!=:username  )", Trainer.class)
                     .setParameter("username", traineeUsername)
                     .list();
+
             return trainers;
         } catch (Exception e) {
             log.error(e.getMessage());

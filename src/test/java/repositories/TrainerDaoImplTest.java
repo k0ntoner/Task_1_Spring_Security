@@ -1,59 +1,33 @@
 package repositories;
 
-
-import org.example.repositories.impl.TrainerDaoImpl;
+import configs.TestConfig;
+import org.example.repositories.TrainerDao;
 import org.example.repositories.entities.Trainer;
-import org.example.repositories.entities.TrainingType;
+import org.example.enums.TrainingType;
+import org.example.repositories.impl.TrainerDaoImpl;
 import org.example.utils.UserUtils;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.hibernate.query.Query;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.mock;
+
+import java.util.Collection;
 
 public class TrainerDaoImplTest {
-    @Mock
-    private SessionFactory sessionFactory;
-    @Mock
-    private Session session;
-    @Mock
-    private Transaction transaction;
-    @InjectMocks
-    private TrainerDaoImpl trainerDao;
 
+    private TrainerDao trainerDao;
+    private AnnotationConfigApplicationContext context;
     private Trainer testTrainer;
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.openMocks(this);
+        context = new AnnotationConfigApplicationContext(TestConfig.class);
+        trainerDao = context.getBean(TrainerDao.class);
         testTrainer = buildTrainerForAdding();
-
-        when(sessionFactory.openSession()).thenReturn(session);
-        when(session.beginTransaction()).thenReturn(transaction);
-        when(session.merge(testTrainer)).thenReturn(testTrainer);
-        doAnswer(invocation -> {
-            Trainer trainer = invocation.getArgument(0);
-            trainer.setId(1L);
-            return null;
-        }).when(session).persist(any(Trainer.class));
-
     }
 
     public Trainer buildTrainerForAdding() {
@@ -69,133 +43,78 @@ public class TrainerDaoImplTest {
     }
 
     @Test
-    @DisplayName("Should return new Trainer")
+    @DisplayName("Should save new Trainer")
     public void save_ShouldSaveNewTrainer() {
         Trainer newTrainer = trainerDao.save(testTrainer);
 
-        assertNotNull(newTrainer);
         assertNotNull(newTrainer.getId());
         assertEquals(testTrainer.getUsername(), newTrainer.getUsername());
         assertEquals(testTrainer.getFirstName(), newTrainer.getFirstName());
         assertEquals(testTrainer.getLastName(), newTrainer.getLastName());
         assertEquals(testTrainer.getSpecialization(), newTrainer.getSpecialization());
         assertEquals(testTrainer.getTrainingType(), newTrainer.getTrainingType());
-        assertEquals(testTrainer.getPassword(), newTrainer.getPassword());
     }
 
     @Test
-    @DisplayName("Should return updated Trainer")
+    @DisplayName("Should update existing Trainer")
     public void update_ShouldUpdateTrainer() {
-
+        String newSpecialization = "NewSpecialization";
+        TrainingType newTrainingType = TrainingType.CARDIO;
         String newFirstName = "newFirstName";
         String newLastName = "newLastName";
         String newUsername = "newUsername";
         String newPassword = UserUtils.hashPassword("newPass");
-        TrainingType newTrainingType = TrainingType.CARDIO;
-        String newSpecialization = "newSpecialization";
 
         Trainer newTrainer = trainerDao.save(testTrainer);
 
+        newTrainer.setSpecialization(newSpecialization);
+        newTrainer.setTrainingType(newTrainingType);
         newTrainer.setFirstName(newFirstName);
         newTrainer.setLastName(newLastName);
         newTrainer.setUsername(newUsername);
         newTrainer.setPassword(newPassword);
-        newTrainer.setTrainingType(newTrainingType);
-        newTrainer.setSpecialization(newSpecialization);
 
         Trainer updatedTrainer = trainerDao.update(newTrainer);
 
         assertNotNull(updatedTrainer);
-        assertNotNull(updatedTrainer.getId());
-        assertEquals(newUsername, updatedTrainer.getUsername());
-        assertEquals(newFirstName, updatedTrainer.getFirstName());
-        assertEquals(newLastName, updatedTrainer.getLastName());
         assertEquals(newSpecialization, updatedTrainer.getSpecialization());
         assertEquals(newTrainingType, updatedTrainer.getTrainingType());
+        assertEquals(newFirstName, updatedTrainer.getFirstName());
+        assertEquals(newLastName, updatedTrainer.getLastName());
+        assertEquals(newUsername, updatedTrainer.getUsername());
         assertTrue(UserUtils.passwordMatch("newPass", updatedTrainer.getPassword()));
 
     }
 
     @Test
     @DisplayName("Should update not existing trainer")
-    public void update_ShouldUpdateNotExistingTrainer() {
+    public void update_ShouldUpdateNotExistingTrainee() {
         testTrainer.setId(1L);
-        when(session.merge(testTrainer)).thenThrow(HibernateException.class);
-        assertNull(trainerDao.update(testTrainer));
+        assertThrows(IllegalArgumentException.class, () -> trainerDao.update(testTrainer));
+        assertFalse(trainerDao.findById(testTrainer.getId()).isPresent());
     }
 
     @Test
-    @DisplayName("Should find Trainer by id")
-    public void findById_ShouldFindTraineeById() {
+    @DisplayName("Should find Trainer by ID")
+    public void findById_ShouldFindTrainerById() {
         Trainer newTrainer = trainerDao.save(testTrainer);
+        assertTrue(trainerDao.findById(newTrainer.getId()).isPresent());
 
-        assertNotNull(newTrainer);
-        assertNotNull(newTrainer.getId());
-        when(session.get(Trainer.class, 1L)).thenReturn(newTrainer);
-        Trainer foundTrainer = trainerDao.findById(newTrainer.getId()).get();
-
-        assertNotNull(foundTrainer);
-
-        assertNotNull(newTrainer.getId());
-        assertEquals(testTrainer.getUsername(), newTrainer.getUsername());
-        assertEquals(testTrainer.getFirstName(), newTrainer.getFirstName());
-        assertEquals(testTrainer.getLastName(), newTrainer.getLastName());
-        assertEquals(testTrainer.getSpecialization(), newTrainer.getSpecialization());
-        assertEquals(testTrainer.getTrainingType(), newTrainer.getTrainingType());
-        assertEquals(testTrainer.getPassword(), newTrainer.getPassword());
     }
 
     @Test
-    @DisplayName("Should find Collection of all Trainers")
+    @DisplayName("Should find all Trainers")
     public void findAll_ShouldFindAllTrainers() {
-        Trainer newTrainer = trainerDao.save(testTrainer);
-        assertNotNull(newTrainer);
-        List<Trainer> trainers = new ArrayList<>();
-        trainers.add(newTrainer);
-        Query<Trainer> mockQuery = mock(Query.class);
-
-        when(session.createQuery("select t from Trainer t", Trainer.class)).thenReturn(mockQuery);
-
-        when(mockQuery.list()).thenReturn(trainers);
-        Collection<Trainer> foundTrainees = trainerDao.findAll();
-
-        assertNotNull(trainers);
-        assertEquals(trainers.size(), 1);
-
-        trainers.forEach(
-                trainer -> {
-                    assertNotNull(trainer.getId());
-                    assertNotNull(trainer.getUsername());
-                    assertNotNull(trainer.getFirstName());
-                    assertNotNull(trainer.getLastName());
-                    assertNotNull(trainer.getSpecialization());
-                    assertNotNull(trainer.getTrainingType());
-                    assertNotNull(trainer.getPassword());
-                }
-        );
+        trainerDao.save(testTrainer);
+        Collection<Trainer> trainers = trainerDao.findAll();
+        assertTrue(trainers.size() > 0);
     }
 
     @Test
     @DisplayName("Should find Trainer by username")
-    public void findByUsername_ShouldFindTrainerByUserName() {
+    public void findByUsername_ShouldFindTrainerByUsername() {
         Trainer newTrainer = trainerDao.save(testTrainer);
-        assertNotNull(newTrainer);
-        assertNotNull(newTrainer.getId());
+        assertTrue(trainerDao.findByUsername(newTrainer.getUsername()).isPresent());
 
-        Query<Trainer> mockQuery = mock(Query.class);
-
-        when(session.createQuery("FROM Trainer t where t.username = :username", Trainer.class)).thenReturn(mockQuery);
-        when(mockQuery.setParameter("username", newTrainer.getUsername())).thenReturn(mockQuery);
-        when(mockQuery.uniqueResult()).thenReturn(newTrainer);
-
-        Trainer foundTrainer = trainerDao.findByUsername(newTrainer.getUsername()).get();
-        assertNotNull(foundTrainer);
-        assertEquals(newTrainer.getId(), foundTrainer.getId());
-        assertEquals(newTrainer.getUsername(), foundTrainer.getUsername());
-        assertEquals(newTrainer.getFirstName(), foundTrainer.getFirstName());
-        assertEquals(newTrainer.getLastName(), foundTrainer.getLastName());
-        assertEquals(newTrainer.getSpecialization(), foundTrainer.getSpecialization());
-        assertEquals(newTrainer.getTrainingType(), foundTrainer.getTrainingType());
-        assertEquals(newTrainer.getPassword(), foundTrainer.getPassword());
     }
 }

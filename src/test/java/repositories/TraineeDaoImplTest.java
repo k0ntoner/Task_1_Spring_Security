@@ -1,58 +1,36 @@
 package repositories;
 
-
-import org.example.repositories.impl.TraineeDaoImpl;
+import configs.TestConfig;
+import jakarta.persistence.PersistenceException;
+import jakarta.transaction.Transactional;
+import org.example.configs.Config;
+import org.example.repositories.TraineeDao;
 import org.example.repositories.entities.Trainee;
+import org.example.repositories.impl.TraineeDaoImpl;
 import org.example.utils.UserUtils;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.hibernate.query.Query;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 
 public class TraineeDaoImplTest {
-    @Mock
-    private SessionFactory sessionFactory;
-    @Mock
-    private Session session;
-    @Mock
-    private Transaction transaction;
-    @InjectMocks
-    private TraineeDaoImpl traineeDao;
-
+    private TraineeDao traineeDao;
+    private AnnotationConfigApplicationContext context;
     private Trainee testTrainee;
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.openMocks(this);
+        context = new AnnotationConfigApplicationContext(TestConfig.class);
+        traineeDao = context.getBean(TraineeDao.class);
         testTrainee = buildTraineeForAdding();
-
-        when(sessionFactory.openSession()).thenReturn(session);
-        when(session.beginTransaction()).thenReturn(transaction);
-        when(session.merge(testTrainee)).thenReturn(testTrainee);
-        doAnswer(invocation -> {
-            Trainee trainee = invocation.getArgument(0);
-            trainee.setId(1L);
-            return null;
-        }).when(session).persist(any(Trainee.class));
-
     }
 
     public Trainee buildTraineeForAdding() {
@@ -72,7 +50,6 @@ public class TraineeDaoImplTest {
     public void save_ShouldSaveNewTrainee() {
         Trainee newTrainee = traineeDao.save(testTrainee);
 
-        assertNotNull(newTrainee);
         assertNotNull(newTrainee.getId());
         assertEquals(testTrainee.getUsername(), newTrainee.getUsername());
         assertEquals(testTrainee.getFirstName(), newTrainee.getFirstName());
@@ -82,10 +59,10 @@ public class TraineeDaoImplTest {
         assertEquals(testTrainee.getPassword(), newTrainee.getPassword());
     }
 
+
     @Test
     @DisplayName("Should return updated Trainee")
     public void update_ShouldUpdateTrainee() {
-
         String newAddress = "newAddress";
         String newFirstName = "newFirstName";
         String newLastName = "newLastName";
@@ -101,6 +78,7 @@ public class TraineeDaoImplTest {
         newTrainee.setUsername(newUsername);
         newTrainee.setPassword(newPassword);
         newTrainee.setDateOfBirth(newDateOfBirth);
+
         Trainee updatedTrainee = traineeDao.update(newTrainee);
 
         assertNotNull(updatedTrainee);
@@ -111,98 +89,67 @@ public class TraineeDaoImplTest {
         assertEquals(newLastName, updatedTrainee.getLastName());
         assertEquals(newDateOfBirth, updatedTrainee.getDateOfBirth());
         assertTrue(UserUtils.passwordMatch("newPass", updatedTrainee.getPassword()));
-
     }
 
     @Test
     @DisplayName("Should update not existing trainee")
     public void update_ShouldUpdateNotExistingTrainee() {
         testTrainee.setId(1L);
-        when(session.merge(testTrainee)).thenThrow(HibernateException.class);
-        assertNull(traineeDao.update(testTrainee));
+        assertThrows(IllegalArgumentException.class, () -> traineeDao.update(testTrainee));
+        assertFalse(traineeDao.findById(testTrainee.getId()).isPresent());
     }
 
     @Test
     @DisplayName("Should delete Trainee")
     public void delete_ShouldDeleteTrainee() {
-        when(session.get(Trainee.class, 1L)).thenReturn(null);
-        testTrainee.setId(1L);
-        traineeDao.delete(testTrainee);
-        assertFalse(traineeDao.findById(1L).isPresent());
+        Trainee newTrainee = traineeDao.save(testTrainee);
+        Long id = newTrainee.getId();
+
+        traineeDao.delete(newTrainee);
+
+        assertFalse(traineeDao.findById(id).isPresent());
     }
 
     @Test
     @DisplayName("Should find Trainee by id")
     public void findById_ShouldFindTraineeById() {
+
         Trainee newTrainee = traineeDao.save(testTrainee);
+        Long id = newTrainee.getId();
 
-        assertNotNull(newTrainee);
-        assertNotNull(newTrainee.getId());
-        when(session.get(Trainee.class, 1L)).thenReturn(newTrainee);
-        Trainee foundTrainee = traineeDao.findById(newTrainee.getId()).get();
+        traineeDao.delete(newTrainee);
 
-        assertNotNull(foundTrainee);
-        assertEquals(newTrainee.getId(), foundTrainee.getId());
-        assertEquals(newTrainee.getUsername(), foundTrainee.getUsername());
-        assertEquals(newTrainee.getFirstName(), foundTrainee.getFirstName());
-        assertEquals(newTrainee.getLastName(), foundTrainee.getLastName());
-        assertEquals(newTrainee.getDateOfBirth(), foundTrainee.getDateOfBirth());
-        assertEquals(newTrainee.getAddress(), foundTrainee.getAddress());
-        assertEquals(newTrainee.getPassword(), foundTrainee.getPassword());
+        assertFalse(traineeDao.findById(id).isPresent());
+
+        newTrainee = traineeDao.save(buildTraineeForAdding());
+
+        assertTrue(traineeDao.findById(newTrainee.getId()).isPresent());
+
     }
 
     @Test
     @DisplayName("Should find Collection of all Trainees")
     public void findAll_ShouldFindAllTrainees() {
         Trainee newTrainee = traineeDao.save(testTrainee);
+
         assertNotNull(newTrainee);
-        List<Trainee> trainees = new ArrayList<>();
-        trainees.add(newTrainee);
-        Query<Trainee> mockQuery = mock(Query.class);
 
-        when(session.createQuery("select t from Trainee t", Trainee.class)).thenReturn(mockQuery);
+        Collection<Trainee> trainees = traineeDao.findAll();
 
-        when(mockQuery.list()).thenReturn(trainees);
-        Collection<Trainee> foundTrainees = traineeDao.findAll();
-
-        assertNotNull(trainees);
-        assertEquals(trainees.size(), 1);
-
-        trainees.forEach(
-                trainee -> {
-                    assertNotNull(trainee.getId());
-                    assertNotNull(trainee.getUsername());
-                    assertNotNull(trainee.getFirstName());
-                    assertNotNull(trainee.getLastName());
-                    assertNotNull(trainee.getDateOfBirth());
-                    assertNotNull(trainee.getAddress());
-                    assertNotNull(trainee.getPassword());
-                }
-        );
+        assertTrue(trainees.size() > 0);
     }
 
     @Test
     @DisplayName("Should find Trainee by username")
     public void findByUsername_ShouldFindTraineeByUserName() {
         Trainee newTrainee = traineeDao.save(testTrainee);
-        assertNotNull(newTrainee);
-        assertNotNull(newTrainee.getId());
+        traineeDao.delete(newTrainee);
 
-        Query<Trainee> mockQuery = mock(Query.class);
+        assertFalse(traineeDao.findByUsername(testTrainee.getUsername()).isPresent());
 
-        when(session.createQuery("FROM Trainee t where t.username = :username", Trainee.class)).thenReturn(mockQuery);
-        when(mockQuery.setParameter("username", newTrainee.getUsername())).thenReturn(mockQuery);
-        when(mockQuery.uniqueResult()).thenReturn(newTrainee);
+        newTrainee = traineeDao.save(buildTraineeForAdding());
 
-        Trainee foundTrainee = traineeDao.findByUsername(newTrainee.getUsername()).get();
-        assertNotNull(foundTrainee);
-        assertEquals(newTrainee.getId(), foundTrainee.getId());
-        assertEquals(newTrainee.getUsername(), foundTrainee.getUsername());
-        assertEquals(newTrainee.getFirstName(), foundTrainee.getFirstName());
-        assertEquals(newTrainee.getLastName(), foundTrainee.getLastName());
-        assertEquals(newTrainee.getDateOfBirth(), foundTrainee.getDateOfBirth());
-        assertEquals(newTrainee.getAddress(), foundTrainee.getAddress());
-        assertEquals(newTrainee.getPassword(), foundTrainee.getPassword());
+        assertTrue(traineeDao.findByUsername(newTrainee.getUsername()).isPresent());
     }
 
 

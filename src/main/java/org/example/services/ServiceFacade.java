@@ -1,16 +1,14 @@
 package org.example.services;
 
-import lombok.extern.slf4j.Slf4j;
-import org.example.repositories.entities.Trainee;
+import org.example.models.TraineeDto;
+import org.example.models.TrainerDto;
+import org.example.models.TrainingDto;
 import org.example.repositories.entities.Trainer;
-import org.example.repositories.entities.Training;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Optional;
 
 @Component
 public class ServiceFacade {
@@ -26,51 +24,51 @@ public class ServiceFacade {
         this.trainerService = trainerService;
     }
 
-    public Trainee addTrainee(Trainee trainee) {
-        return traineeService.add(trainee);
+    public TraineeDto addTrainee(TraineeDto traineeDto) {
+        return traineeService.add(traineeDto);
     }
 
-    public Trainee findTraineeById(long id) {
+    public TraineeDto findTraineeById(long id) {
         return traineeService.findById(id).get();
     }
 
-    public Collection<Trainee> findAllTrainees() {
+    public Collection<TraineeDto> findAllTrainees() {
         return traineeService.findAll();
     }
 
-    public void deleteTrainee(Trainee trainee) {
-        traineeService.delete(trainee);
+    public void deleteTrainee(TraineeDto traineeDto) {
+        traineeService.delete(traineeDto);
     }
 
-    public Trainee updateTrainee(Trainee trainee) {
-        return traineeService.update(trainee);
+    public TraineeDto updateTrainee(TraineeDto traineeDto) {
+        return traineeService.update(traineeDto);
     }
 
-    public Trainer addTrainer(Trainer trainer) {
-        return trainerService.add(trainer);
+    public TrainerDto addTrainer(TrainerDto trainerDto) {
+        return trainerService.add(trainerDto);
     }
 
-    public Trainer findTrainerById(long id) {
+    public TrainerDto findTrainerById(long id) {
         return trainerService.findById(id).get();
     }
 
-    public Collection<Trainer> findAllTrainers() {
+    public Collection<TrainerDto> findAllTrainers() {
         return trainerService.findAll();
     }
 
-    public Trainer updateTrainer(Trainer trainer) {
-        return trainerService.update(trainer);
+    public TrainerDto updateTrainer(TrainerDto trainerDto) {
+        return trainerService.update(trainerDto);
     }
 
-    public Training addTraining(Training training) {
-        return trainingService.add(training);
+    public TrainingDto addTraining(TrainingDto trainingDto) {
+        return trainingService.add(trainingDto);
     }
 
-    public Training findTrainingById(long id) {
+    public TrainingDto findTrainingById(long id) {
         return trainingService.findById(id).get();
     }
 
-    public Collection<Training> findAllTrainings() {
+    public Collection<TrainingDto> findAllTrainings() {
         return trainingService.findAll();
     }
 }
