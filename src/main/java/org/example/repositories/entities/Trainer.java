@@ -21,6 +21,6 @@ public class Trainer extends User {
 
     private String specialization;
 
-    @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "trainer", cascade = {CascadeType.REMOVE,CascadeType.MERGE}, orphanRemoval = true)
     private List<Training> trainings;
 }

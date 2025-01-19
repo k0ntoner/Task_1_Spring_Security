@@ -172,4 +172,19 @@ public class TrainingDaoImplTest {
 
         assertTrue(trainings.size() > 0);
     }
+    @Test
+    @DisplayName("Should delete Trainee and Training by Cascade")
+    public void delete_ShouldNotReturnTrainingById() {
+        Trainer newTrainer = trainerDao.save(testTrainer);
+        Trainee newTrainee = traineeDao.save(testTrainee);
+
+        testTraining.setTrainee(newTrainee);
+        testTraining.setTrainer(newTrainer);
+
+        Training newTraining = trainingDao.save(testTraining);
+
+        traineeDao.delete(newTrainee);
+        assertFalse(trainingDao.findById(newTraining.getId()).isPresent());
+    }
+
 }

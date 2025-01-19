@@ -22,7 +22,7 @@ public class Trainee extends User {
 
     private String address;
 
-    @OneToMany(mappedBy = "trainee", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "trainee", cascade = {CascadeType.REMOVE,CascadeType.MERGE}, orphanRemoval = true)
     private List<Training> trainings;
 
 }
