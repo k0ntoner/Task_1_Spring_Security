@@ -1,6 +1,7 @@
 package org.example.services.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.models.TrainerDto;
 import org.example.models.TrainingDto;
 import org.example.repositories.entities.Training;
 import org.example.repositories.TrainingDao;
@@ -9,6 +10,7 @@ import org.example.services.TrainingService;
 import org.example.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,20 +25,23 @@ public class TrainingServiceImpl implements TrainingService {
     @Qualifier("trainingDaoImpl")
     private TrainingDao trainingDao;
 
+    @Autowired
+    private ConversionService conversionService;
+
     @Override
     public TrainingDto add(TrainingDto entityDto) {
-        Training entity = UserUtils.convertTrainingDtoToEntity(entityDto);
+        Training entity = conversionService.convert(entityDto, Training.class);
         log.info("Request to save training: {}", entity.getTrainingName());
 
         Training savedTraining = trainingDao.save(entity);
 
-        return savedTraining == null ? null : UserUtils.convertTrainingEntityToDto(savedTraining);
+        return savedTraining == null ? null : conversionService.convert(savedTraining, TrainingDto.class);
     }
 
     @Override
     public Optional<TrainingDto> findById(long id) {
         log.info("Request to find training by ID: {}", id);
-        return trainingDao.findById(id).map(UserUtils::convertTrainingEntityToDto);
+        return trainingDao.findById(id).map(training -> conversionService.convert(training, TrainingDto.class));
     }
 
     @Override
@@ -44,7 +49,7 @@ public class TrainingServiceImpl implements TrainingService {
         log.info("Request to find all trainings");
         return trainingDao.findAll()
                 .stream()
-                .map(UserUtils::convertTrainingEntityToDto)
+                .map(training -> conversionService.convert(training, TrainingDto.class))
                 .collect(Collectors.toList());
     }
 
@@ -54,7 +59,7 @@ public class TrainingServiceImpl implements TrainingService {
 
         return trainingDao.findByTrainer(trainerUsername, startDateTime, endDateTime, traineeUsername)
                 .stream()
-                .map(UserUtils::convertTrainingEntityToDto)
+                .map(training -> conversionService.convert(training, TrainingDto.class))
                 .collect(Collectors.toList());
     }
 
@@ -64,7 +69,7 @@ public class TrainingServiceImpl implements TrainingService {
 
         return trainingDao.findByTrainee(traineeUsername, startDateTime, endDateTime, trainerUsername, trainingType)
                 .stream()
-                .map(UserUtils::convertTrainingEntityToDto)
+                .map(training -> conversionService.convert(training, TrainingDto.class))
                 .collect(Collectors.toList());
     }
 }

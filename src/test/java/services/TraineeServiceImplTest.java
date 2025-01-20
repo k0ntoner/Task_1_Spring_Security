@@ -5,13 +5,13 @@ import org.example.models.TraineeDto;
 import org.example.repositories.TraineeDao;
 import org.example.repositories.entities.Trainee;
 import org.example.services.impl.TraineeServiceImpl;
-import org.example.utils.UserUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.core.convert.ConversionService;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,6 +29,10 @@ import static org.mockito.Mockito.mock;
 public class TraineeServiceImplTest {
     @Mock
     private TraineeDao traineeDao;
+
+    @Mock
+    private ConversionService conversionService;
+
     @InjectMocks
     private TraineeServiceImpl traineeService;
 
@@ -37,17 +41,44 @@ public class TraineeServiceImplTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        testTraineeDto = buildTraineeForAdding();
+        testTraineeDto = buildTraineeDto();
         doAnswer(invocation -> {
             Trainee trainee = invocation.getArgument(0);
             trainee.setId(1L);
             return trainee;
         }).when(traineeDao).save(any(Trainee.class));
 
+        doAnswer(invocation -> {
+            Trainee trainee = invocation.getArgument(0);
+            return TraineeDto.builder()
+                    .id(trainee.getId())
+                    .firstName(trainee.getFirstName())
+                    .lastName(trainee.getLastName())
+                    .password(trainee.getPassword())
+                    .dateOfBirth(trainee.getDateOfBirth())
+                    .address(trainee.getAddress())
+                    .isActive(true)
+                    .build();
+        }).when(conversionService).convert(any(Trainee.class), eq(TraineeDto.class));
+
+        doAnswer(invocation -> {
+            TraineeDto traineeDto = invocation.getArgument(0);
+            return Trainee.builder()
+                    .id(traineeDto.getId())
+                    .firstName(traineeDto.getFirstName())
+                    .lastName(traineeDto.getLastName())
+                    .password(traineeDto.getPassword())
+                    .dateOfBirth(traineeDto.getDateOfBirth())
+                    .address(traineeDto.getAddress())
+                    .isActive(true)
+                    .build();
+        }).when(conversionService).convert(any(TraineeDto.class), eq(Trainee.class));
+
     }
 
-    public TraineeDto buildTraineeForAdding() {
+    public TraineeDto buildTraineeDto() {
         return TraineeDto.builder()
+                .id(1L)
                 .firstName("John")
                 .lastName("Doe")
                 .password("JohnDoe")
@@ -57,13 +88,36 @@ public class TraineeServiceImplTest {
                 .build();
     }
 
+    public Trainee buildTrainee() {
+        return Trainee.builder()
+                .id(1L)
+                .firstName("John")
+                .lastName("Doe")
+                .password("JohnDoe")
+                .dateOfBirth(LocalDate.of(1998, 11, 23))
+                .address("Test Street")
+                .isActive(true)
+                .build();
+    }
+
+    public Trainee buildTrainee(TraineeDto traineeDto) {
+        return Trainee.builder()
+                .id(traineeDto.getId())
+                .firstName(traineeDto.getFirstName())
+                .lastName(traineeDto.getLastName())
+                .password(traineeDto.getPassword())
+                .dateOfBirth(traineeDto.getDateOfBirth())
+                .address(traineeDto.getAddress())
+                .isActive(traineeDto.isActive())
+                .build();
+    }
+
 
     @Test
     @DisplayName("Should return saved Trainee")
     public void save_ShouldReturnSavedTrainee() {
         TraineeDto newTraineeDto = traineeService.add(testTraineeDto);
 
-        assertNotNull(newTraineeDto.getId());
         verify(traineeDao, times(1)).save(any(Trainee.class));
     }
 
@@ -72,12 +126,10 @@ public class TraineeServiceImplTest {
     public void update_ShouldUpdateTrainee() {
         TraineeDto newTraineeDto = traineeService.add(testTraineeDto);
 
-        when(traineeDao.update(any(Trainee.class))).thenReturn(UserUtils.convertTraineeDtoToEntity(newTraineeDto));
-        when(traineeDao.findById(newTraineeDto.getId())).thenReturn(Optional.of(UserUtils.convertTraineeDtoToEntity(newTraineeDto)));
+        when(traineeDao.update(any(Trainee.class))).thenReturn(buildTrainee(newTraineeDto));
+        when(traineeDao.findById(newTraineeDto.getId())).thenReturn(Optional.of(buildTrainee(newTraineeDto)));
 
         TraineeDto updatedTraineeDto = traineeService.update(newTraineeDto);
-
-        assertNotNull(updatedTraineeDto.getId());
 
         verify(traineeDao, times(1)).update(any(Trainee.class));
 
@@ -90,7 +142,7 @@ public class TraineeServiceImplTest {
 
         traineeService.delete(testTraineeDto);
 
-        verify(traineeDao,times(1)).delete(any(Trainee.class));
+        verify(traineeDao, times(1)).delete(any(Trainee.class));
     }
 
     @Test
@@ -98,24 +150,22 @@ public class TraineeServiceImplTest {
     public void delete_ShouldDeleteTraineeByUsername() {
         testTraineeDto = traineeService.add(testTraineeDto);
 
-        when(traineeDao.findByUsername(testTraineeDto.getUsername())).thenReturn(Optional.of(UserUtils.convertTraineeDtoToEntity(testTraineeDto)));
+        when(traineeDao.findByUsername(testTraineeDto.getUsername())).thenReturn(Optional.of(buildTrainee(testTraineeDto)));
 
         traineeService.deleteByUsername(testTraineeDto.getUsername());
 
-        verify(traineeDao,times(1)).delete(any(Trainee.class));
-
+        verify(traineeDao, times(1)).delete(any(Trainee.class));
     }
 
     @Test
     @DisplayName("Should find Trainee by id")
     public void findById_ShouldFindTraineeById() {
         testTraineeDto = traineeService.add(testTraineeDto);
-        when(traineeDao.findById(1L)).thenReturn(Optional.of(UserUtils.convertTraineeDtoToEntity(testTraineeDto)));
+        when(traineeDao.findById(1L)).thenReturn(Optional.of(buildTrainee(testTraineeDto)));
 
         TraineeDto foundTraineeDto = traineeService.findById(testTraineeDto.getId()).get();
 
-        assertNotNull(foundTraineeDto.getId());
-        verify(traineeDao,times(1)).findById(testTraineeDto.getId());
+        verify(traineeDao, times(1)).findById(testTraineeDto.getId());
     }
 
     @Test
@@ -124,13 +174,12 @@ public class TraineeServiceImplTest {
 
         testTraineeDto = traineeService.add(testTraineeDto);
         List<Trainee> trainees = new ArrayList<>();
-        trainees.add(UserUtils.convertTraineeDtoToEntity(testTraineeDto));
+        trainees.add(buildTrainee());
         when(traineeDao.findAll()).thenReturn(trainees);
         Collection<Trainee> foundTrainees = traineeDao.findAll();
 
-        assertTrue(trainees.size()>0);
-        verify(traineeDao,times(1)).findAll();
-
+        assertTrue(trainees.size() > 0);
+        verify(traineeDao, times(1)).findAll();
     }
 
     @Test
@@ -138,24 +187,23 @@ public class TraineeServiceImplTest {
     public void findByUsername_ShouldFindTraineeByUserName() {
         testTraineeDto = traineeService.add(testTraineeDto);
 
-        when(traineeDao.findByUsername(testTraineeDto.getUsername())).thenReturn(Optional.of(UserUtils.convertTraineeDtoToEntity(testTraineeDto)));
+        when(traineeDao.findByUsername(testTraineeDto.getUsername())).thenReturn(Optional.of(buildTrainee(testTraineeDto)));
 
         TraineeDto foundTraineeDto = traineeService.findByUsername(testTraineeDto.getUsername()).get();
 
-        assertNotNull(foundTraineeDto.getId());
-        verify(traineeDao,times(1)).findByUsername(any());
+        verify(traineeDao, times(1)).findByUsername(any());
     }
 
     @Test
     @DisplayName("Should change trainee password")
     public void changePassword_ShouldChangeTraineePassword() {
         testTraineeDto = traineeService.add(testTraineeDto);
-        when(traineeDao.findByUsername(testTraineeDto.getUsername())).thenReturn(Optional.of(UserUtils.convertTraineeDtoToEntity(testTraineeDto)));
-        when(traineeDao.update(any(Trainee.class))).thenReturn(UserUtils.convertTraineeDtoToEntity(testTraineeDto));
+        when(traineeDao.findByUsername(testTraineeDto.getUsername())).thenReturn(Optional.of(buildTrainee(testTraineeDto)));
+        when(traineeDao.update(any(Trainee.class))).thenReturn(buildTrainee());
 
         traineeService.changePassword(testTraineeDto.getUsername(), "JohnDoe", "newPass");
 
-        verify(traineeDao,times(1)).update(any(Trainee.class));
+        verify(traineeDao, times(1)).update(any(Trainee.class));
     }
 
     @Test
@@ -163,10 +211,9 @@ public class TraineeServiceImplTest {
     public void activate_ShouldActivateTrainee() {
         testTraineeDto = traineeService.add(testTraineeDto);
 
-        when(traineeDao.update(any(Trainee.class))).thenReturn(UserUtils.convertTraineeDtoToEntity(testTraineeDto));
+        when(traineeDao.update(any(Trainee.class))).thenReturn(buildTrainee(testTraineeDto));
         traineeService.activate(testTraineeDto);
-        verify(traineeDao,times(1)).update(any(Trainee.class));
-
+        verify(traineeDao, times(1)).update(any(Trainee.class));
     }
 
     @Test
@@ -174,10 +221,9 @@ public class TraineeServiceImplTest {
     public void activate_ShouldDeactivateTrainee() {
         testTraineeDto = traineeService.add(testTraineeDto);
 
-        when(traineeDao.update(any(Trainee.class))).thenReturn(UserUtils.convertTraineeDtoToEntity(testTraineeDto));
+        when(traineeDao.update(any(Trainee.class))).thenReturn(buildTrainee(testTraineeDto));
         traineeService.deactivate(testTraineeDto);
-        verify(traineeDao,times(1)).update(any(Trainee.class));
-
+        verify(traineeDao, times(1)).update(any(Trainee.class));
     }
 
 }

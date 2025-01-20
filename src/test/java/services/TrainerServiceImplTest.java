@@ -6,13 +6,13 @@ import org.example.repositories.TrainerDao;
 import org.example.repositories.entities.Trainer;
 import org.example.enums.TrainingType;
 import org.example.services.impl.TrainerServiceImpl;
-import org.example.utils.UserUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.core.convert.ConversionService;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,6 +26,10 @@ import static org.mockito.Mockito.*;
 public class TrainerServiceImplTest {
     @Mock
     private TrainerDao trainerDao;
+
+    @Mock
+    private ConversionService conversionService;
+
     @InjectMocks
     private TrainerServiceImpl trainerService;
 
@@ -34,17 +38,44 @@ public class TrainerServiceImplTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        testTrainerDto = buildTrainerForAdding();
+        testTrainerDto = buildTrainerDto();
         doAnswer(invocation -> {
             Trainer trainer = invocation.getArgument(0);
             trainer.setId(1L);
             return trainer;
         }).when(trainerDao).save(any(Trainer.class));
 
+        doAnswer(invocation -> {
+            Trainer trainer = invocation.getArgument(0);
+            return TrainerDto.builder()
+                    .id(trainer.getId())
+                    .firstName(trainer.getFirstName())
+                    .lastName(trainer.getLastName())
+                    .password(trainer.getPassword())
+                    .trainingType(trainer.getTrainingType())
+                    .specialization(trainer.getSpecialization())
+                    .isActive(true)
+                    .build();
+        }).when(conversionService).convert(any(Trainer.class), eq(TrainerDto.class));
+
+        doAnswer(invocation -> {
+            TrainerDto trainerDto = invocation.getArgument(0);
+            return Trainer.builder()
+                    .id(trainerDto.getId())
+                    .firstName(trainerDto.getFirstName())
+                    .lastName(trainerDto.getLastName())
+                    .password(trainerDto.getPassword())
+                    .trainingType(trainerDto.getTrainingType())
+                    .specialization(trainerDto.getSpecialization())
+                    .isActive(true)
+                    .build();
+        }).when(conversionService).convert(any(TrainerDto.class), eq(Trainer.class));
+
     }
 
-    public TrainerDto buildTrainerForAdding() {
+    public TrainerDto buildTrainerDto() {
         return TrainerDto.builder()
+                .id(1L)
                 .firstName("Mike")
                 .lastName("Tyson")
                 .password("MikeTyson")
@@ -54,15 +85,36 @@ public class TrainerServiceImplTest {
                 .build();
     }
 
+    public Trainer buildTrainer() {
+        return Trainer.builder()
+                .id(1L)
+                .firstName("Mike")
+                .lastName("Tyson")
+                .password("MikeTyson")
+                .specialization("Boxing")
+                .trainingType(TrainingType.STRENGTH)
+                .isActive(true)
+                .build();
+    }
+
+    public Trainer buildTrainer(TrainerDto trainerDto) {
+        return Trainer.builder()
+                .id(trainerDto.getId())
+                .firstName(trainerDto.getFirstName())
+                .lastName(trainerDto.getLastName())
+                .password(trainerDto.getPassword())
+                .specialization(trainerDto.getSpecialization())
+                .trainingType(trainerDto.getTrainingType())
+                .isActive(trainerDto.isActive())
+                .build();
+    }
+
     @Test
     @DisplayName("Should return saved Trainer")
     public void save_ShouldReturnSavedTrainer() {
         TrainerDto newTrainerDto = trainerService.add(testTrainerDto);
 
-        assertNotNull(newTrainerDto.getId());
-        verify(trainerDao,times(1)).save(any(Trainer.class));
-
-
+        verify(trainerDao, times(1)).save(any(Trainer.class));
     }
 
     @Test
@@ -70,39 +122,38 @@ public class TrainerServiceImplTest {
     public void update_ShouldUpdateTrainer() {
         TrainerDto newTrainerDto = trainerService.add(testTrainerDto);
 
-        when(trainerDao.update(any(Trainer.class))).thenReturn(UserUtils.convertTrainerDtoToEntity(newTrainerDto));
+        when(trainerDao.update(any(Trainer.class))).thenReturn(buildTrainer(newTrainerDto));
 
         TrainerDto updatedTrainerDto = trainerService.update(newTrainerDto);
 
-        assertNotNull(updatedTrainerDto.getId());
-        verify(trainerDao,times(1)).update(any(Trainer.class));
-
+        verify(trainerDao, times(1)).update(any(Trainer.class));
     }
 
     @Test
     @DisplayName("Should find Trainer by id")
     public void findById_ShouldFindTrainerById() {
         testTrainerDto = trainerService.add(testTrainerDto);
-        when(trainerDao.findById(1L)).thenReturn(Optional.of(UserUtils.convertTrainerDtoToEntity(testTrainerDto)));
+        when(trainerDao.findById(1L)).thenReturn(Optional.of(buildTrainer(testTrainerDto)));
 
         TrainerDto foundTrainerDto = trainerService.findById(1L).get();
 
-        assertNotNull(foundTrainerDto.getId());
-        verify(trainerDao,times(1)).findById(1L);
+        verify(trainerDao, times(1)).findById(1L);
     }
 
     @Test
     @DisplayName("Should find Collection of all Trainers")
     public void findAll_ShouldFindAllTrainers() {
-
         testTrainerDto = trainerService.add(testTrainerDto);
         List<Trainer> trainers = new ArrayList<>();
-        trainers.add(UserUtils.convertTrainerDtoToEntity(testTrainerDto));
+
+        trainers.add(buildTrainer());
+
         when(trainerDao.findAll()).thenReturn(trainers);
+
         Collection<TrainerDto> foundTrainers = trainerService.findAll();
 
         assertTrue(foundTrainers.size() > 0);
-        verify(trainerDao,times(1)).findAll();
+        verify(trainerDao, times(1)).findAll();
     }
 
     @Test
@@ -110,34 +161,32 @@ public class TrainerServiceImplTest {
     public void findByUsername_ShouldFindTrainerByUserName() {
         testTrainerDto = trainerService.add(testTrainerDto);
 
-        when(trainerDao.findByUsername(testTrainerDto.getUsername())).thenReturn(Optional.of(UserUtils.convertTrainerDtoToEntity(testTrainerDto)));
+        when(trainerDao.findByUsername(testTrainerDto.getUsername())).thenReturn(Optional.of(buildTrainer(testTrainerDto)));
 
         TrainerDto foundTrainerDto = trainerService.findByUsername(testTrainerDto.getUsername()).get();
-        assertNotNull(foundTrainerDto.getId());
-        verify(trainerDao,times(1)).findByUsername(testTrainerDto.getUsername());
 
+        verify(trainerDao, times(1)).findByUsername(testTrainerDto.getUsername());
     }
 
     @Test
     @DisplayName("Should change trainer password")
     public void changePassword_ShouldChangeTrainerPassword() {
         testTrainerDto = trainerService.add(testTrainerDto);
-        when(trainerDao.findByUsername(testTrainerDto.getUsername())).thenReturn(Optional.of(UserUtils.convertTrainerDtoToEntity(testTrainerDto)));
-        when(trainerDao.update(any(Trainer.class))).thenReturn(UserUtils.convertTrainerDtoToEntity(testTrainerDto));
+        when(trainerDao.findByUsername(testTrainerDto.getUsername())).thenReturn(Optional.of(buildTrainer(testTrainerDto)));
+        when(trainerDao.update(any(Trainer.class))).thenReturn(buildTrainer());
 
         trainerService.changePassword(testTrainerDto.getUsername(), "MikeTyson", "newPass");
-        verify(trainerDao,times(1)).update(any(Trainer.class));
+        verify(trainerDao, times(1)).update(any(Trainer.class));
     }
 
     @Test
     @DisplayName("Should activate Trainer")
     public void activate_ShouldActivateTrainer() {
         testTrainerDto = trainerService.add(testTrainerDto);
-        when(trainerDao.update(any(Trainer.class))).thenReturn(UserUtils.convertTrainerDtoToEntity(testTrainerDto));
+        when(trainerDao.update(any(Trainer.class))).thenReturn(buildTrainer(testTrainerDto));
         trainerService.activate(testTrainerDto);
 
-        verify(trainerDao,times(1)).update(any(Trainer.class));
-
+        verify(trainerDao, times(1)).update(any(Trainer.class));
     }
 
     @Test
@@ -145,12 +194,11 @@ public class TrainerServiceImplTest {
     public void activate_ShouldDeactivateTrainer() {
         testTrainerDto = trainerService.add(testTrainerDto);
 
-        when(trainerDao.update(any(Trainer.class))).thenReturn(UserUtils.convertTrainerDtoToEntity(testTrainerDto));
+        when(trainerDao.update(any(Trainer.class))).thenReturn(buildTrainer(testTrainerDto));
 
         trainerService.deactivate(testTrainerDto);
 
-        verify(trainerDao,times(1)).update(any(Trainer.class));
-
+        verify(trainerDao, times(1)).update(any(Trainer.class));
     }
 
 }

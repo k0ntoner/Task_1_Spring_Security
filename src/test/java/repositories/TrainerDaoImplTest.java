@@ -87,8 +87,8 @@ public class TrainerDaoImplTest {
     }
 
     @Test
-    @DisplayName("Should update not existing trainer")
-    public void update_ShouldUpdateNotExistingTrainee() {
+    @DisplayName("Should throw exception when update not existing trainer")
+    public void update_ShouldThrowExceptionWhenUpdateNotExistingTrainer() {
         testTrainer.setId(1L);
         assertThrows(IllegalArgumentException.class, () -> trainerDao.update(testTrainer));
         assertFalse(trainerDao.findById(testTrainer.getId()).isPresent());

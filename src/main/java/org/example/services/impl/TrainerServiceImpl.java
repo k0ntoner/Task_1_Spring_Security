@@ -1,6 +1,7 @@
 package org.example.services.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.models.TraineeDto;
 import org.example.models.TrainerDto;
 import org.example.repositories.TrainerDao;
 import org.example.repositories.entities.Trainer;
@@ -9,6 +10,7 @@ import org.example.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -22,9 +24,12 @@ public class TrainerServiceImpl implements TrainerService {
     @Qualifier("trainerDaoImpl")
     private TrainerDao trainerDao;
 
+    @Autowired
+    private ConversionService conversionService;
+
     @Override
     public TrainerDto add(TrainerDto trainerDto) {
-        Trainer entity = UserUtils.convertTrainerDtoToEntity(trainerDto);
+        Trainer entity = conversionService.convert(trainerDto, Trainer.class);
         log.info("Request to save trainer");
 
         if (!UserUtils.verifyPassword(entity.getPassword())) {
@@ -36,13 +41,13 @@ public class TrainerServiceImpl implements TrainerService {
 
         Trainer savedTrainer = trainerDao.save(entity);
 
-        return savedTrainer == null ? null : UserUtils.convertTrainerEntityToDto(savedTrainer);
+        return savedTrainer == null ? null : conversionService.convert(savedTrainer, TrainerDto.class);
     }
 
     @Override
     public Optional<TrainerDto> findById(long id) {
         log.info("Request to find trainer by ID: {}", id);
-        return trainerDao.findById(id).map(UserUtils::convertTrainerEntityToDto);
+        return trainerDao.findById(id).map(trainer -> conversionService.convert(trainer, TrainerDto.class));
     }
 
     @Override
@@ -56,17 +61,17 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     public TrainerDto update(TrainerDto trainerDto) {
-        Trainer entity = UserUtils.convertTrainerDtoToEntity(trainerDto);
+        Trainer entity = conversionService.convert(trainerDto, Trainer.class);
         log.info("Request to update trainer with ID: {}", entity.getId());
 
         Trainer updatedTrainer = trainerDao.update(entity);
 
-        return updatedTrainer == null ? null : UserUtils.convertTrainerEntityToDto(updatedTrainer);
+        return updatedTrainer == null ? null : conversionService.convert(updatedTrainer, TrainerDto.class);
     }
 
     @Override
     public Optional<TrainerDto> findByUsername(String username) {
-        return trainerDao.findByUsername(username).map(UserUtils::convertTrainerEntityToDto);
+        return trainerDao.findByUsername(username).map(trainer -> conversionService.convert(trainer, TrainerDto.class));
     }
 
     @Override
@@ -87,14 +92,14 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     public void activate(TrainerDto trainerDto) {
-        Trainer entity = UserUtils.convertTrainerDtoToEntity(trainerDto);
+        Trainer entity = conversionService.convert(trainerDto, Trainer.class);
         entity.setActive(true);
         trainerDao.update(entity);
     }
 
     @Override
     public void deactivate(TrainerDto entityDto) {
-        Trainer entity = UserUtils.convertTrainerDtoToEntity(entityDto);
+        Trainer entity = conversionService.convert(entityDto, Trainer.class);
         entity.setActive(false);
         trainerDao.update(entity);
     }
@@ -103,7 +108,7 @@ public class TrainerServiceImpl implements TrainerService {
     public Collection<TrainerDto> findTrainersNotAssignedToTrainee(String traineeUsername) {
         return trainerDao.findTrainersNotAssignedToTrainee(traineeUsername)
                 .stream()
-                .map(UserUtils::convertTrainerEntityToDto)
+                .map(trainer -> conversionService.convert(trainer, TrainerDto.class))
                 .collect(Collectors.toList());
     }
 }

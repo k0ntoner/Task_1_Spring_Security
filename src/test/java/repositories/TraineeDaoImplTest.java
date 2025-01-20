@@ -92,8 +92,8 @@ public class TraineeDaoImplTest {
     }
 
     @Test
-    @DisplayName("Should update not existing trainee")
-    public void update_ShouldUpdateNotExistingTrainee() {
+    @DisplayName("Should throw exception when update not existing trainee")
+    public void update_ShouldThrowExceptionWhenUpdateNotExistingTrainee() {
         testTrainee.setId(1L);
         assertThrows(IllegalArgumentException.class, () -> traineeDao.update(testTrainee));
         assertFalse(traineeDao.findById(testTrainee.getId()).isPresent());
