@@ -1,6 +1,7 @@
 package org.example.services.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.models.TraineeDto;
 import org.example.models.TrainerDto;
 import org.example.models.TrainingDto;
 import org.example.repositories.entities.Training;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Optional;
@@ -71,5 +73,25 @@ public class TrainingServiceImpl implements TrainingService {
                 .stream()
                 .map(training -> conversionService.convert(training, TrainingDto.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public TrainingDto add(Long id, TraineeDto traineeDto, TrainerDto trainerDto, TrainingType trainingType, String trainingName, Duration duration, LocalDateTime dateTime) {
+        TrainingDto entityDto = TrainingDto.builder()
+                .id(id)
+                .traineeDto(traineeDto)
+                .trainerDto(trainerDto)
+                .trainingType(trainingType)
+                .trainingName(trainingName)
+                .trainingDuration(duration)
+                .trainingDate(dateTime)
+                .build();
+
+        Training entity = conversionService.convert(entityDto, Training.class);
+        log.info("Request to save training: {}", entity.getTrainingName());
+
+        Training savedTraining = trainingDao.save(entity);
+
+        return savedTraining == null ? null : conversionService.convert(savedTraining, TrainingDto.class);
     }
 }

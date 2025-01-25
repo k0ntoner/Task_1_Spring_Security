@@ -114,8 +114,7 @@ public class TrainingServiceImplTest {
                 .lastName("Tyson")
                 .username("Iron.Mike")
                 .password(UserUtils.hashPassword("Champion"))
-                .specialization("Boxing")
-                .trainingType(TrainingType.STRENGTH)
+                .specialization(TrainingType.STRENGTH)
                 .isActive(true)
                 .build();
     }
@@ -127,7 +126,6 @@ public class TrainingServiceImplTest {
                 .lastName(trainerDto.getLastName())
                 .password(trainerDto.getPassword())
                 .specialization(trainerDto.getSpecialization())
-                .trainingType(trainerDto.getTrainingType())
                 .isActive(trainerDto.isActive())
                 .build();
     }

@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface BasicService<T> {
-    T add(T entity);
+    T add(T dto);
 
     Optional<T> findById(long id);
 

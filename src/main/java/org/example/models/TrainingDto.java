@@ -18,10 +18,10 @@ public class TrainingDto {
     private Long id;
 
     @NotNull
-    private TraineeDto trainee;
+    private TraineeDto traineeDto;
 
     @NotNull
-    private TrainerDto trainer;
+    private TrainerDto trainerDto;
 
     @NotNull
     private String trainingName;

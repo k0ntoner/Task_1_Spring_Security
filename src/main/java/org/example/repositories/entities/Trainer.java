@@ -17,9 +17,7 @@ import java.util.List;
 public class Trainer extends User {
     @Enumerated(EnumType.STRING)
     @Column(name = "training_type", nullable = false)
-    private TrainingType trainingType;
-
-    private String specialization;
+    private TrainingType specialization;
 
     @OneToMany(mappedBy = "trainer", cascade = {CascadeType.REMOVE,CascadeType.MERGE}, orphanRemoval = true)
     private List<Training> trainings;

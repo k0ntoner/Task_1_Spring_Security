@@ -36,8 +36,7 @@ public class TrainerDaoImplTest {
                 .lastName("Tyson")
                 .username("Iron.Mike")
                 .password(UserUtils.hashPassword("Champion"))
-                .specialization("Boxing")
-                .trainingType(TrainingType.STRENGTH)
+                .specialization(TrainingType.STRENGTH)
                 .isActive(true)
                 .build();
     }
@@ -52,14 +51,12 @@ public class TrainerDaoImplTest {
         assertEquals(testTrainer.getFirstName(), newTrainer.getFirstName());
         assertEquals(testTrainer.getLastName(), newTrainer.getLastName());
         assertEquals(testTrainer.getSpecialization(), newTrainer.getSpecialization());
-        assertEquals(testTrainer.getTrainingType(), newTrainer.getTrainingType());
     }
 
     @Test
     @DisplayName("Should update existing Trainer")
     public void update_ShouldUpdateTrainer() {
-        String newSpecialization = "NewSpecialization";
-        TrainingType newTrainingType = TrainingType.CARDIO;
+        TrainingType newSpecialization = TrainingType.CARDIO;
         String newFirstName = "newFirstName";
         String newLastName = "newLastName";
         String newUsername = "newUsername";
@@ -68,7 +65,6 @@ public class TrainerDaoImplTest {
         Trainer newTrainer = trainerDao.save(testTrainer);
 
         newTrainer.setSpecialization(newSpecialization);
-        newTrainer.setTrainingType(newTrainingType);
         newTrainer.setFirstName(newFirstName);
         newTrainer.setLastName(newLastName);
         newTrainer.setUsername(newUsername);
@@ -78,7 +74,6 @@ public class TrainerDaoImplTest {
 
         assertNotNull(updatedTrainer);
         assertEquals(newSpecialization, updatedTrainer.getSpecialization());
-        assertEquals(newTrainingType, updatedTrainer.getTrainingType());
         assertEquals(newFirstName, updatedTrainer.getFirstName());
         assertEquals(newLastName, updatedTrainer.getLastName());
         assertEquals(newUsername, updatedTrainer.getUsername());

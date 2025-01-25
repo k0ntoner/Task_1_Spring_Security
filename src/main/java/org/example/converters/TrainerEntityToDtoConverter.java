@@ -18,7 +18,6 @@ public class TrainerEntityToDtoConverter implements Converter<Trainer, TrainerDt
                 .password(entity.getPassword())
                 .isActive(entity.isActive())
                 .specialization(entity.getSpecialization())
-                .trainingType(entity.getTrainingType())
                 .build();
     }
 }

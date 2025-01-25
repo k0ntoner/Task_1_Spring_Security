@@ -1,6 +1,7 @@
 package org.example.services.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.enums.TrainingType;
 import org.example.models.TraineeDto;
 import org.example.models.TrainerDto;
 import org.example.repositories.TrainerDao;
@@ -55,7 +56,7 @@ public class TrainerServiceImpl implements TrainerService {
         log.info("Request to find all trainers");
         return trainerDao.findAll()
                 .stream()
-                .map(UserUtils::convertTrainerEntityToDto)
+                .map(trainer -> conversionService.convert(trainer, TrainerDto.class))
                 .collect(Collectors.toList());
     }
 
@@ -110,5 +111,46 @@ public class TrainerServiceImpl implements TrainerService {
                 .stream()
                 .map(trainer -> conversionService.convert(trainer, TrainerDto.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public TrainerDto add(Long id, String firstName, String lastName, String username, String password, boolean isActive, TrainingType specialization) {
+        TrainerDto trainerDto = TrainerDto.builder()
+                .id(id)
+                .firstName(firstName)
+                .lastName(lastName)
+                .username(username)
+                .password(password)
+                .isActive(isActive)
+                .specialization(specialization)
+                .build();
+
+        Trainer entity = conversionService.convert(trainerDto, Trainer.class);
+        log.info("Request to save trainer");
+
+        if (!UserUtils.verifyPassword(entity.getPassword())) {
+            throw new IllegalArgumentException("Invalid password");
+        }
+
+        entity.setUsername(UserUtils.generateUserName(entity, trainerDao::isUsernameExist));
+        entity.setPassword(UserUtils.hashPassword(entity.getPassword()));
+
+        Trainer savedTrainer = trainerDao.save(entity);
+
+        return savedTrainer == null ? null : conversionService.convert(savedTrainer, TrainerDto.class);
+    }
+
+    @Override
+    public TrainerDto matchPassword(String username, String password){
+        log.info("Request to match password");
+        Optional<Trainer> trainer = trainerDao.findByUsername(username);
+        if(trainer.isPresent()){
+            boolean result = UserUtils.passwordMatch(password, trainer.get().getPassword());
+            if(result){
+                return conversionService.convert(trainer.get(), TrainerDto.class);
+            }
+            throw new IllegalArgumentException("Invalid password");
+        }
+        throw new IllegalArgumentException("Invalid username");
     }
 }

@@ -3,9 +3,11 @@ package org.example.services.impl;
 import lombok.extern.slf4j.Slf4j;
 
 import org.example.models.TraineeDto;
+import org.example.models.TrainerDto;
 import org.example.repositories.TraineeDao;
 
 import org.example.repositories.entities.Trainee;
+import org.example.repositories.entities.Trainer;
 import org.example.services.TraineeService;
 import org.example.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -86,6 +89,33 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
+    public TraineeDto add(Long id, String firstName, String lastName, String username, String password, boolean isActive, LocalDate dateOfBirth, String address) {
+        log.info("Request to save trainee");
+        TraineeDto traineeDto = TraineeDto.builder()
+                .id(id)
+                .firstName(firstName)
+                .lastName(lastName)
+                .username(username)
+                .password(password)
+                .isActive(isActive)
+                .dateOfBirth(dateOfBirth)
+                .address(address)
+                .build();
+
+        Trainee trainee = conversionService.convert(traineeDto, Trainee.class);
+
+        if (!UserUtils.verifyPassword(trainee.getPassword())) {
+            throw new IllegalArgumentException("Invalid password");
+        }
+
+        trainee.setPassword(UserUtils.hashPassword(trainee.getPassword()));
+        trainee.setUsername(UserUtils.generateUserName(trainee, traineeDao::isUsernameExist));
+
+        Trainee savedTrainee = traineeDao.save(trainee);
+        return savedTrainee == null ? null : conversionService.convert(savedTrainee, TraineeDto.class);
+    }
+
+    @Override
     public Optional<TraineeDto> findByUsername(String username) {
         return traineeDao.findByUsername(username).map(trainee -> conversionService.convert(trainee, TraineeDto.class));
     }
@@ -118,6 +148,20 @@ public class TraineeServiceImpl implements TraineeService {
         Trainee entity = conversionService.convert(traineeDto, Trainee.class);
         entity.setActive(false);
         traineeDao.update(entity);
+    }
+
+    @Override
+    public TraineeDto matchPassword(String username, String password) {
+        log.info("Request to match password");
+        Optional<Trainee> trainee = traineeDao.findByUsername(username);
+        if(trainee.isPresent()){
+            boolean result = UserUtils.passwordMatch(password, trainee.get().getPassword());
+            if(result){
+                return conversionService.convert(trainee.get(), TraineeDto.class);
+            }
+            throw new IllegalArgumentException("Invalid password");
+        }
+        throw new IllegalArgumentException("Invalid username");
     }
 
 }

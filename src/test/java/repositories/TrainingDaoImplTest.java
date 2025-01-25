@@ -70,8 +70,7 @@ public class TrainingDaoImplTest {
                 .lastName("Tyson")
                 .username("Iron.Mike")
                 .password(UserUtils.hashPassword("Champion"))
-                .specialization("Boxing")
-                .trainingType(TrainingType.STRENGTH)
+                .specialization(TrainingType.STRENGTH)
                 .isActive(true)
                 .build();
     }

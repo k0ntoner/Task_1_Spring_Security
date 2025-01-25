@@ -52,7 +52,6 @@ public class TrainerServiceImplTest {
                     .firstName(trainer.getFirstName())
                     .lastName(trainer.getLastName())
                     .password(trainer.getPassword())
-                    .trainingType(trainer.getTrainingType())
                     .specialization(trainer.getSpecialization())
                     .isActive(true)
                     .build();
@@ -65,7 +64,6 @@ public class TrainerServiceImplTest {
                     .firstName(trainerDto.getFirstName())
                     .lastName(trainerDto.getLastName())
                     .password(trainerDto.getPassword())
-                    .trainingType(trainerDto.getTrainingType())
                     .specialization(trainerDto.getSpecialization())
                     .isActive(true)
                     .build();
@@ -79,8 +77,7 @@ public class TrainerServiceImplTest {
                 .firstName("Mike")
                 .lastName("Tyson")
                 .password("MikeTyson")
-                .specialization("Boxing")
-                .trainingType(TrainingType.STRENGTH)
+                .specialization(TrainingType.STRENGTH)
                 .isActive(true)
                 .build();
     }
@@ -91,8 +88,7 @@ public class TrainerServiceImplTest {
                 .firstName("Mike")
                 .lastName("Tyson")
                 .password("MikeTyson")
-                .specialization("Boxing")
-                .trainingType(TrainingType.STRENGTH)
+                .specialization(TrainingType.STRENGTH)
                 .isActive(true)
                 .build();
     }
@@ -104,7 +100,6 @@ public class TrainerServiceImplTest {
                 .lastName(trainerDto.getLastName())
                 .password(trainerDto.getPassword())
                 .specialization(trainerDto.getSpecialization())
-                .trainingType(trainerDto.getTrainingType())
                 .isActive(trainerDto.isActive())
                 .build();
     }

@@ -26,5 +26,5 @@ public abstract class UserDto {
     @Size(min = 4, max = 10, message = "Password must be between 4 and 10 characters")
     private String password;
 
-    private boolean isActive;
+    private boolean isActive = true;
 }

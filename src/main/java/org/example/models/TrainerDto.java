@@ -15,11 +15,9 @@ import java.util.Collection;
 @NoArgsConstructor
 @ToString(callSuper = true)
 public class TrainerDto extends UserDto {
-    @NotNull
-    private String specialization;
 
     @NotNull
-    private TrainingType trainingType;
+    private TrainingType specialization;
 
     @NotNull
     @Builder.Default

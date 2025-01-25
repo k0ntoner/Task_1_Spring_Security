@@ -1,15 +1,9 @@
 package repositories;
 
 import configs.TestConfig;
-import jakarta.persistence.PersistenceException;
-import jakarta.transaction.Transactional;
-import org.example.configs.Config;
 import org.example.repositories.TraineeDao;
 import org.example.repositories.entities.Trainee;
-import org.example.repositories.impl.TraineeDaoImpl;
 import org.example.utils.UserUtils;
-import org.hibernate.SessionFactory;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
