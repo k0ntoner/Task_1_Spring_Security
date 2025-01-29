@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.example.repositories.TraineeDao;
 import org.example.repositories.entities.Trainee;
+import org.example.repositories.entities.Trainer;
 import org.example.repositories.entities.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -15,9 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 @Slf4j
@@ -101,6 +101,27 @@ public class TraineeDaoImpl implements TraineeDao {
         } catch (Exception e) {
             log.error(e.getMessage());
         }
+    }
+
+    @Override
+    @Transactional
+    public Collection<Trainer> findTrainersByTraineeUsername(String username) {
+        try{
+            Session session = sessionFactory.getCurrentSession();
+
+            Collection<Trainer> trainers = session.createQuery("Select distinct t.trainer from Training t where t.trainee.username=:username").setParameter("username", username).list();
+            Collection<Trainer> uniqueTrainers = new HashSet<>();
+
+            trainers.forEach(trainer -> uniqueTrainers.add(trainer));
+
+            log.info("Found {} Trainers by Trainee username", uniqueTrainers.size());
+            return uniqueTrainers;
+
+        }
+        catch (PersistenceException e){
+            log.error(e.getMessage());
+        }
+        return new HashSet<>();
     }
 
 

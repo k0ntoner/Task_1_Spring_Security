@@ -1,7 +1,7 @@
 package services;
 
 
-import org.example.models.TrainerDto;
+import org.example.models.trainer.TrainerDto;
 import org.example.repositories.TrainerDao;
 import org.example.repositories.entities.Trainer;
 import org.example.enums.TrainingType;

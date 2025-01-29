@@ -2,12 +2,6 @@ package org.example.utils;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.example.models.TraineeDto;
-import org.example.models.TrainerDto;
-import org.example.models.TrainingDto;
-import org.example.repositories.entities.Trainee;
-import org.example.repositories.entities.Trainer;
-import org.example.repositories.entities.Training;
 import org.example.repositories.entities.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;

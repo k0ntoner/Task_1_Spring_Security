@@ -2,8 +2,8 @@ package org.example.services.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.enums.TrainingType;
-import org.example.models.TraineeDto;
-import org.example.models.TrainerDto;
+import org.example.models.trainee.TraineeDto;
+import org.example.models.trainer.TrainerDto;
 import org.example.repositories.TrainerDao;
 import org.example.repositories.entities.Trainer;
 import org.example.services.TrainerService;
@@ -42,13 +42,21 @@ public class TrainerServiceImpl implements TrainerService {
 
         Trainer savedTrainer = trainerDao.save(entity);
 
-        return savedTrainer == null ? null : conversionService.convert(savedTrainer, TrainerDto.class);
+        TrainerDto savedTrainerDto= conversionService.convert(savedTrainer, TrainerDto.class);
+        savedTrainerDto.setTrainees(findTraineesByTrainerUsername(savedTrainer.getUsername()));
+        return savedTrainerDto;
+
     }
 
     @Override
     public Optional<TrainerDto> findById(long id) {
         log.info("Request to find trainer by ID: {}", id);
-        return trainerDao.findById(id).map(trainer -> conversionService.convert(trainer, TrainerDto.class));
+        return trainerDao.findById(id)
+                .map(trainer -> conversionService.convert(trainer, TrainerDto.class))
+                .map(trainerDto -> {
+                    trainerDto.setTrainees(findTraineesByTrainerUsername(trainerDto.getUsername()));
+                    return trainerDto;
+                });
     }
 
     @Override
@@ -57,6 +65,10 @@ public class TrainerServiceImpl implements TrainerService {
         return trainerDao.findAll()
                 .stream()
                 .map(trainer -> conversionService.convert(trainer, TrainerDto.class))
+                .map(trainerDto -> {
+                    trainerDto.setTrainees(findTraineesByTrainerUsername(trainerDto.getUsername()));
+                    return trainerDto;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -67,12 +79,20 @@ public class TrainerServiceImpl implements TrainerService {
 
         Trainer updatedTrainer = trainerDao.update(entity);
 
-        return updatedTrainer == null ? null : conversionService.convert(updatedTrainer, TrainerDto.class);
+        TrainerDto updatedTrainerDto= conversionService.convert(updatedTrainer, TrainerDto.class);
+
+        updatedTrainerDto.setTrainees(findTraineesByTrainerUsername(updatedTrainer.getUsername()));
+
+        return updatedTrainerDto;
     }
 
     @Override
     public Optional<TrainerDto> findByUsername(String username) {
-        return trainerDao.findByUsername(username).map(trainer -> conversionService.convert(trainer, TrainerDto.class));
+        return trainerDao.findByUsername(username).map(trainer -> conversionService.convert(trainer, TrainerDto.class))
+                .map(trainerDto -> {
+                    trainerDto.setTrainees(findTraineesByTrainerUsername(trainerDto.getUsername()));
+                    return trainerDto;
+                });
     }
 
     @Override
@@ -110,6 +130,10 @@ public class TrainerServiceImpl implements TrainerService {
         return trainerDao.findTrainersNotAssignedToTrainee(traineeUsername)
                 .stream()
                 .map(trainer -> conversionService.convert(trainer, TrainerDto.class))
+                .map(trainerDto -> {
+                    trainerDto.setTrainees(findTraineesByTrainerUsername(trainerDto.getUsername()));
+                    return trainerDto;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -137,7 +161,9 @@ public class TrainerServiceImpl implements TrainerService {
 
         Trainer savedTrainer = trainerDao.save(entity);
 
-        return savedTrainer == null ? null : conversionService.convert(savedTrainer, TrainerDto.class);
+        TrainerDto savedTrainerDto= conversionService.convert(savedTrainer, TrainerDto.class);
+        savedTrainerDto.setTrainees(findTraineesByTrainerUsername(savedTrainer.getUsername()));
+        return savedTrainerDto;
     }
 
     @Override
@@ -147,10 +173,18 @@ public class TrainerServiceImpl implements TrainerService {
         if(trainer.isPresent()){
             boolean result = UserUtils.passwordMatch(password, trainer.get().getPassword());
             if(result){
-                return conversionService.convert(trainer.get(), TrainerDto.class);
+                TrainerDto trainerDto= conversionService.convert(trainer.get(), TrainerDto.class);
+                trainerDto.setTrainees(findTraineesByTrainerUsername(trainer.get().getUsername()));
+                return trainerDto;
             }
             throw new IllegalArgumentException("Invalid password");
         }
         throw new IllegalArgumentException("Invalid username");
+    }
+
+    @Override
+    public Collection<TraineeDto> findTraineesByTrainerUsername(String username) {
+        log.info("Request to find trainees by Trainer username: {}", username);
+        return trainerDao.findTraineesByTrainerUsername(username).stream().map(trainee -> conversionService.convert(trainee, TraineeDto.class)).collect(Collectors.toList());
     }
 }

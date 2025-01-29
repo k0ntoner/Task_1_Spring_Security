@@ -1,14 +1,13 @@
 package org.example.services.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.models.TraineeDto;
-import org.example.models.TrainerDto;
-import org.example.models.TrainingDto;
+import org.example.models.trainee.TraineeDto;
+import org.example.models.trainer.TrainerDto;
+import org.example.models.training.TrainingDto;
 import org.example.repositories.entities.Training;
 import org.example.repositories.TrainingDao;
 import org.example.enums.TrainingType;
 import org.example.services.TrainingService;
-import org.example.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.convert.ConversionService;

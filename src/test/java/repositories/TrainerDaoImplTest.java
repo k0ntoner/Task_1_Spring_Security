@@ -1,13 +1,10 @@
 package repositories;
 
-import configs.TestConfig;
+import configs.TestWebConfig;
 import org.example.repositories.TrainerDao;
 import org.example.repositories.entities.Trainer;
 import org.example.enums.TrainingType;
-import org.example.repositories.impl.TrainerDaoImpl;
 import org.example.utils.UserUtils;
-import org.hibernate.SessionFactory;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,7 +22,7 @@ public class TrainerDaoImplTest {
 
     @BeforeEach
     public void setUp() {
-        context = new AnnotationConfigApplicationContext(TestConfig.class);
+        context = new AnnotationConfigApplicationContext(TestWebConfig.class);
         trainerDao = context.getBean(TrainerDao.class);
         testTrainer = buildTrainerForAdding();
     }

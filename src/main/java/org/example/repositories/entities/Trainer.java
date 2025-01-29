@@ -5,6 +5,8 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.example.enums.TrainingType;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
@@ -19,6 +21,7 @@ public class Trainer extends User {
     @Column(name = "training_type", nullable = false)
     private TrainingType specialization;
 
-    @OneToMany(mappedBy = "trainer", cascade = {CascadeType.REMOVE,CascadeType.MERGE}, orphanRemoval = true)
-    private List<Training> trainings;
+    @OneToMany(mappedBy = "trainer", cascade = {CascadeType.REMOVE,CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.EAGER)
+    @Builder.Default
+    private Collection<Training> trainings=new ArrayList<>();
 }

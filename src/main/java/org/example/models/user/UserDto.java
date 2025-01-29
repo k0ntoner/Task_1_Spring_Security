@@ -1,6 +1,5 @@
-package org.example.models;
+package org.example.models.user;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sun.istack.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -26,5 +25,7 @@ public abstract class UserDto {
     @Size(min = 4, max = 10, message = "Password must be between 4 and 10 characters")
     private String password;
 
+    @NotNull
+    @Builder.Default
     private boolean isActive = true;
 }

@@ -1,5 +1,6 @@
 package org.example.repositories.impl;
 
+import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.example.repositories.TrainerDao;
@@ -13,11 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.PersistenceException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 @Slf4j
@@ -122,7 +119,7 @@ public class TrainerDaoImpl implements TrainerDao {
     @Override
     public Collection<Trainer> findTrainersNotAssignedToTrainee(String traineeUsername) {
         try (Session session = sessionFactory.openSession()) {
-            List<Trainer> trainers = session.createQuery("from Trainer t where t.id Not in (Select trainer.id from Training trainer join Trainee trainee where trainee.username!=:username  )", Trainer.class)
+            List<Trainer> trainers = session.createQuery("from Trainer t where t.isActive=true and t.id Not in (Select training.id from Training training join Trainee trainee where trainee.username!=:username )", Trainer.class)
                     .setParameter("username", traineeUsername)
                     .list();
 
@@ -131,6 +128,26 @@ public class TrainerDaoImpl implements TrainerDao {
             log.error(e.getMessage());
         }
         return new ArrayList<>();
+    }
+
+    @Override
+    public Collection<Trainee> findTraineesByTrainerUsername(String username) {
+        try{
+            Session session = sessionFactory.getCurrentSession();
+
+            Collection<Trainee> trainees = session.createQuery("Select distinct t.trainee from Training t where t.trainer.username=:username").setParameter("username", username).list();
+            Collection<Trainee> uniqueTrainees = new HashSet<>();
+
+            trainees.forEach(trainee -> uniqueTrainees.add(trainee));
+
+            log.info("Found {} Trainers by Trainee username", uniqueTrainees.size());
+            return uniqueTrainees;
+
+        }
+        catch (PersistenceException e){
+            log.error(e.getMessage());
+        }
+        return new HashSet<>();
     }
 
 }

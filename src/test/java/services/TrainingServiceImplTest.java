@@ -1,8 +1,8 @@
 package services;
 
-import org.example.models.TraineeDto;
-import org.example.models.TrainerDto;
-import org.example.models.TrainingDto;
+import org.example.models.trainee.TraineeDto;
+import org.example.models.trainer.TrainerDto;
+import org.example.models.training.TrainingDto;
 import org.example.repositories.*;
 import org.example.repositories.entities.Trainee;
 import org.example.repositories.entities.Trainer;
@@ -58,8 +58,8 @@ public class TrainingServiceImplTest {
             Training training = invocation.getArgument(0);
             return TrainingDto.builder()
                     .id(training.getId())
-                    .trainer(buildTrainerDto())
-                    .trainee(buildTraineeDto())
+                    .trainerDto(buildTrainerDto())
+                    .traineeDto(buildTraineeDto())
                     .trainingDate(training.getTrainingDate())
                     .trainingDuration(training.getTrainingDuration())
                     .trainingType(training.getTrainingType())
@@ -71,8 +71,8 @@ public class TrainingServiceImplTest {
             TrainingDto trainingDto = invocation.getArgument(0);
             return Training.builder()
                     .id(trainingDto.getId())
-                    .trainer(buildTrainer(trainingDto.getTrainer()))
-                    .trainee(buildTrainee(trainingDto.getTrainee()))
+                    .trainer(buildTrainer(trainingDto.getTrainerDto()))
+                    .trainee(buildTrainee(trainingDto.getTraineeDto()))
                     .trainingDate(trainingDto.getTrainingDate())
                     .trainingDuration(trainingDto.getTrainingDuration())
                     .trainingType(trainingDto.getTrainingType())
@@ -132,8 +132,8 @@ public class TrainingServiceImplTest {
 
     public TrainingDto buildTrainingDto() {
         return TrainingDto.builder()
-                .trainer(buildTrainerDto())
-                .trainee(buildTraineeDto())
+                .trainerDto(buildTrainerDto())
+                .traineeDto(buildTraineeDto())
                 .trainingName("name")
                 .trainingDate(LocalDateTime.of(2024, 12, 12, 15, 30))
                 .trainingDuration(Duration.ofHours(1))
@@ -143,8 +143,8 @@ public class TrainingServiceImplTest {
 
     public Training buildTraining(TrainingDto trainingDto) {
         return Training.builder()
-                .trainer(buildTrainer(trainingDto.getTrainer()))
-                .trainee(buildTrainee(trainingDto.getTrainee()))
+                .trainer(buildTrainer(trainingDto.getTrainerDto()))
+                .trainee(buildTrainee(trainingDto.getTraineeDto()))
                 .trainingName(trainingDto.getTrainingName())
                 .trainingDate(trainingDto.getTrainingDate())
                 .trainingDuration(trainingDto.getTrainingDuration())

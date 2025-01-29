@@ -7,6 +7,8 @@ import lombok.experimental.SuperBuilder;
 import org.checkerframework.checker.units.qual.C;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
@@ -22,7 +24,8 @@ public class Trainee extends User {
 
     private String address;
 
-    @OneToMany(mappedBy = "trainee", cascade = {CascadeType.REMOVE,CascadeType.MERGE}, orphanRemoval = true)
-    private List<Training> trainings;
+    @OneToMany(mappedBy = "trainee", cascade = {CascadeType.REMOVE,CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.EAGER)
+    @Builder.Default
+    private Collection<Training> trainings=new ArrayList<>();
 
 }

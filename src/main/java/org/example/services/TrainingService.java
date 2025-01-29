@@ -1,9 +1,8 @@
 package org.example.services;
 
-import org.example.models.TraineeDto;
-import org.example.models.TrainerDto;
-import org.example.models.TrainingDto;
-import org.example.repositories.entities.Training;
+import org.example.models.trainee.TraineeDto;
+import org.example.models.trainer.TrainerDto;
+import org.example.models.training.TrainingDto;
 import org.example.enums.TrainingType;
 
 import java.time.Duration;

@@ -1,7 +1,7 @@
 package services;
 
 
-import org.example.models.TraineeDto;
+import org.example.models.trainee.TraineeDto;
 import org.example.repositories.TraineeDao;
 import org.example.repositories.entities.Trainee;
 import org.example.services.impl.TraineeServiceImpl;

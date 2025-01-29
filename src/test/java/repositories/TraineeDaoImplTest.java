@@ -1,6 +1,6 @@
 package repositories;
 
-import configs.TestConfig;
+import configs.TestWebConfig;
 import org.example.repositories.TraineeDao;
 import org.example.repositories.entities.Trainee;
 import org.example.utils.UserUtils;
@@ -22,7 +22,7 @@ public class TraineeDaoImplTest {
 
     @BeforeEach
     public void setUp() {
-        context = new AnnotationConfigApplicationContext(TestConfig.class);
+        context = new AnnotationConfigApplicationContext(TestWebConfig.class);
         traineeDao = context.getBean(TraineeDao.class);
         testTrainee = buildTraineeForAdding();
     }
