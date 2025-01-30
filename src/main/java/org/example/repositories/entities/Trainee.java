@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.checkerframework.checker.units.qual.C;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

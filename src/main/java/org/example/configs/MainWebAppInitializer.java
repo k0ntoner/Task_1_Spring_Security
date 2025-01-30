@@ -17,5 +17,6 @@ public class MainWebAppInitializer implements WebApplicationInitializer {
         ServletRegistration.Dynamic registration = servletContext.addServlet("dispatcher", dispatcherServlet);
         registration.setLoadOnStartup(1);
         registration.addMapping("/");
+
     }
 }
