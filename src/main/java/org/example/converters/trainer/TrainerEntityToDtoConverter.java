@@ -16,10 +16,9 @@ public class TrainerEntityToDtoConverter implements Converter<Trainer, TrainerDt
     @Autowired
     private TrainingEntityToDtoConverter trainingEntityToDtoConverter;
 
-
     @Override
     public TrainerDto convert(Trainer entity) {
-        TrainerDto trainerDto= TrainerDto.builder()
+        TrainerDto trainerDto = TrainerDto.builder()
                 .id(entity.getId())
                 .firstName(entity.getFirstName())
                 .lastName(entity.getLastName())
@@ -29,7 +28,7 @@ public class TrainerEntityToDtoConverter implements Converter<Trainer, TrainerDt
                 .specialization(entity.getSpecialization())
                 .build();
 
-        Collection<TrainingDto> trainingDtos= entity.getTrainings().stream().map(training ->trainingEntityToDtoConverter.convert(training) ).collect(Collectors.toList());
+        Collection<TrainingDto> trainingDtos = entity.getTrainings().stream().map(training -> trainingEntityToDtoConverter.convert(training)).collect(Collectors.toList());
         trainerDto.setTrainings(trainingDtos);
 
         return trainerDto;

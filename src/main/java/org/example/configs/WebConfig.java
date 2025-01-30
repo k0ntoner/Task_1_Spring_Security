@@ -21,6 +21,4 @@ public class WebConfig implements WebMvcConfigurer {
         converters.forEach(conversionService::addConverter);
         return conversionService;
     }
-
-
 }

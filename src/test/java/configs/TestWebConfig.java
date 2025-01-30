@@ -1,7 +1,11 @@
 package configs;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.tools.ant.taskdefs.Java;
 import org.example.configs.LogConfig;
@@ -27,11 +31,22 @@ public class TestWebConfig implements WebMvcConfigurer {
         converters.forEach(conversionService::addConverter);
         return conversionService;
     }
+
+    @JsonFilter("linksFilter")
+    private static class IgnoreLinksMixin {
+    }
+
     @Bean
     public ObjectMapper objectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
+
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        objectMapper.addMixIn(Object.class, IgnoreLinksMixin.class);
+        objectMapper.setFilterProvider(new SimpleFilterProvider()
+                .addFilter("linksFilter", SimpleBeanPropertyFilter.serializeAllExcept("links")));
+
         return objectMapper;
 
     }

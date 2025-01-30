@@ -21,7 +21,7 @@ public class Trainer extends User {
     @Column(name = "training_type", nullable = false)
     private TrainingType specialization;
 
-    @OneToMany(mappedBy = "trainer", cascade = {CascadeType.REMOVE,CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "trainer", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default
-    private Collection<Training> trainings=new ArrayList<>();
+    private Collection<Training> trainings = new ArrayList<>();
 }

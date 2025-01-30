@@ -15,9 +15,10 @@ import java.util.stream.Collectors;
 public class TraineeDtoToEntityConverter implements Converter<TraineeDto, Trainee> {
     @Autowired
     private TrainingDtoToEntityConverter trainingDtoToEntityConverter;
+
     @Override
     public Trainee convert(TraineeDto dto) {
-        Trainee trainee= Trainee.builder()
+        Trainee trainee = Trainee.builder()
                 .id(dto.getId())
                 .firstName(dto.getFirstName())
                 .lastName(dto.getLastName())

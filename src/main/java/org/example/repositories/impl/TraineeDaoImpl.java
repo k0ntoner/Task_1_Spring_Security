@@ -106,7 +106,7 @@ public class TraineeDaoImpl implements TraineeDao {
     @Override
     @Transactional
     public Collection<Trainer> findTrainersByTraineeUsername(String username) {
-        try{
+        try {
             Session session = sessionFactory.getCurrentSession();
 
             Collection<Trainer> trainers = session.createQuery("Select distinct t.trainer from Training t where t.trainee.username=:username").setParameter("username", username).list();
@@ -117,8 +117,7 @@ public class TraineeDaoImpl implements TraineeDao {
             log.info("Found {} Trainers by Trainee username", uniqueTrainers.size());
             return uniqueTrainers;
 
-        }
-        catch (PersistenceException e){
+        } catch (PersistenceException e) {
             log.error(e.getMessage());
         }
         return new HashSet<>();

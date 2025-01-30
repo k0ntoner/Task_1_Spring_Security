@@ -17,10 +17,9 @@ public class TraineeEntityToDtoConverter implements Converter<Trainee, TraineeDt
     private TrainingEntityToDtoConverter trainingEntityToDtoConverter;
 
 
-
     @Override
     public TraineeDto convert(Trainee entity) {
-        TraineeDto traineeDto= TraineeDto.builder()
+        TraineeDto traineeDto = TraineeDto.builder()
                 .id(entity.getId())
                 .firstName(entity.getFirstName())
                 .lastName(entity.getLastName())
@@ -30,7 +29,7 @@ public class TraineeEntityToDtoConverter implements Converter<Trainee, TraineeDt
                 .dateOfBirth(entity.getDateOfBirth())
                 .address(entity.getAddress())
                 .build();
-        Collection<TrainingDto> trainingDtos=entity.getTrainings().stream().map(trainingEntityToDtoConverter::convert).collect(Collectors.toList());
+        Collection<TrainingDto> trainingDtos = entity.getTrainings().stream().map(trainingEntityToDtoConverter::convert).collect(Collectors.toList());
         traineeDto.setTrainings(trainingDtos);
         return traineeDto;
     }

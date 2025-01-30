@@ -23,6 +23,7 @@ import java.util.Collection;
 public class TraineeViewDto {
     @NotNull
     private String firstName;
+
     @NotNull
     private String lastName;
 
@@ -35,11 +36,11 @@ public class TraineeViewDto {
 
     @NotNull
     @Builder.Default
-    private Collection<TrainerListViewDto> trainers= new ArrayList<>();
+    private Collection<TrainerListViewDto> trainers = new ArrayList<>();
 
     @NotNull
     @Builder.Default
-    private Collection<TrainingListViewDto> trainings =new ArrayList<>();
+    private Collection<TrainingListViewDto> trainings = new ArrayList<>();
 
 
 }

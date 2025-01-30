@@ -24,8 +24,8 @@ public class Trainee extends User {
 
     private String address;
 
-    @OneToMany(mappedBy = "trainee", cascade = {CascadeType.REMOVE,CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "trainee", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default
-    private Collection<Training> trainings=new ArrayList<>();
+    private Collection<Training> trainings = new ArrayList<>();
 
 }

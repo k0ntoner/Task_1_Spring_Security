@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class TrainerDtoToEntityConverter implements Converter<TrainerDto, Trainer> {
     @Autowired
     private TrainingDtoToEntityConverter trainingDtoToEntityConverter;
+
     @Override
     public Trainer convert(TrainerDto dto) {
         Trainer trainer = Trainer.builder()

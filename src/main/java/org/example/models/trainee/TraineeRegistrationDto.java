@@ -26,7 +26,6 @@ public class TraineeRegistrationDto {
     @Size(min = 4, max = 10, message = "Password must be between 4 and 10 characters")
     private String password;
 
-
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
 

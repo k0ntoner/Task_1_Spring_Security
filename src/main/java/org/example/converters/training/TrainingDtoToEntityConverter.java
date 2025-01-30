@@ -11,7 +11,6 @@ import org.springframework.core.convert.converter.Converter;
 
 @Component
 public class TrainingDtoToEntityConverter implements Converter<TrainingDto, Training> {
-
     @Override
     public Training convert(TrainingDto dto) {
         return Training.builder()
@@ -24,6 +23,7 @@ public class TrainingDtoToEntityConverter implements Converter<TrainingDto, Trai
                 .trainingType(dto.getTrainingType())
                 .build();
     }
+
     public Trainee convertWithoutDependencies(TraineeDto dto) {
         return Trainee.builder()
                 .id(dto.getId())

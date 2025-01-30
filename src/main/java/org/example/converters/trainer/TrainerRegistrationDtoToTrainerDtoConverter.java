@@ -17,6 +17,5 @@ public class TrainerRegistrationDtoToTrainerDtoConverter implements Converter<Tr
                 .password(trainerRegistrationDto.getPassword())
                 .specialization(trainerRegistrationDto.getSpecialization())
                 .build();
-
     }
 }

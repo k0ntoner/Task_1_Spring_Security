@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class TraineeServiceImpl implements TraineeService {
-
     @Autowired
     @Qualifier("traineeDaoImpl")
     private TraineeDao traineeDao;
@@ -46,7 +45,7 @@ public class TraineeServiceImpl implements TraineeService {
 
         Trainee savedTrainee = traineeDao.save(trainee);
 
-        TraineeDto savedTraineeDto =conversionService.convert(savedTrainee, TraineeDto.class);
+        TraineeDto savedTraineeDto = conversionService.convert(savedTrainee, TraineeDto.class);
         savedTraineeDto.setTrainers(findTrainersByTraineeUsername(traineeDto.getUsername()));
         return savedTraineeDto;
     }
@@ -69,7 +68,7 @@ public class TraineeServiceImpl implements TraineeService {
         return traineeDao.findAll()
                 .stream()
                 .map(trainee -> {
-                    TraineeDto traineeDto= conversionService.convert(trainee, TraineeDto.class);
+                    TraineeDto traineeDto = conversionService.convert(trainee, TraineeDto.class);
                     traineeDto.setTrainers(findTrainersByTraineeUsername(trainee.getUsername()));
                     return traineeDto;
                 })
@@ -92,7 +91,7 @@ public class TraineeServiceImpl implements TraineeService {
 
         Trainee updatedTrainee = traineeDao.update(trainee);
 
-        TraineeDto updatedTraineeDto =conversionService.convert(updatedTrainee, TraineeDto.class);
+        TraineeDto updatedTraineeDto = conversionService.convert(updatedTrainee, TraineeDto.class);
         updatedTraineeDto.setTrainers(findTrainersByTraineeUsername(traineeDto.getUsername()));
         return updatedTraineeDto;
     }
@@ -128,7 +127,7 @@ public class TraineeServiceImpl implements TraineeService {
 
         Trainee savedTrainee = traineeDao.save(trainee);
 
-        TraineeDto savedTraineeDto =conversionService.convert(savedTrainee, TraineeDto.class);
+        TraineeDto savedTraineeDto = conversionService.convert(savedTrainee, TraineeDto.class);
         savedTraineeDto.setTrainers(findTrainersByTraineeUsername(traineeDto.getUsername()));
         return savedTraineeDto;
     }
@@ -182,10 +181,10 @@ public class TraineeServiceImpl implements TraineeService {
     public TraineeDto matchPassword(String username, String password) {
         log.info("Request to match password");
         Optional<Trainee> trainee = traineeDao.findByUsername(username);
-        if(trainee.isPresent()){
+        if (trainee.isPresent()) {
             boolean result = UserUtils.passwordMatch(password, trainee.get().getPassword());
-            if(result){
-                TraineeDto traineeDto= conversionService.convert(trainee.get(), TraineeDto.class);
+            if (result) {
+                TraineeDto traineeDto = conversionService.convert(trainee.get(), TraineeDto.class);
                 traineeDto.setTrainers(findTrainersByTraineeUsername(traineeDto.getUsername()));
                 return traineeDto;
             }
@@ -193,6 +192,7 @@ public class TraineeServiceImpl implements TraineeService {
         }
         throw new IllegalArgumentException("Invalid username");
     }
+
     @Override
     public Collection<TrainerDto> findTrainersByTraineeUsername(String username) {
         log.info("Request to find trainers by Trainee username: {}", username);

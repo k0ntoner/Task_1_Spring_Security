@@ -42,7 +42,7 @@ public class TrainerServiceImpl implements TrainerService {
 
         Trainer savedTrainer = trainerDao.save(entity);
 
-        TrainerDto savedTrainerDto= conversionService.convert(savedTrainer, TrainerDto.class);
+        TrainerDto savedTrainerDto = conversionService.convert(savedTrainer, TrainerDto.class);
         savedTrainerDto.setTrainees(findTraineesByTrainerUsername(savedTrainer.getUsername()));
         return savedTrainerDto;
 
@@ -79,7 +79,7 @@ public class TrainerServiceImpl implements TrainerService {
 
         Trainer updatedTrainer = trainerDao.update(entity);
 
-        TrainerDto updatedTrainerDto= conversionService.convert(updatedTrainer, TrainerDto.class);
+        TrainerDto updatedTrainerDto = conversionService.convert(updatedTrainer, TrainerDto.class);
 
         updatedTrainerDto.setTrainees(findTraineesByTrainerUsername(updatedTrainer.getUsername()));
 
@@ -161,19 +161,19 @@ public class TrainerServiceImpl implements TrainerService {
 
         Trainer savedTrainer = trainerDao.save(entity);
 
-        TrainerDto savedTrainerDto= conversionService.convert(savedTrainer, TrainerDto.class);
+        TrainerDto savedTrainerDto = conversionService.convert(savedTrainer, TrainerDto.class);
         savedTrainerDto.setTrainees(findTraineesByTrainerUsername(savedTrainer.getUsername()));
         return savedTrainerDto;
     }
 
     @Override
-    public TrainerDto matchPassword(String username, String password){
+    public TrainerDto matchPassword(String username, String password) {
         log.info("Request to match password");
         Optional<Trainer> trainer = trainerDao.findByUsername(username);
-        if(trainer.isPresent()){
+        if (trainer.isPresent()) {
             boolean result = UserUtils.passwordMatch(password, trainer.get().getPassword());
-            if(result){
-                TrainerDto trainerDto= conversionService.convert(trainer.get(), TrainerDto.class);
+            if (result) {
+                TrainerDto trainerDto = conversionService.convert(trainer.get(), TrainerDto.class);
                 trainerDto.setTrainees(findTraineesByTrainerUsername(trainer.get().getUsername()));
                 return trainerDto;
             }

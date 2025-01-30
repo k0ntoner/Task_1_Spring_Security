@@ -10,5 +10,4 @@ public interface TraineeDao extends UserDao<Trainee> {
     void delete(Trainee entity);
 
     Collection<Trainer> findTrainersByTraineeUsername(String username);
-
 }

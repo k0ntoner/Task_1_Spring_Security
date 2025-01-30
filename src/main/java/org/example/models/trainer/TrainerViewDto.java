@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -30,22 +31,29 @@ public class TrainerViewDto {
     private TrainingType specialization;
     @NotNull
     @Builder.Default
-    private Collection<TrainerViewDto.TraineeViewDto> trainees= new ArrayList<>();
+    private Collection<TrainerViewDto.TraineeViewDto> trainees = new ArrayList<>();
 
     @NotNull
     @Builder.Default
-    private Collection<TrainingListViewDto> trainings =new ArrayList<>();
+    private Collection<TrainingListViewDto> trainings = new ArrayList<>();
 
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class TraineeViewDto{
+    public static class TraineeViewDto {
+        @NotNull
         private String username;
+
+        @NotNull
         private String firstName;
+
+        @NotNull
         private String lastName;
+
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
         private LocalDate dateOfBirth;
+
         private String address;
     }
 }

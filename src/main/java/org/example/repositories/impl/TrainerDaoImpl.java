@@ -132,7 +132,7 @@ public class TrainerDaoImpl implements TrainerDao {
 
     @Override
     public Collection<Trainee> findTraineesByTrainerUsername(String username) {
-        try{
+        try {
             Session session = sessionFactory.getCurrentSession();
 
             Collection<Trainee> trainees = session.createQuery("Select distinct t.trainee from Training t where t.trainer.username=:username").setParameter("username", username).list();
@@ -143,8 +143,7 @@ public class TrainerDaoImpl implements TrainerDao {
             log.info("Found {} Trainers by Trainee username", uniqueTrainees.size());
             return uniqueTrainees;
 
-        }
-        catch (PersistenceException e){
+        } catch (PersistenceException e) {
             log.error(e.getMessage());
         }
         return new HashSet<>();

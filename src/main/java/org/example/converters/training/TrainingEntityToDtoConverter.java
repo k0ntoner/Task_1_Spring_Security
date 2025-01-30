@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class TrainingEntityToDtoConverter implements Converter<Training, TrainingDto> {
-
     @Override
     public TrainingDto convert(Training entity) {
         return TrainingDto.builder()
@@ -23,7 +22,9 @@ public class TrainingEntityToDtoConverter implements Converter<Training, Trainin
                 .trainingName(entity.getTrainingName())
                 .trainingType(entity.getTrainingType())
                 .build();
-    } public TraineeDto convertWithoutDependencies(Trainee entity) {
+    }
+
+    public TraineeDto convertWithoutDependencies(Trainee entity) {
         return TraineeDto.builder()
                 .id(entity.getId())
                 .firstName(entity.getFirstName())
@@ -35,6 +36,7 @@ public class TrainingEntityToDtoConverter implements Converter<Training, Trainin
                 .address(entity.getAddress())
                 .build();
     }
+
     public TrainerDto convertWithoutDependencies(Trainer entity) {
         return TrainerDto.builder()
                 .id(entity.getId())

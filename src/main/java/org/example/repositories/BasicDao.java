@@ -9,5 +9,4 @@ public interface BasicDao<T> {
     Optional<T> findById(long id);
 
     Collection<T> findAll();
-
 }

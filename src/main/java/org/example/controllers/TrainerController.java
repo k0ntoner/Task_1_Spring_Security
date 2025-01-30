@@ -35,7 +35,6 @@ public class TrainerController {
     @Autowired
     private ConversionService conversionService;
 
-
     @GetMapping
     public Collection<TrainerDto> getAllTrainers() {
         return trainerService.findAll();
@@ -43,15 +42,15 @@ public class TrainerController {
 
     @GetMapping("/trainer/{username}")
     public ResponseEntity<?> getTrainerByUsername(@PathVariable("username") String username) {
-        Optional<TrainerDto> traineeDto= trainerService.findByUsername(username);
+        Optional<TrainerDto> traineeDto = trainerService.findByUsername(username);
 
         if (traineeDto.isPresent()) {
             TrainerViewDto trainerViewDto = conversionService.convert(traineeDto.get(), TrainerViewDto.class);
 
             EntityModel<TrainerViewDto> entityModel = EntityModel.of(trainerViewDto);
             entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder
-                    .methodOn(TrainerController.class)
-                    .getTrainerByUsername(username))
+                            .methodOn(TrainerController.class)
+                            .getTrainerByUsername(username))
                     .withSelfRel());
             return ResponseEntity.ok(entityModel);
         }
@@ -69,37 +68,38 @@ public class TrainerController {
             EntityModel<LoginUserDto> entityModel = EntityModel.of(loginUserDto);
 
             entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder
-                    .methodOn(TrainerController.class)
-                    .createTrainer(trainerRegistrationDto))
+                            .methodOn(TrainerController.class)
+                            .createTrainer(trainerRegistrationDto))
                     .withSelfRel());
 
             URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/trainer/{username}").buildAndExpand(savedTrainerDto.getUsername()).toUri();
 
             return ResponseEntity.created(location).body(entityModel);
 
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage());
         }
         return ResponseEntity.badRequest().build();
     }
-    @PostMapping("/change-password")
+
+    @PutMapping("/trainer/change-password")
     public ResponseEntity<?> changePassword(@RequestBody ChangeUserPasswordDto changeUserPasswordDto) {
-        try{
+        try {
             trainerService.changePassword(changeUserPasswordDto.getUsername(), changeUserPasswordDto.getOldPassword(), changeUserPasswordDto.getNewPassword());
             return ResponseEntity.noContent().build();
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage());
         }
         return ResponseEntity.badRequest().build();
     }
-    @PutMapping
+
+    @PutMapping("/trainer")
     public ResponseEntity<?> updateTrainer(@RequestBody TrainerUpdateDto trainerDto) {
         try {
             Optional<TrainerDto> trainerDtoOptional = trainerService.findByUsername(trainerDto.getUsername());
             if (trainerDtoOptional.isPresent()) {
                 TrainerDto trainerDtoToUpdate = trainerDtoOptional.get();
+
                 trainerDtoToUpdate.setFirstName(trainerDto.getFirstName());
                 trainerDtoToUpdate.setLastName(trainerDto.getLastName());
                 trainerDtoToUpdate.setActive(trainerDto.isActive());
@@ -117,8 +117,7 @@ public class TrainerController {
                 return ResponseEntity.ok(entityModel);
             }
             throw new IllegalArgumentException("Invalid username");
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage());
             return ResponseEntity.badRequest().build();
         }
@@ -126,15 +125,15 @@ public class TrainerController {
     }
 
     @GetMapping("/not-assigned-on-trainee/{username}")
-    public ResponseEntity<?> getNotAssignedOnTrainee(@PathVariable String username) {
-        Collection<TrainerDto> trainers=trainerService.findTrainersNotAssignedToTrainee(username);
-        if(!trainers.isEmpty()) {
-            Collection<TrainerListViewDto> trainerListViewDtos=trainers.stream().map(trainer -> conversionService.convert(trainer, TrainerListViewDto.class)).collect(Collectors.toList());
+    public ResponseEntity<?> getNotAssignedOnTrainee(@PathVariable("username") String username) {
+        Collection<TrainerDto> trainers = trainerService.findTrainersNotAssignedToTrainee(username);
+        if (!trainers.isEmpty()) {
+            Collection<TrainerListViewDto> trainerListViewDtos = trainers.stream().map(trainer -> conversionService.convert(trainer, TrainerListViewDto.class)).collect(Collectors.toList());
             EntityModel<Collection<TrainerListViewDto>> entityModel = EntityModel.of(trainerListViewDtos);
 
             entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder
-                    .methodOn(TrainerController.class)
-                    .getNotAssignedOnTrainee(username))
+                            .methodOn(TrainerController.class)
+                            .getNotAssignedOnTrainee(username))
                     .withSelfRel());
 
             return ResponseEntity.ok(entityModel);
@@ -143,13 +142,13 @@ public class TrainerController {
     }
 
     @GetMapping("/trainer/{username}/trainings")
-    public ResponseEntity<?> getTrainings(@PathVariable String username,@RequestParam(required = false) LocalDateTime periodFrom,
-                                         @RequestParam(required = false) LocalDateTime periodTo,
-                                         @RequestParam(required = false) String traineeUsername) {
+    public ResponseEntity<?> getTrainings(@PathVariable("username") String username, @RequestParam(required = false) LocalDateTime periodFrom,
+                                          @RequestParam(required = false) LocalDateTime periodTo,
+                                          @RequestParam(required = false) String traineeUsername) {
 
-        if(trainerService.findByUsername(username).isPresent()){
+        if (trainerService.findByUsername(username).isPresent()) {
 
-            Collection<TrainingListViewDto> trainingListViewDtos=trainingService.findByTrainer(username, periodFrom, periodTo, traineeUsername).stream()
+            Collection<TrainingListViewDto> trainingListViewDtos = trainingService.findByTrainer(username, periodFrom, periodTo, traineeUsername).stream()
                     .map(trainingDto -> TrainingListViewDto.builder()
                             .trainerUsername(username)
                             .traineeUsername(trainingDto.getTraineeDto().getUsername())
@@ -170,14 +169,14 @@ public class TrainerController {
         }
         return ResponseEntity.badRequest().build();
     }
+
     @PatchMapping("/trainer/{username}/de-activate")
-    public ResponseEntity<?> de_activate(@PathVariable String username, @RequestParam boolean activate) {
-        Optional<TrainerDto> trainerDto=trainerService.findByUsername(username);
-        if(trainerDto.isPresent()){
-            if(activate){
+    public ResponseEntity<?> de_activate(@PathVariable("username") String username, @RequestParam("activate") boolean activate) {
+        Optional<TrainerDto> trainerDto = trainerService.findByUsername(username);
+        if (trainerDto.isPresent()) {
+            if (activate) {
                 trainerService.activate(trainerService.findByUsername(username).get());
-            }
-            else{
+            } else {
                 trainerService.deactivate(trainerService.findByUsername(username).get());
             }
             return ResponseEntity.noContent().build();
