@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/trainees")
 @Slf4j
-@Tag(name = "TraineeController", description = "Controller for management trainee")
+@Tag(name = "Trainee Controller", description = "Controller for trainees' management")
 public class TraineeController {
     @Autowired
     private TraineeService traineeService;

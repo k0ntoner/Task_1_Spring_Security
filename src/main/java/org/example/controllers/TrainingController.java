@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.example.enums.TrainingType;
 import org.example.models.trainer.TrainerDto;
@@ -31,6 +32,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/trainings")
 @Slf4j
+@Tag(name = "Training Controller", description = "Controller for trainings' management")
 public class TrainingController {
     @Autowired
     private TrainingService trainingService;
