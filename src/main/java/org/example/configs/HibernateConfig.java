@@ -1,7 +1,6 @@
 package org.example.configs;
 
 
-import jakarta.annotation.PreDestroy;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Environment;
 import org.springframework.beans.factory.annotation.Value;

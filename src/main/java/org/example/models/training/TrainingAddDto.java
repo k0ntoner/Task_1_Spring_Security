@@ -40,6 +40,7 @@ public class TrainingAddDto {
 
     @JsonIgnore
     private TraineeDto traineeDto;
+
     @JsonIgnore
     private TrainerDto trainerDto;
 }

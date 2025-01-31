@@ -1,11 +1,16 @@
 package org.example.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.example.enums.TrainingType;
 import org.example.models.trainer.TrainerDto;
 import org.example.models.trainee.TraineeDto;
-import org.example.models.training.TrainingDto;
-import org.example.models.training.TrainingAddDto;
+import org.example.models.training.*;
 import org.example.services.TraineeService;
 import org.example.services.TrainerService;
 import org.example.services.TrainingService;
@@ -40,6 +45,16 @@ public class TrainingController {
     private ConversionService conversionService;
 
     @PostMapping
+    @Operation(summary = "Create Training",
+            parameters = {
+                    @Parameter(name = "trainingAddDto", required = true),
+            })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Training created",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TrainingViewDto.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     public ResponseEntity<?> createTraining(@RequestBody TrainingAddDto trainingAddDto) {
         try {
             Optional<TraineeDto> foundTraineeDto = traineeService.findByUsername(trainingAddDto.getTraineeUsername());
@@ -59,7 +74,7 @@ public class TrainingController {
             TrainingDto trainingDto = conversionService.convert(trainingAddDto, TrainingDto.class);
             TrainingDto savedTrainingDto = trainingService.add(trainingDto);
 
-            EntityModel<TrainingDto> entityModel = EntityModel.of(savedTrainingDto);
+            EntityModel<TrainingViewDto> entityModel = EntityModel.of(conversionService.convert(savedTrainingDto, TrainingViewDto.class));
             entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(TrainingController.class).createTraining(trainingAddDto)).withSelfRel());
 
             URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/trainings/{id}").buildAndExpand(savedTrainingDto.getId()).toUri();
@@ -72,14 +87,16 @@ public class TrainingController {
     }
 
     @GetMapping("/types")
+    @Operation(summary = "Get TrainingTypes")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "TrainingTypes found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TrainingTypeListDto.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     public ResponseEntity<?> getTrainingTypes() {
-        CollectionModel<TrainingType> collectionModel = CollectionModel.of(List.of(TrainingType.values()));
-
-        collectionModel.add(WebMvcLinkBuilder
-                .linkTo(WebMvcLinkBuilder
-                        .methodOn(TrainingController.class)
-                        .getTrainingTypes()).withSelfRel());
-
-        return ResponseEntity.ok(collectionModel);
+        TrainingTypeListDto trainingTypeListDto = new TrainingTypeListDto(List.of(TrainingType.values()));
+        EntityModel<TrainingTypeListDto> entityModel = EntityModel.of(trainingTypeListDto);
+        return ResponseEntity.ok(entityModel);
     }
 }

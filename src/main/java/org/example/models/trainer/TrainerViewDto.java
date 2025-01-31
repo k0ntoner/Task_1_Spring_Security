@@ -7,12 +7,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.enums.TrainingType;
-import org.example.models.trainee.TraineeViewDto;
-import org.example.models.training.TrainingListViewDto;
+import org.example.models.training.TrainingViewDto;
 
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -23,19 +20,21 @@ import java.util.Collection;
 public class TrainerViewDto {
     @NotNull
     private String firstName;
+
     @NotNull
     private String lastName;
 
     private boolean isActive;
 
     private TrainingType specialization;
+
     @NotNull
     @Builder.Default
     private Collection<TrainerViewDto.TraineeViewDto> trainees = new ArrayList<>();
 
     @NotNull
     @Builder.Default
-    private Collection<TrainingListViewDto> trainings = new ArrayList<>();
+    private Collection<TrainingViewDto> trainings = new ArrayList<>();
 
     @Data
     @Builder

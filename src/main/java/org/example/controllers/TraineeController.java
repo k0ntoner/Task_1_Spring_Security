@@ -1,14 +1,23 @@
 package org.example.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.example.enums.TrainingType;
 import org.example.models.trainee.TraineeRegistrationDto;
 import org.example.models.trainee.TraineeUpdateDto;
-import org.example.models.training.TrainingListViewDto;
+import org.example.models.training.TrainingDto;
+import org.example.models.training.TrainingListToUpdateDto;
+import org.example.models.training.TrainingListDto;
+import org.example.models.training.TrainingViewDto;
 import org.example.models.user.ChangeUserPasswordDto;
 import org.example.models.user.LoginUserDto;
 import org.example.models.trainee.TraineeDto;
-import org.example.models.training.TrainingDto;
 import org.example.models.trainee.TraineeViewDto;
 import org.example.services.TraineeService;
 import org.example.services.TrainerService;
@@ -18,6 +27,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -30,6 +40,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/trainees")
 @Slf4j
+@Tag(name = "TraineeController", description = "Controller for management trainee")
 public class TraineeController {
     @Autowired
     private TraineeService traineeService;
@@ -44,6 +55,16 @@ public class TraineeController {
     private ConversionService conversionService;
 
     @PostMapping("/registration")
+    @Operation(summary = "Create new Trainee",
+            parameters = {
+                    @Parameter(name = "TraineeRegistrationDto", description = "Registration information", required = true)
+            })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Trainee created",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = LoginUserDto.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     public ResponseEntity<?> createTrainee(@RequestBody TraineeRegistrationDto traineeRegistrationDto) {
         try {
             TraineeDto traineeDto = conversionService.convert(traineeRegistrationDto, TraineeDto.class);
@@ -73,6 +94,14 @@ public class TraineeController {
     }
 
     @PutMapping("/trainee/change-password")
+    @Operation(summary = "Change Trainee's password",
+            parameters = {
+                    @Parameter(name = "ChangeUserPasswordDto", description = "Change password information", required = true)
+            })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Trainee updated"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     public ResponseEntity<?> changePassword(@RequestBody ChangeUserPasswordDto changeUserPasswordDto) {
         try {
             traineeService.changePassword(changeUserPasswordDto.getUsername(), changeUserPasswordDto.getOldPassword(), changeUserPasswordDto.getNewPassword());
@@ -84,6 +113,16 @@ public class TraineeController {
     }
 
     @GetMapping("/trainee/{username}")
+    @Operation(summary = "Get Trainee",
+            parameters = {
+                    @Parameter(name = "username", required = true)
+            })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Trainee found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TrainingViewDto.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     public ResponseEntity<?> getTrainee(@PathVariable("username") String username) {
         Optional<TraineeDto> traineeDto = traineeService.findByUsername(username);
         if (traineeDto.isPresent()) {
@@ -100,8 +139,19 @@ public class TraineeController {
         return ResponseEntity.badRequest().build();
     }
 
-    @PutMapping("/trainee")
-    public ResponseEntity<?> updateTrainee(@RequestBody TraineeUpdateDto traineeUpdateDto) {
+    @PutMapping("/trainee/{id}")
+    @Operation(summary = "Update Trainee",
+            parameters = {
+                    @Parameter(name = "id", required = true),
+                    @Parameter(name = "TraineeUpdateDto", description = "Updating information", required = true)
+            })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Trainee updated",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TraineeViewDto.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
+    public ResponseEntity<?> updateTrainee(@PathVariable("id") Long id, @RequestBody TraineeUpdateDto traineeUpdateDto) {
         try {
             Optional<TraineeDto> foundTraineeDto = traineeService.findByUsername(traineeUpdateDto.getUsername());
             if (foundTraineeDto.isPresent()) {
@@ -126,7 +176,7 @@ public class TraineeController {
 
                 traineeEntityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder
                                 .methodOn(TraineeController.class)
-                                .updateTrainee(traineeUpdateDto))
+                                .updateTrainee(id, traineeUpdateDto))
                         .withSelfRel());
 
                 return ResponseEntity.ok(traineeEntityModel);
@@ -139,6 +189,14 @@ public class TraineeController {
     }
 
     @DeleteMapping("/trainee/{username}")
+    @Operation(summary = "delete Trainee",
+            parameters = {
+                    @Parameter(name = "username", required = true)
+            })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Trainee deleted"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     public ResponseEntity<?> deleteTrainee(@PathVariable("username") String username) {
         Optional<TraineeDto> foundTraineeDto = traineeService.findByUsername(username);
         if (foundTraineeDto.isPresent()) {
@@ -153,33 +211,42 @@ public class TraineeController {
         return ResponseEntity.noContent().header("Link", "<" + selfLink + ">; rel=\"self\"").build();
     }
 
-    @PutMapping("/trainee/{username}")
-    public ResponseEntity<?> updateTrainings(@PathVariable("username") String username, @RequestBody Collection<TrainingListViewDto> trainingListViewDtos) {
+    @PutMapping("/trainee/{username}/trainings")
+    @Operation(summary = "Update Trainee's trainings",
+            parameters = {
+                    @Parameter(name = "username", required = true),
+                    @Parameter(name = "trainingListToUpdateDto", description = "Updating information", required = true)
+            })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Trainee's trainings updated",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TrainingListDto.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
+    public ResponseEntity<?> updateTrainings(@PathVariable("username") String username, @RequestBody TrainingListToUpdateDto trainingListToUpdateDto) {
         try {
             Optional<TraineeDto> traineeDto = traineeService.findByUsername(username);
             if (traineeDto.isPresent()) {
                 TraineeDto traineeDtoToUpdate = traineeDto.get();
 
-                Collection<TrainingDto> trainingDtos = trainingListViewDtos.stream().map(trainingListViewDto -> {
-                    return TrainingDto.builder()
-                            .trainingDuration(trainingListViewDto.getTrainingDuration())
-                            .trainingName(trainingListViewDto.getTrainingName())
-                            .trainingType(trainingListViewDto.getTrainingType())
-                            .trainingDate(trainingListViewDto.getTrainingDateTime())
-                            .trainerDto(trainerService.findByUsername(trainingListViewDto.getTrainerUsername()).get())
-                            .traineeDto(traineeDtoToUpdate)
-                            .build();
+                Collection<TrainingDto> trainingDtos = trainingListToUpdateDto.getTrainingIds().stream().map(id -> {
+                    Optional<TrainingDto> trainingDto = trainingService.findById(id);
+                    if (trainingDto.isPresent()) {
+                        return trainingDto.get();
+                    }
+                    throw new IllegalArgumentException("Invalid training id");
                 }).collect(Collectors.toList());
 
                 traineeDtoToUpdate.setTrainings(trainingDtos);
 
                 TraineeDto updatedTraineeDto = traineeService.update(traineeDtoToUpdate);
 
-                EntityModel<Collection<TrainingDto>> entityModel = EntityModel.of(updatedTraineeDto.getTrainings());
+                EntityModel<TrainingListDto> entityModel = EntityModel.of(new TrainingListDto(updatedTraineeDto.getTrainings().stream()
+                        .map(trainingDto -> conversionService.convert(trainingDto, TrainingViewDto.class)).collect(Collectors.toList())));
 
                 entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder
                                 .methodOn(TraineeController.class)
-                                .updateTrainings(username, trainingListViewDtos))
+                                .updateTrainings(username, trainingListToUpdateDto))
                         .withSelfRel());
                 return ResponseEntity.ok(entityModel);
             }
@@ -191,24 +258,31 @@ public class TraineeController {
     }
 
     @GetMapping("/trainee/{username}/trainings")
+    @Operation(summary = "Get Trainee's trainings",
+            parameters = {
+                    @Parameter(name = "username", required = true),
+                    @Parameter(name = "periodFrom"),
+                    @Parameter(name = "periodTo"),
+                    @Parameter(name = "trainerUsername"),
+                    @Parameter(name = "trainingType")
+            })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Trainee's trainings found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TrainingListDto.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     public ResponseEntity<?> getTrainings(@PathVariable("username") String username,
-                                          @RequestParam(required = false) LocalDateTime periodFrom,
-                                          @RequestParam(required = false) LocalDateTime periodTo,
-                                          @RequestParam(required = false) String trainerUsername,
-                                          @RequestParam(required = false) TrainingType trainingType) {
+                                          @RequestParam(required = false, name = "periodFrom") LocalDateTime periodFrom,
+                                          @RequestParam(required = false, name = "periodTo") LocalDateTime periodTo,
+                                          @RequestParam(required = false, name = "trainerUsername") String trainerUsername,
+                                          @RequestParam(required = false, name = "trainingType") TrainingType trainingType) {
 
         if (traineeService.findByUsername(username).isPresent()) {
-            Collection<TrainingListViewDto> trainingListViewDtos = trainingService.findByTrainee(username, periodFrom, periodTo, trainerUsername, trainingType).stream()
-                    .map(trainingDto -> TrainingListViewDto.builder()
-                            .traineeUsername(username)
-                            .trainerUsername(trainingDto.getTrainerDto().getUsername())
-                            .trainingDateTime(trainingDto.getTrainingDate())
-                            .trainingDuration(trainingDto.getTrainingDuration())
-                            .trainingName(trainingDto.getTrainingName())
-                            .trainingType(trainingDto.getTrainingType())
-                            .build()).collect(Collectors.toList());
+            Collection<TrainingViewDto> trainingViewDtos = trainingService.findByTrainee(username, periodFrom, periodTo, trainerUsername, trainingType).stream()
+                    .map(trainingDto -> conversionService.convert(trainingDto, TrainingViewDto.class)).collect(Collectors.toList());
 
-            EntityModel<Collection<TrainingListViewDto>> entityModel = EntityModel.of(trainingListViewDtos);
+            EntityModel<TrainingListDto> entityModel = EntityModel.of(new TrainingListDto(trainingViewDtos));
 
             entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder
                             .methodOn(TraineeController.class)
@@ -220,7 +294,18 @@ public class TraineeController {
         return ResponseEntity.badRequest().build();
     }
 
-    @PatchMapping("/trainee/{username}/de-activate")
+    @PatchMapping("/trainee/{username}/activate")
+    @Operation(summary = "De-activate Trainee",
+            parameters = {
+                    @Parameter(name = "username", required = true),
+                    @Parameter(name = "activate", required = true),
+            })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Trainee active was changed",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = LoginUserDto.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     public ResponseEntity<?> de_activate(@PathVariable("username") String username, @RequestParam("activate") boolean activate) {
         Optional<TraineeDto> traineeDto = traineeService.findByUsername(username);
         if (traineeDto.isPresent()) {

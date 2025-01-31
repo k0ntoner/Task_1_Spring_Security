@@ -2,7 +2,7 @@ package org.example.converters.trainer;
 
 import org.example.models.trainer.TrainerDto;
 import org.example.models.trainer.TrainerViewDto;
-import org.example.models.training.TrainingListViewDto;
+import org.example.models.training.TrainingViewDto;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +25,7 @@ public class TrainerDtoToTrainerViewDtoConverter implements Converter<TrainerDto
                         .address(traineeDto.getAddress())
                         .build()
                 ).collect(Collectors.toList()))
-                .trainings(dto.getTrainings().stream().map(trainingDto -> TrainingListViewDto.builder()
+                .trainings(dto.getTrainings().stream().map(trainingDto -> TrainingViewDto.builder()
                         .traineeUsername(trainingDto.getTraineeDto().getUsername())
                         .trainerUsername(trainingDto.getTrainerDto().getUsername())
                         .trainingType(trainingDto.getTrainingType())

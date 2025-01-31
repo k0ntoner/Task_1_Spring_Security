@@ -11,6 +11,8 @@ import org.example.models.trainer.TrainerDto;
 import org.example.models.trainer.TrainerRegistrationDto;
 import org.example.models.training.TrainingAddDto;
 import org.example.models.training.TrainingDto;
+import org.example.models.training.TrainingTypeListDto;
+import org.example.models.training.TrainingViewDto;
 import org.example.models.user.LoginUserDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -90,33 +92,12 @@ public class TrainingControllerIntegrationTest {
     public void testCreateTraining() throws Exception {
         //Trainee
         TraineeDto traineeDto = buildTraineeDto();
-        TraineeRegistrationDto registrationTraineeDto = conversionService.convert(traineeDto, TraineeRegistrationDto.class);
-        String traineeJson = mapper.writeValueAsString(registrationTraineeDto);
-
-        MvcResult mvcResult = mockMvc.perform(post("/trainees/registration")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(traineeJson))
-                .andExpect(status().isCreated())
-                .andExpect(header().string("Location", "http://localhost"))
-                .andReturn();
-
-        String responseTraineeJson = mvcResult.getResponse().getContentAsString();
-        LoginUserDto responseTraineeDto = mapper.readValue(responseTraineeJson, LoginUserDto.class);
+        LoginUserDto responseTraineeDto = registerTrainee(traineeDto);
         String traineeUsername = responseTraineeDto.getUsername();
 
         //Trainer
         TrainerDto trainerDto = buildTrainerDto();
-        TrainerRegistrationDto registrationTrainerDto = conversionService.convert(trainerDto, TrainerRegistrationDto.class);
-
-        String trainerJson = mapper.writeValueAsString(registrationTrainerDto);
-        mvcResult = mockMvc.perform(post("/trainers/registration")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(trainerJson))
-                .andExpect(status().isCreated())
-                .andReturn();
-
-        String responseTrainerJson = mvcResult.getResponse().getContentAsString();
-        LoginUserDto responseTrainerDto = mapper.readValue(responseTrainerJson, LoginUserDto.class);
+        LoginUserDto responseTrainerDto = registerTrainer(trainerDto);
         String trainerUsername = responseTrainerDto.getUsername();
 
         //Training
@@ -127,7 +108,7 @@ public class TrainingControllerIntegrationTest {
 
         String trainingAddDtoDtoJson = mapper.writeValueAsString(trainingAddDto);
 
-        mvcResult = mockMvc.perform(post("/trainings")
+        MvcResult mvcResult = mockMvc.perform(post("/trainings")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(trainingAddDtoDtoJson))
                 .andExpect(status().isCreated())
@@ -135,13 +116,12 @@ public class TrainingControllerIntegrationTest {
 
         String response = mvcResult.getResponse().getContentAsString();
 
-        TrainingDto responseDto = mapper.readValue(response, TrainingDto.class);
+        TrainingViewDto responseDto = mapper.readValue(response, TrainingViewDto.class);
         assertNotNull(responseDto);
-        assertNotNull(responseDto.getId());
-        assertNotNull(responseDto.getTraineeDto());
-        assertNotNull(responseDto.getTrainerDto());
+        assertNotNull(responseDto.getTraineeUsername());
+        assertNotNull(responseDto.getTrainerUsername());
         assertNotNull(responseDto.getTrainingType());
-        assertNotNull(responseDto.getTrainingDate());
+        assertNotNull(responseDto.getTrainingDateTime());
         assertNotNull(responseDto.getTrainingDuration());
         assertNotNull(responseDto.getTrainingName());
     }
@@ -152,11 +132,52 @@ public class TrainingControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andReturn();
         String response = mvcResult.getResponse().getContentAsString();
-        JsonNode rootNode = mapper.readTree(response);
-        JsonNode contentNode = rootNode.get("content");
-        List<TrainingType> trainingTypes = Arrays.asList(mapper.treeToValue(contentNode, TrainingType[].class));
-        assertNotNull(trainingTypes);
-        assertTrue(trainingTypes.size() > 0);
+        TrainingTypeListDto responseDto = mapper.readValue(response, TrainingTypeListDto.class);
+        assertTrue(responseDto.getTrainingTypes().size() > 0);
+    }
+
+    private LoginUserDto registerTrainee(TraineeDto traineeDto) throws Exception {
+        TraineeRegistrationDto registrationDto = conversionService.convert(traineeDto, TraineeRegistrationDto.class);
+        String jsonNewTrainee = mapper.writeValueAsString(registrationDto);
+
+        MvcResult mvcResult = mockMvc.perform(post("/trainees/registration")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonNewTrainee))
+                .andReturn();
+
+        String responseNewTraineeJson = mvcResult.getResponse().getContentAsString();
+
+        return mapper.readValue(responseNewTraineeJson, LoginUserDto.class);
+    }
+
+    private LoginUserDto registerTrainer(TrainerDto trainerDto) throws Exception {
+        TrainerRegistrationDto registrationTrainerDto = conversionService.convert(trainerDto, TrainerRegistrationDto.class);
+
+        String trainerJson = mapper.writeValueAsString(registrationTrainerDto);
+        MvcResult mvcResult = mockMvc.perform(post("/trainers/registration")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(trainerJson))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String responseTrainerJson = mvcResult.getResponse().getContentAsString();
+        return mapper.readValue(responseTrainerJson, LoginUserDto.class);
+    }
+
+    private TrainingViewDto createTraining(TrainingDto trainingDto) throws Exception {
+        TrainingAddDto trainingAddDto = conversionService.convert(trainingDto, TrainingAddDto.class);
+
+        String trainingAddDtoDtoJson = mapper.writeValueAsString(trainingAddDto);
+
+        MvcResult mvcResult = mockMvc.perform(post("/trainings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(trainingAddDtoDtoJson))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String response = mvcResult.getResponse().getContentAsString();
+
+        return mapper.readValue(response, TrainingViewDto.class);
     }
 
 

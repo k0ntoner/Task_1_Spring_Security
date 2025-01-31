@@ -119,7 +119,13 @@ public class TrainerDaoImpl implements TrainerDao {
     @Override
     public Collection<Trainer> findTrainersNotAssignedToTrainee(String traineeUsername) {
         try (Session session = sessionFactory.openSession()) {
-            List<Trainer> trainers = session.createQuery("from Trainer t where t.isActive=true and t.id Not in (Select training.id from Training training join Trainee trainee where trainee.username!=:username )", Trainer.class)
+            List<Trainer> trainers = session.createQuery("from Trainer t " +
+                            "where t.isActive=true and t.id not in (" +
+                            "Select trainer.id " +
+                            "from Training training " +
+                            "join training.trainer trainer " +
+                            "join training.trainee trainee " +
+                            "where trainee.username!=:username )", Trainer.class)
                     .setParameter("username", traineeUsername)
                     .list();
 

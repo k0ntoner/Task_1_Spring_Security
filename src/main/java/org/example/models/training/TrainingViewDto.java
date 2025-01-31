@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TrainingListViewDto {
+public class TrainingViewDto {
     @NotNull
     private String trainingName;
 

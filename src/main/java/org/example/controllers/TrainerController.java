@@ -1,9 +1,15 @@
 package org.example.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
-import org.example.models.trainee.TraineeDto;
 import org.example.models.trainer.*;
-import org.example.models.training.TrainingListViewDto;
+import org.example.models.training.TrainingListDto;
+import org.example.models.training.TrainingViewDto;
 import org.example.models.user.ChangeUserPasswordDto;
 import org.example.models.user.LoginUserDto;
 import org.example.services.TrainerService;
@@ -35,12 +41,17 @@ public class TrainerController {
     @Autowired
     private ConversionService conversionService;
 
-    @GetMapping
-    public Collection<TrainerDto> getAllTrainers() {
-        return trainerService.findAll();
-    }
-
     @GetMapping("/trainer/{username}")
+    @Operation(summary = "Get Trainer",
+            parameters = {
+                    @Parameter(name = "username", required = true)
+            })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Trainer found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TrainerViewDto.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     public ResponseEntity<?> getTrainerByUsername(@PathVariable("username") String username) {
         Optional<TrainerDto> traineeDto = trainerService.findByUsername(username);
 
@@ -58,6 +69,16 @@ public class TrainerController {
     }
 
     @PostMapping("/registration")
+    @Operation(summary = "Create new Trainer",
+            parameters = {
+                    @Parameter(name = "TrainerRegistrationDto", required = true)
+            })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Trainer created",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = LoginUserDto.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     public ResponseEntity<?> createTrainer(@RequestBody TrainerRegistrationDto trainerRegistrationDto) {
         try {
             TrainerDto trainerDto = conversionService.convert(trainerRegistrationDto, TrainerDto.class);
@@ -83,6 +104,14 @@ public class TrainerController {
     }
 
     @PutMapping("/trainer/change-password")
+    @Operation(summary = "Change Trainer's password",
+            parameters = {
+                    @Parameter(name = "changeUserPasswordDto", required = true)
+            })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Trainer's password changed"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     public ResponseEntity<?> changePassword(@RequestBody ChangeUserPasswordDto changeUserPasswordDto) {
         try {
             trainerService.changePassword(changeUserPasswordDto.getUsername(), changeUserPasswordDto.getOldPassword(), changeUserPasswordDto.getNewPassword());
@@ -93,8 +122,19 @@ public class TrainerController {
         return ResponseEntity.badRequest().build();
     }
 
-    @PutMapping("/trainer")
-    public ResponseEntity<?> updateTrainer(@RequestBody TrainerUpdateDto trainerDto) {
+    @PutMapping("/trainer/{id}")
+    @Operation(summary = "Update Trainer",
+            parameters = {
+                    @Parameter(name = "id", required = true),
+                    @Parameter(name = "trainerDto", required = true)
+            })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Trainer updated",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TrainingViewDto.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
+    public ResponseEntity<?> updateTrainer(@PathVariable("id") Long id, @RequestBody TrainerUpdateDto trainerDto) {
         try {
             Optional<TrainerDto> trainerDtoOptional = trainerService.findByUsername(trainerDto.getUsername());
             if (trainerDtoOptional.isPresent()) {
@@ -111,7 +151,7 @@ public class TrainerController {
 
                 entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder
                                 .methodOn(TrainerController.class)
-                                .updateTrainer(trainerDto))
+                                .updateTrainer(id, trainerDto))
                         .withSelfRel());
 
                 return ResponseEntity.ok(entityModel);
@@ -125,12 +165,21 @@ public class TrainerController {
     }
 
     @GetMapping("/not-assigned-on-trainee/{username}")
+    @Operation(summary = "Get Trainers not assigned on trainee",
+            parameters = {
+                    @Parameter(name = "username", required = true),
+            })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Trainers found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TrainerListDto.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     public ResponseEntity<?> getNotAssignedOnTrainee(@PathVariable("username") String username) {
         Collection<TrainerDto> trainers = trainerService.findTrainersNotAssignedToTrainee(username);
         if (!trainers.isEmpty()) {
             Collection<TrainerListViewDto> trainerListViewDtos = trainers.stream().map(trainer -> conversionService.convert(trainer, TrainerListViewDto.class)).collect(Collectors.toList());
-            EntityModel<Collection<TrainerListViewDto>> entityModel = EntityModel.of(trainerListViewDtos);
-
+            EntityModel<TrainerListDto> entityModel = EntityModel.of(new TrainerListDto(trainerListViewDtos));
             entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder
                             .methodOn(TrainerController.class)
                             .getNotAssignedOnTrainee(username))
@@ -142,23 +191,26 @@ public class TrainerController {
     }
 
     @GetMapping("/trainer/{username}/trainings")
-    public ResponseEntity<?> getTrainings(@PathVariable("username") String username, @RequestParam(required = false) LocalDateTime periodFrom,
-                                          @RequestParam(required = false) LocalDateTime periodTo,
-                                          @RequestParam(required = false) String traineeUsername) {
+    @Operation(summary = "Get Trainer's list of trainings",
+            parameters = {
+                    @Parameter(name = "username", required = true),
+            })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Trainings found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TrainingListDto.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
+    public ResponseEntity<?> getTrainings(@PathVariable("username") String username, @RequestParam(required = false, name = "periodFrom") LocalDateTime periodFrom,
+                                          @RequestParam(required = false, name = "periodTo") LocalDateTime periodTo,
+                                          @RequestParam(required = false, name = "traineeUsername") String traineeUsername) {
 
         if (trainerService.findByUsername(username).isPresent()) {
 
-            Collection<TrainingListViewDto> trainingListViewDtos = trainingService.findByTrainer(username, periodFrom, periodTo, traineeUsername).stream()
-                    .map(trainingDto -> TrainingListViewDto.builder()
-                            .trainerUsername(username)
-                            .traineeUsername(trainingDto.getTraineeDto().getUsername())
-                            .trainingDateTime(trainingDto.getTrainingDate())
-                            .trainingDuration(trainingDto.getTrainingDuration())
-                            .trainingName(trainingDto.getTrainingName())
-                            .trainingType(trainingDto.getTrainingType())
-                            .build()).collect(Collectors.toList());
+            Collection<TrainingViewDto> trainingViewDtos = trainingService.findByTrainer(username, periodFrom, periodTo, traineeUsername).stream()
+                    .map(trainingDto -> conversionService.convert(trainingDto, TrainingViewDto.class)).collect(Collectors.toList());
 
-            EntityModel<Collection<TrainingListViewDto>> entityModel = EntityModel.of(trainingListViewDtos);
+            EntityModel<TrainingListDto> entityModel = EntityModel.of(new TrainingListDto(trainingViewDtos));
 
             entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder
                             .methodOn(TrainerController.class)
@@ -170,7 +222,18 @@ public class TrainerController {
         return ResponseEntity.badRequest().build();
     }
 
-    @PatchMapping("/trainer/{username}/de-activate")
+    @PatchMapping("/trainer/{username}/activate")
+    @Operation(summary = "De-activate Trainer",
+            parameters = {
+                    @Parameter(name = "username", required = true),
+                    @Parameter(name = "activate", required = true),
+            })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Trainer active was changed",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TrainingListDto.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     public ResponseEntity<?> de_activate(@PathVariable("username") String username, @RequestParam("activate") boolean activate) {
         Optional<TrainerDto> trainerDto = trainerService.findByUsername(username);
         if (trainerDto.isPresent()) {
