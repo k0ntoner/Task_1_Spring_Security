@@ -67,7 +67,7 @@ public class TrainerController {
                     .withSelfRel());
             return ResponseEntity.ok(entityModel);
         }
-        return ResponseEntity.badRequest().build();
+        throw new IllegalArgumentException("Invalid username");
     }
 
     @PostMapping("/registration")
@@ -82,27 +82,21 @@ public class TrainerController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> createTrainer(@RequestBody TrainerRegistrationDto trainerRegistrationDto) {
-        try {
-            TrainerDto trainerDto = conversionService.convert(trainerRegistrationDto, TrainerDto.class);
-            TrainerDto savedTrainerDto = trainerService.add(trainerDto);
+        TrainerDto trainerDto = conversionService.convert(trainerRegistrationDto, TrainerDto.class);
+        TrainerDto savedTrainerDto = trainerService.add(trainerDto);
 
-            LoginUserDto loginUserDto = conversionService.convert(savedTrainerDto, LoginUserDto.class);
+        LoginUserDto loginUserDto = conversionService.convert(savedTrainerDto, LoginUserDto.class);
 
-            EntityModel<LoginUserDto> entityModel = EntityModel.of(loginUserDto);
+        EntityModel<LoginUserDto> entityModel = EntityModel.of(loginUserDto);
 
-            entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder
-                            .methodOn(TrainerController.class)
-                            .createTrainer(trainerRegistrationDto))
-                    .withSelfRel());
+        entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder
+                        .methodOn(TrainerController.class)
+                        .createTrainer(trainerRegistrationDto))
+                .withSelfRel());
 
-            URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/trainer/{username}").buildAndExpand(savedTrainerDto.getUsername()).toUri();
+        URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/trainer/{username}").buildAndExpand(savedTrainerDto.getUsername()).toUri();
 
-            return ResponseEntity.created(location).body(entityModel);
-
-        } catch (Exception e) {
-            log.error(e.getMessage());
-        }
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.created(location).body(entityModel);
     }
 
     @PutMapping("/trainer/change-password")
@@ -115,13 +109,8 @@ public class TrainerController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> changePassword(@RequestBody ChangeUserPasswordDto changeUserPasswordDto) {
-        try {
-            trainerService.changePassword(changeUserPasswordDto.getUsername(), changeUserPasswordDto.getOldPassword(), changeUserPasswordDto.getNewPassword());
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            log.error(e.getMessage());
-        }
-        return ResponseEntity.badRequest().build();
+        trainerService.changePassword(changeUserPasswordDto.getUsername(), changeUserPasswordDto.getOldPassword(), changeUserPasswordDto.getNewPassword());
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/trainer/{id}")
@@ -137,32 +126,27 @@ public class TrainerController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> updateTrainer(@PathVariable("id") Long id, @RequestBody TrainerUpdateDto trainerDto) {
-        try {
-            Optional<TrainerDto> trainerDtoOptional = trainerService.findByUsername(trainerDto.getUsername());
-            if (trainerDtoOptional.isPresent()) {
-                TrainerDto trainerDtoToUpdate = trainerDtoOptional.get();
+        Optional<TrainerDto> trainerDtoOptional = trainerService.findByUsername(trainerDto.getUsername());
+        if (trainerDtoOptional.isPresent()) {
+            TrainerDto trainerDtoToUpdate = trainerDtoOptional.get();
 
-                trainerDtoToUpdate.setFirstName(trainerDto.getFirstName());
-                trainerDtoToUpdate.setLastName(trainerDto.getLastName());
-                trainerDtoToUpdate.setActive(trainerDto.isActive());
+            trainerDtoToUpdate.setFirstName(trainerDto.getFirstName());
+            trainerDtoToUpdate.setLastName(trainerDto.getLastName());
+            trainerDtoToUpdate.setActive(trainerDto.isActive());
 
-                TrainerDto updatedTrainerDto = trainerService.update(trainerDtoToUpdate);
+            TrainerDto updatedTrainerDto = trainerService.update(trainerDtoToUpdate);
 
-                TrainerViewDto trainerViewDto = conversionService.convert(updatedTrainerDto, TrainerViewDto.class);
-                EntityModel<TrainerViewDto> entityModel = EntityModel.of(trainerViewDto);
+            TrainerViewDto trainerViewDto = conversionService.convert(updatedTrainerDto, TrainerViewDto.class);
+            EntityModel<TrainerViewDto> entityModel = EntityModel.of(trainerViewDto);
 
-                entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder
-                                .methodOn(TrainerController.class)
-                                .updateTrainer(id, trainerDto))
-                        .withSelfRel());
+            entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder
+                            .methodOn(TrainerController.class)
+                            .updateTrainer(id, trainerDto))
+                    .withSelfRel());
 
-                return ResponseEntity.ok(entityModel);
-            }
-            throw new IllegalArgumentException("Invalid username");
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.ok(entityModel);
         }
+        throw new IllegalArgumentException("Invalid username");
 
     }
 
@@ -189,7 +173,7 @@ public class TrainerController {
 
             return ResponseEntity.ok(entityModel);
         }
-        return ResponseEntity.badRequest().build();
+        throw new IllegalArgumentException("Invalid username");
     }
 
     @GetMapping("/trainer/{username}/trainings")
@@ -221,7 +205,7 @@ public class TrainerController {
 
             return ResponseEntity.ok(entityModel);
         }
-        return ResponseEntity.badRequest().build();
+        throw new IllegalArgumentException("Invalid username");
     }
 
     @PatchMapping("/trainer/{username}/activate")
@@ -246,7 +230,7 @@ public class TrainerController {
             }
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.badRequest().build();
+        throw new IllegalArgumentException("Invalid username");
     }
 
 }

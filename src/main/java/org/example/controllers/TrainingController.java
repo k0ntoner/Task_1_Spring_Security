@@ -58,34 +58,29 @@ public class TrainingController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> createTraining(@RequestBody TrainingAddDto trainingAddDto) {
-        try {
-            Optional<TraineeDto> foundTraineeDto = traineeService.findByUsername(trainingAddDto.getTraineeUsername());
-            if (foundTraineeDto.isEmpty()) {
-                throw new IllegalArgumentException("Trainee  not found");
-            }
-
-            trainingAddDto.setTraineeDto(foundTraineeDto.get());
-
-            Optional<TrainerDto> foundTrainerDto = trainerService.findByUsername(trainingAddDto.getTrainerUsername());
-            if (foundTrainerDto.isEmpty()) {
-                throw new IllegalArgumentException("Trainer not found");
-            }
-
-            trainingAddDto.setTrainerDto(foundTrainerDto.get());
-
-            TrainingDto trainingDto = conversionService.convert(trainingAddDto, TrainingDto.class);
-            TrainingDto savedTrainingDto = trainingService.add(trainingDto);
-
-            EntityModel<TrainingViewDto> entityModel = EntityModel.of(conversionService.convert(savedTrainingDto, TrainingViewDto.class));
-            entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(TrainingController.class).createTraining(trainingAddDto)).withSelfRel());
-
-            URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/trainings/{id}").buildAndExpand(savedTrainingDto.getId()).toUri();
-
-            return ResponseEntity.created(location).body(entityModel);
-        } catch (Exception e) {
-            log.error(e.getMessage());
+        Optional<TraineeDto> foundTraineeDto = traineeService.findByUsername(trainingAddDto.getTraineeUsername());
+        if (foundTraineeDto.isEmpty()) {
+            throw new IllegalArgumentException("Trainee  not found");
         }
-        return ResponseEntity.badRequest().build();
+
+        trainingAddDto.setTraineeDto(foundTraineeDto.get());
+
+        Optional<TrainerDto> foundTrainerDto = trainerService.findByUsername(trainingAddDto.getTrainerUsername());
+        if (foundTrainerDto.isEmpty()) {
+            throw new IllegalArgumentException("Trainer not found");
+        }
+
+        trainingAddDto.setTrainerDto(foundTrainerDto.get());
+
+        TrainingDto trainingDto = conversionService.convert(trainingAddDto, TrainingDto.class);
+        TrainingDto savedTrainingDto = trainingService.add(trainingDto);
+
+        EntityModel<TrainingViewDto> entityModel = EntityModel.of(conversionService.convert(savedTrainingDto, TrainingViewDto.class));
+        entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(TrainingController.class).createTraining(trainingAddDto)).withSelfRel());
+
+        URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/trainings/{id}").buildAndExpand(savedTrainingDto.getId()).toUri();
+
+        return ResponseEntity.created(location).body(entityModel);
     }
 
     @GetMapping("/types")

@@ -41,7 +41,7 @@ public class TrainerDaoImpl implements TrainerDao {
             return entity;
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw e;
+            throw new PersistenceException("Error while saving Trainer",e);
         }
     }
 
@@ -59,7 +59,7 @@ public class TrainerDaoImpl implements TrainerDao {
             return entity;
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw e;
+            throw new PersistenceException("Error while updating Trainer",e);
         }
     }
 

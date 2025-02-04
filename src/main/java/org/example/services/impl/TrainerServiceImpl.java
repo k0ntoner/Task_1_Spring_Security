@@ -88,6 +88,7 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     public Optional<TrainerDto> findByUsername(String username) {
+        log.info("Request to find trainer by username: {}", username);
         return trainerDao.findByUsername(username).map(trainer -> conversionService.convert(trainer, TrainerDto.class))
                 .map(trainerDto -> {
                     trainerDto.setTrainees(findTraineesByTrainerUsername(trainerDto.getUsername()));
@@ -97,6 +98,7 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     public void changePassword(String username, String oldPassword, String newPassword) {
+        log.info("Request to change password for trainer: {}", username);
         if (trainerDao.findByUsername(username).isPresent()) {
             Trainer trainer = trainerDao.findByUsername(username).get();
 
@@ -113,6 +115,7 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     public void activate(TrainerDto trainerDto) {
+        log.info("Request to activate trainer: {}", trainerDto.getUsername());
         Trainer entity = conversionService.convert(trainerDto, Trainer.class);
         entity.setActive(true);
         trainerDao.update(entity);
@@ -120,6 +123,7 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     public void deactivate(TrainerDto entityDto) {
+        log.info("Request to deactivate trainer: {}", entityDto.getUsername());
         Trainer entity = conversionService.convert(entityDto, Trainer.class);
         entity.setActive(false);
         trainerDao.update(entity);
@@ -127,6 +131,7 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     public Collection<TrainerDto> findTrainersNotAssignedToTrainee(String traineeUsername) {
+        log.info("Request to find trainers not assigned to trainee: {}", traineeUsername);
         return trainerDao.findTrainersNotAssignedToTrainee(traineeUsername)
                 .stream()
                 .map(trainer -> conversionService.convert(trainer, TrainerDto.class))
