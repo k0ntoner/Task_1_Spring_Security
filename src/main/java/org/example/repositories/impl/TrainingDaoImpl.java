@@ -45,7 +45,7 @@ public class TrainingDaoImpl implements TrainingDao {
             return entity;
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new PersistenceException(e);
+            throw new PersistenceException("Error while saving Training", e);
         }
     }
 
