@@ -1,7 +1,7 @@
 package org.example.models.trainee;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.sun.istack.NotNull;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.example.models.trainer.TrainerDto;

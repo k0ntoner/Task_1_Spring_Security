@@ -1,6 +1,5 @@
 package org.example.repositories.entities;
 
-import com.sun.istack.NotNull;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.enums.TrainingType;

@@ -1,6 +1,8 @@
 package org.example.repositories.impl;
 
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -22,12 +24,9 @@ import java.util.stream.Collectors;
 @Repository
 @Slf4j
 public class TraineeDaoImpl implements TraineeDao {
-    private SessionFactory sessionFactory;
+    @PersistenceContext
+    private EntityManager entityManager;
 
-    @Autowired
-    public TraineeDaoImpl(@Qualifier("sessionFactory") SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
 
     @Override
     @Transactional
@@ -36,8 +35,7 @@ public class TraineeDaoImpl implements TraineeDao {
             if (entity.getId() != null) {
                 throw new IllegalArgumentException("Trainee must not have an id");
             }
-
-            sessionFactory.getCurrentSession().persist(entity);
+            entityManager.persist(entity);
             log.info("Saved new Trainee: {}", entity);
             return entity;
         } catch (Exception e) {
@@ -54,7 +52,7 @@ public class TraineeDaoImpl implements TraineeDao {
                 throw new IllegalArgumentException("Trainee with id " + entity.getId() + " not found");
             }
 
-            entity = sessionFactory.getCurrentSession().merge(entity);
+            entity = entityManager.merge(entity);
             log.info("Updated Trainee: {}", entity);
             return entity;
         } catch (Exception e) {
@@ -65,8 +63,8 @@ public class TraineeDaoImpl implements TraineeDao {
 
     @Override
     public Optional<Trainee> findById(long id) {
-        try (Session session = sessionFactory.openSession()) {
-            Trainee entity = session.get(Trainee.class, id);
+        try {
+            Trainee entity = entityManager.find(Trainee.class, id);
             log.info("Found Trainee: {}", entity);
             return Optional.of(entity);
         } catch (Exception e) {
@@ -77,8 +75,8 @@ public class TraineeDaoImpl implements TraineeDao {
 
     @Override
     public Collection<Trainee> findAll() {
-        try (Session session = sessionFactory.openSession()) {
-            Collection<Trainee> entities = session.createQuery("select t from Trainee t", Trainee.class).list();
+        try{
+            Collection<Trainee> entities = entityManager.createQuery("select t from Trainee t", Trainee.class).getResultList();
             log.info("Found {} Trainees", entities.size());
             return entities;
         } catch (Exception e) {
@@ -91,25 +89,19 @@ public class TraineeDaoImpl implements TraineeDao {
     @Transactional
     public void delete(Trainee entity) {
         try {
-            Session session = sessionFactory.getCurrentSession();
-
-            if (!session.contains(entity)) {
-                entity = session.merge(entity);
+            if (!entityManager.contains(entity)) {
+                entity = entityManager.merge(entity);
             }
-
-            session.remove(entity);
+            entityManager.remove(entity);
         } catch (Exception e) {
             log.error(e.getMessage());
         }
     }
 
     @Override
-    @Transactional
     public Collection<Trainer> findTrainersByTraineeUsername(String username) {
         try {
-            Session session = sessionFactory.getCurrentSession();
-
-            Collection<Trainer> trainers = session.createQuery("Select distinct t.trainer from Training t where t.trainee.username=:username").setParameter("username", username).list();
+            Collection<Trainer> trainers = entityManager.createQuery("Select distinct t.trainer from Training t where t.trainee.username=:username").setParameter("username", username).getResultList();
             Collection<Trainer> uniqueTrainers = new HashSet<>();
 
             trainers.forEach(trainer -> uniqueTrainers.add(trainer));
@@ -126,8 +118,8 @@ public class TraineeDaoImpl implements TraineeDao {
 
     @Override
     public boolean isUsernameExist(String username) {
-        try (Session session = sessionFactory.openSession()) {
-            User user = session.createQuery("from User u where u.username=:username", User.class).setParameter("username", username).uniqueResult();
+        try {
+            User user = entityManager.createQuery("from User u where u.username=:username", User.class).setParameter("username", username).getSingleResult();
             return user != null;
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -137,11 +129,11 @@ public class TraineeDaoImpl implements TraineeDao {
 
     @Override
     public Optional<Trainee> findByUsername(String username) {
-        try (Session session = sessionFactory.openSession()) {
-            Trainee entity = session.createQuery(
+        try {
+            Trainee entity = entityManager.createQuery(
                             "FROM Trainee t where t.username = :username", Trainee.class)
                     .setParameter("username", username)
-                    .uniqueResult();
+                    .getSingleResult();
 
             return Optional.of(entity);
 

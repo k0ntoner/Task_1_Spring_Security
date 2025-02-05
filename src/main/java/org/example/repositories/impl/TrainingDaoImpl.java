@@ -1,7 +1,13 @@
 package org.example.repositories.impl;
 
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.example.repositories.TrainingDao;
@@ -24,12 +30,9 @@ import java.util.*;
 @Repository
 @Slf4j
 public class TrainingDaoImpl implements TrainingDao {
-    private SessionFactory sessionFactory;
 
-    @Autowired
-    public TrainingDaoImpl(@Qualifier("sessionFactory") SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     @Transactional
@@ -39,7 +42,7 @@ public class TrainingDaoImpl implements TrainingDao {
                 throw new IllegalArgumentException("Training must not have an id");
             }
 
-            sessionFactory.getCurrentSession().persist(entity);
+            entityManager.persist(entity);
             log.info("Saved new Training: {}", entity);
 
             return entity;
@@ -51,8 +54,8 @@ public class TrainingDaoImpl implements TrainingDao {
 
     @Override
     public Optional<Training> findById(long id) {
-        try (Session session = sessionFactory.openSession()) {
-            Training entity = session.get(Training.class, id);
+        try {
+            Training entity = entityManager.find(Training.class, id);
             log.info("Found Training: {}", entity);
             return Optional.of(entity);
         } catch (Exception e) {
@@ -63,8 +66,8 @@ public class TrainingDaoImpl implements TrainingDao {
 
     @Override
     public Collection<Training> findAll() {
-        try (Session session = sessionFactory.openSession()) {
-            Collection<Training> entities = session.createQuery("select t from Training t", Training.class).list();
+        try {
+            Collection<Training> entities = entityManager.createQuery("select t from Training t", Training.class).getResultList();
             log.info("Found {} Trainings", entities.size());
             return entities;
         } catch (Exception e) {
@@ -75,13 +78,13 @@ public class TrainingDaoImpl implements TrainingDao {
 
     @Override
     public Collection<Training> findByTrainer(String trainerUsername, LocalDateTime startDateTime, LocalDateTime endDateTime, String traineeUsername) {
-        try (Session session = sessionFactory.openSession()) {
+        try {
 
-            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
-            JpaCriteriaQuery<Training> criteriaQuery = builder.createQuery(Training.class);
-            JpaRoot<Training> trainingRoot = criteriaQuery.from(Training.class);
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Training> criteriaQuery = builder.createQuery(Training.class);
+            Root<Training> trainingRoot = criteriaQuery.from(Training.class);
 
-            List<JpaPredicate> predicates = new ArrayList<>();
+            List<Predicate> predicates = new ArrayList<>();
 
             if (trainerUsername == null) {
                 log.info("Trainer username must be indicated");
@@ -104,20 +107,24 @@ public class TrainingDaoImpl implements TrainingDao {
 
             criteriaQuery.select(trainingRoot).where(predicates.toArray(new JpaPredicate[0]));
 
-            return session.createQuery(criteriaQuery).getResultList();
+            return entityManager.createQuery(criteriaQuery).getResultList();
 
+        }
+        catch (Exception e) {
+            log.error(e.getMessage());
+            return new ArrayList<>();
         }
     }
 
     @Override
     public Collection<Training> findByTrainee(String traineeUsername, LocalDateTime startDateTime, LocalDateTime endDateTime, String trainerUsername, TrainingType trainingType) {
-        try (Session session = sessionFactory.openSession()) {
+        try {
 
-            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
-            JpaCriteriaQuery<Training> criteriaQuery = builder.createQuery(Training.class);
-            JpaRoot<Training> trainingRoot = criteriaQuery.from(Training.class);
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Training> criteriaQuery = builder.createQuery(Training.class);
+            Root<Training> trainingRoot = criteriaQuery.from(Training.class);
 
-            List<JpaPredicate> predicates = new ArrayList<>();
+            List<Predicate> predicates = new ArrayList<>();
 
             if (traineeUsername == null) {
                 log.info("Trainee username must be indicated");
@@ -144,8 +151,11 @@ public class TrainingDaoImpl implements TrainingDao {
 
             criteriaQuery.select(trainingRoot).where(predicates.toArray(new JpaPredicate[0]));
 
-            return session.createQuery(criteriaQuery).getResultList();
-
+            return entityManager.createQuery(criteriaQuery).getResultList();
+        }
+        catch (Exception e) {
+            log.error(e.getMessage());
+            return new ArrayList<>();
         }
     }
 }

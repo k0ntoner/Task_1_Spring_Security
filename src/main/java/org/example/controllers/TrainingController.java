@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.example.enums.TrainingType;
 import org.example.models.trainer.TrainerDto;
@@ -57,7 +58,7 @@ public class TrainingController {
                             schema = @Schema(implementation = TrainingViewDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> createTraining(@RequestBody TrainingAddDto trainingAddDto) {
+    public ResponseEntity<?> createTraining(@RequestBody @Valid TrainingAddDto trainingAddDto) {
         Optional<TraineeDto> foundTraineeDto = traineeService.findByUsername(trainingAddDto.getTraineeUsername());
         if (foundTraineeDto.isEmpty()) {
             throw new IllegalArgumentException("Trainee  not found");

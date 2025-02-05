@@ -1,7 +1,6 @@
 package org.example.repositories.entities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sun.istack.NotNull;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,6 +33,6 @@ public abstract class User {
     @Column(nullable = false)
     private String password;
 
-    @Column(columnDefinition = "BOOLEAN", nullable = false)
+    @Column(name="active", nullable = false)
     private boolean isActive;
 }

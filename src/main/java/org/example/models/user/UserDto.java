@@ -1,6 +1,6 @@
 package org.example.models.user;
 
-import com.sun.istack.NotNull;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;

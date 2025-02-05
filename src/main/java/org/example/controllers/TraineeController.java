@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.example.enums.TrainingType;
 import org.example.models.trainee.TraineeRegistrationDto;
@@ -65,7 +66,7 @@ public class TraineeController {
                             schema = @Schema(implementation = LoginUserDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> createTrainee(@RequestBody TraineeRegistrationDto traineeRegistrationDto) {
+    public ResponseEntity<?> createTrainee(@RequestBody @Valid TraineeRegistrationDto traineeRegistrationDto) {
         TraineeDto traineeDto = conversionService.convert(traineeRegistrationDto, TraineeDto.class);
         TraineeDto savedTraineeDto = traineeService.add(traineeDto);
 
@@ -97,7 +98,7 @@ public class TraineeController {
             @ApiResponse(responseCode = "204", description = "Trainee updated"),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> changePassword(@RequestBody ChangeUserPasswordDto changeUserPasswordDto) {
+    public ResponseEntity<?> changePassword(@RequestBody @Valid  ChangeUserPasswordDto changeUserPasswordDto) {
         traineeService.changePassword(changeUserPasswordDto.getUsername(), changeUserPasswordDto.getOldPassword(), changeUserPasswordDto.getNewPassword());
         return ResponseEntity.noContent().build();
     }
@@ -141,7 +142,7 @@ public class TraineeController {
                             schema = @Schema(implementation = TraineeViewDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> updateTrainee(@PathVariable("id") Long id, @RequestBody TraineeUpdateDto traineeUpdateDto) {
+    public ResponseEntity<?> updateTrainee(@PathVariable("id") Long id, @RequestBody @Valid  TraineeUpdateDto traineeUpdateDto) {
         Optional<TraineeDto> foundTraineeDto = traineeService.findByUsername(traineeUpdateDto.getUsername());
         if (foundTraineeDto.isPresent()) {
             TraineeDto updatedTraineeDto = foundTraineeDto.get();
@@ -208,7 +209,7 @@ public class TraineeController {
                             schema = @Schema(implementation = TrainingListDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> updateTrainings(@PathVariable("username") String username, @RequestBody TrainingListToUpdateDto trainingListToUpdateDto) {
+    public ResponseEntity<?> updateTrainings(@PathVariable("username") String username, @RequestBody @Valid  TrainingListToUpdateDto trainingListToUpdateDto) {
         Optional<TraineeDto> traineeDto = traineeService.findByUsername(username);
         if (traineeDto.isPresent()) {
             TraineeDto traineeDtoToUpdate = traineeDto.get();

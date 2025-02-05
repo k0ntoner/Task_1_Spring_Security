@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.example.models.trainer.*;
 import org.example.models.training.TrainingListDto;
@@ -81,7 +82,7 @@ public class TrainerController {
                             schema = @Schema(implementation = LoginUserDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> createTrainer(@RequestBody TrainerRegistrationDto trainerRegistrationDto) {
+    public ResponseEntity<?> createTrainer(@RequestBody @Valid TrainerRegistrationDto trainerRegistrationDto) {
         TrainerDto trainerDto = conversionService.convert(trainerRegistrationDto, TrainerDto.class);
         TrainerDto savedTrainerDto = trainerService.add(trainerDto);
 
@@ -108,7 +109,7 @@ public class TrainerController {
             @ApiResponse(responseCode = "204", description = "Trainer's password changed"),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> changePassword(@RequestBody ChangeUserPasswordDto changeUserPasswordDto) {
+    public ResponseEntity<?> changePassword(@RequestBody @Valid  ChangeUserPasswordDto changeUserPasswordDto) {
         trainerService.changePassword(changeUserPasswordDto.getUsername(), changeUserPasswordDto.getOldPassword(), changeUserPasswordDto.getNewPassword());
         return ResponseEntity.noContent().build();
     }
@@ -125,7 +126,7 @@ public class TrainerController {
                             schema = @Schema(implementation = TrainingViewDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> updateTrainer(@PathVariable("id") Long id, @RequestBody TrainerUpdateDto trainerDto) {
+    public ResponseEntity<?> updateTrainer(@PathVariable("id") Long id, @RequestBody @Valid  TrainerUpdateDto trainerDto) {
         Optional<TrainerDto> trainerDtoOptional = trainerService.findByUsername(trainerDto.getUsername());
         if (trainerDtoOptional.isPresent()) {
             TrainerDto trainerDtoToUpdate = trainerDtoOptional.get();

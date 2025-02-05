@@ -1,6 +1,6 @@
 package org.example.models.trainer;
 
-import com.sun.istack.NotNull;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.example.enums.TrainingType;
