@@ -4,6 +4,7 @@ package controllers.integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import configs.TestWebConfig;
 import jakarta.transaction.Transactional;
+import org.example.Application;
 import org.example.enums.TrainingType;
 import org.example.models.trainee.TraineeRegistrationDto;
 import org.example.models.trainee.TraineeUpdateDto;
@@ -19,8 +20,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -36,9 +39,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.junit.jupiter.api.Assertions.*;
-
+@SpringBootTest(classes = Application.class)
 @WebAppConfiguration
-@SpringJUnitConfig(classes = {TestWebConfig.class})
+@ActiveProfiles("test")
 public class TraineeControllerIntegrationTest {
     @Autowired
     private WebApplicationContext context;
@@ -116,7 +119,7 @@ public class TraineeControllerIntegrationTest {
 
         MvcResult mvcResult = mockMvc.perform(get("/trainees/trainee/" + responseLoginDto.getUsername()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().contentType("application/hal+json"))
                 .andReturn();
 
 

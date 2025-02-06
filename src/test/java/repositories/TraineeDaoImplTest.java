@@ -1,13 +1,18 @@
 package repositories;
 
-import configs.TestWebConfig;
-import org.example.repositories.TraineeDao;
+import jakarta.persistence.PersistenceException;
+import org.example.Application;
 import org.example.repositories.entities.Trainee;
+import org.example.repositories.impl.TraineeDaoImpl;
 import org.example.utils.UserUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataAccessException;
+import org.springframework.test.context.ActiveProfiles;
 
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,15 +20,16 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.time.LocalDate;
 import java.util.Collection;
 
+@SpringBootTest(classes = Application.class)
+@ActiveProfiles("test")
 public class TraineeDaoImplTest {
-    private TraineeDao traineeDao;
-    private AnnotationConfigApplicationContext context;
+
+    @Autowired
+    private TraineeDaoImpl traineeDaoImpl;
     private Trainee testTrainee;
 
     @BeforeEach
     public void setUp() {
-        context = new AnnotationConfigApplicationContext(TestWebConfig.class);
-        traineeDao = context.getBean(TraineeDao.class);
         testTrainee = buildTraineeForAdding();
     }
 
@@ -42,7 +48,7 @@ public class TraineeDaoImplTest {
     @Test
     @DisplayName("Should return new Trainee")
     public void save_ShouldSaveNewTrainee() {
-        Trainee newTrainee = traineeDao.save(testTrainee);
+        Trainee newTrainee = traineeDaoImpl.save(testTrainee);
 
         assertNotNull(newTrainee.getId());
         assertEquals(testTrainee.getUsername(), newTrainee.getUsername());
@@ -64,7 +70,7 @@ public class TraineeDaoImplTest {
         LocalDate newDateOfBirth = LocalDate.of(2000, 11, 23);
         String newPassword = UserUtils.hashPassword("newPass");
 
-        Trainee newTrainee = traineeDao.save(testTrainee);
+        Trainee newTrainee = traineeDaoImpl.save(testTrainee);
 
         newTrainee.setAddress(newAddress);
         newTrainee.setFirstName(newFirstName);
@@ -73,7 +79,7 @@ public class TraineeDaoImplTest {
         newTrainee.setPassword(newPassword);
         newTrainee.setDateOfBirth(newDateOfBirth);
 
-        Trainee updatedTrainee = traineeDao.update(newTrainee);
+        Trainee updatedTrainee = traineeDaoImpl.update(newTrainee);
 
         assertNotNull(updatedTrainee);
         assertNotNull(updatedTrainee.getId());
@@ -89,46 +95,46 @@ public class TraineeDaoImplTest {
     @DisplayName("Should throw exception when update not existing trainee")
     public void update_ShouldThrowExceptionWhenUpdateNotExistingTrainee() {
         testTrainee.setId(1L);
-        assertThrows(IllegalArgumentException.class, () -> traineeDao.update(testTrainee));
-        assertFalse(traineeDao.findById(testTrainee.getId()).isPresent());
+        assertThrows(DataAccessException.class, () -> traineeDaoImpl.update(testTrainee));
+        assertFalse(traineeDaoImpl.findById(testTrainee.getId()).isPresent());
     }
 
     @Test
     @DisplayName("Should delete Trainee")
     public void delete_ShouldDeleteTrainee() {
-        Trainee newTrainee = traineeDao.save(testTrainee);
+        Trainee newTrainee = traineeDaoImpl.save(testTrainee);
         Long id = newTrainee.getId();
 
-        traineeDao.delete(newTrainee);
+        traineeDaoImpl.delete(newTrainee);
 
-        assertFalse(traineeDao.findById(id).isPresent());
+        assertFalse(traineeDaoImpl.findById(id).isPresent());
     }
 
     @Test
     @DisplayName("Should find Trainee by id")
     public void findById_ShouldFindTraineeById() {
 
-        Trainee newTrainee = traineeDao.save(testTrainee);
+        Trainee newTrainee = traineeDaoImpl.save(testTrainee);
         Long id = newTrainee.getId();
 
-        traineeDao.delete(newTrainee);
+        traineeDaoImpl.delete(newTrainee);
 
-        assertFalse(traineeDao.findById(id).isPresent());
+        assertFalse(traineeDaoImpl.findById(id).isPresent());
 
-        newTrainee = traineeDao.save(buildTraineeForAdding());
+        newTrainee = traineeDaoImpl.save(buildTraineeForAdding());
 
-        assertTrue(traineeDao.findById(newTrainee.getId()).isPresent());
+        assertTrue(traineeDaoImpl.findById(newTrainee.getId()).isPresent());
 
     }
 
     @Test
     @DisplayName("Should find Collection of all Trainees")
     public void findAll_ShouldFindAllTrainees() {
-        Trainee newTrainee = traineeDao.save(testTrainee);
+        Trainee newTrainee = traineeDaoImpl.save(testTrainee);
 
         assertNotNull(newTrainee);
 
-        Collection<Trainee> trainees = traineeDao.findAll();
+        Collection<Trainee> trainees = traineeDaoImpl.findAll();
 
         assertTrue(trainees.size() > 0);
     }
@@ -136,14 +142,14 @@ public class TraineeDaoImplTest {
     @Test
     @DisplayName("Should find Trainee by username")
     public void findByUsername_ShouldFindTraineeByUserName() {
-        Trainee newTrainee = traineeDao.save(testTrainee);
-        traineeDao.delete(newTrainee);
+        Trainee newTrainee = traineeDaoImpl.save(testTrainee);
+        traineeDaoImpl.delete(newTrainee);
 
-        assertFalse(traineeDao.findByUsername(testTrainee.getUsername()).isPresent());
+        assertFalse(traineeDaoImpl.findByUsername(testTrainee.getUsername()).isPresent());
 
-        newTrainee = traineeDao.save(buildTraineeForAdding());
+        newTrainee = traineeDaoImpl.save(buildTraineeForAdding());
 
-        assertTrue(traineeDao.findByUsername(newTrainee.getUsername()).isPresent());
+        assertTrue(traineeDaoImpl.findByUsername(newTrainee.getUsername()).isPresent());
     }
 
 

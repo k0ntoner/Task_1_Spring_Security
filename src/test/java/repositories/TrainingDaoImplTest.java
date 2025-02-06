@@ -1,6 +1,7 @@
 package repositories;
 
 import configs.TestWebConfig;
+import org.example.Application;
 import org.example.repositories.TraineeDao;
 import org.example.repositories.TrainerDao;
 import org.example.repositories.TrainingDao;
@@ -12,7 +13,11 @@ import org.example.utils.UserUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,30 +26,33 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 
+@SpringBootTest(classes = {Application.class})
+@ActiveProfiles("test")
 public class TrainingDaoImplTest {
+    @Autowired
+    @Qualifier("trainingDaoImpl")
     private TrainingDao trainingDao;
+
+    @Autowired
+    @Qualifier("trainerDaoImpl")
     private TrainerDao trainerDao;
+
+    @Autowired
+    @Qualifier("traineeDaoImpl")
     private TraineeDao traineeDao;
 
-    private AnnotationConfigApplicationContext context;
-
     private Training testTraining;
+
     private Trainer testTrainer;
+
     private Trainee testTrainee;
 
     @BeforeEach
     public void setUp() {
-        context = new AnnotationConfigApplicationContext(TestWebConfig.class);
-
-        trainingDao = context.getBean(TrainingDao.class);
-        trainerDao = context.getBean(TrainerDao.class);
-        traineeDao = context.getBean(TraineeDao.class);
-
         testTraining = buildTrainingForAdding();
         testTrainer = buildTrainerForAdding();
         testTrainee = buildTraineeForAdding();
     }
-
 
     public Trainee buildTraineeForAdding() {
         return Trainee.builder()
@@ -176,7 +184,7 @@ public class TrainingDaoImplTest {
 
         Training newTraining = trainingDao.save(testTraining);
 
-        traineeDao.delete(newTrainee);
+        traineeDao.delete(traineeDao.findById(newTrainee.getId()).get());
         assertFalse(trainingDao.findById(newTraining.getId()).isPresent());
     }
 

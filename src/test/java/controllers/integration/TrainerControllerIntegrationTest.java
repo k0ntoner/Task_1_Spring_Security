@@ -2,6 +2,7 @@ package controllers.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import configs.TestWebConfig;
+import org.example.Application;
 import org.example.enums.TrainingType;
 import org.example.models.trainee.TraineeDto;
 import org.example.models.trainee.TraineeRegistrationDto;
@@ -15,8 +16,10 @@ import org.example.models.user.LoginUserDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -33,8 +36,9 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest(classes = Application.class)
 @WebAppConfiguration
-@SpringJUnitConfig(classes = {TestWebConfig.class})
+@ActiveProfiles("test")
 public class TrainerControllerIntegrationTest {
     @Autowired
     private WebApplicationContext context;
@@ -101,7 +105,7 @@ public class TrainerControllerIntegrationTest {
 
         MvcResult mvcResult = mockMvc.perform(get("/trainers/trainer/" + responseLoginDto.getUsername()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().contentType("application/hal+json"))
                 .andReturn();
 
         TrainerViewDto responseDto = mapper.readValue(mvcResult.getResponse().getContentAsString(), TrainerViewDto.class);

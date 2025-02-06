@@ -1,6 +1,7 @@
 package repositories;
 
 import configs.TestWebConfig;
+import org.example.Application;
 import org.example.repositories.TrainerDao;
 import org.example.repositories.entities.Trainer;
 import org.example.enums.TrainingType;
@@ -8,22 +9,28 @@ import org.example.utils.UserUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Profile;
+import org.springframework.dao.DataAccessException;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Collection;
 
+@SpringBootTest(classes = Application.class)
+@ActiveProfiles("test")
 public class TrainerDaoImplTest {
-
+    @Autowired
+    @Qualifier("trainerDaoImpl")
     private TrainerDao trainerDao;
-    private AnnotationConfigApplicationContext context;
     private Trainer testTrainer;
 
     @BeforeEach
     public void setUp() {
-        context = new AnnotationConfigApplicationContext(TestWebConfig.class);
-        trainerDao = context.getBean(TrainerDao.class);
         testTrainer = buildTrainerForAdding();
     }
 
@@ -82,7 +89,7 @@ public class TrainerDaoImplTest {
     @DisplayName("Should throw exception when update not existing trainer")
     public void update_ShouldThrowExceptionWhenUpdateNotExistingTrainer() {
         testTrainer.setId(1L);
-        assertThrows(IllegalArgumentException.class, () -> trainerDao.update(testTrainer));
+        assertThrows(DataAccessException.class, () -> trainerDao.update(testTrainer));
         assertFalse(trainerDao.findById(testTrainer.getId()).isPresent());
     }
 
