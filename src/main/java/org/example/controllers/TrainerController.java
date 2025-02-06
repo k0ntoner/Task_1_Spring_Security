@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.example.metrics.UserRegistrationsMetric;
 import org.example.models.trainer.*;
 import org.example.models.training.TrainingListDto;
 import org.example.models.training.TrainingViewDto;
@@ -43,6 +44,9 @@ public class TrainerController {
 
     @Autowired
     private ConversionService conversionService;
+
+    @Autowired
+    private UserRegistrationsMetric userRegistrationsCounter;
 
     @GetMapping("/trainer/{username}")
     @Operation(summary = "Get Trainer",
@@ -96,6 +100,8 @@ public class TrainerController {
                 .withSelfRel());
 
         URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/trainer/{username}").buildAndExpand(savedTrainerDto.getUsername()).toUri();
+
+        userRegistrationsCounter.incrementUserRegistrations();
 
         return ResponseEntity.created(location).body(entityModel);
     }

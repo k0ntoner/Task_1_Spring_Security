@@ -28,6 +28,7 @@ import java.util.Set;
 
 @Configuration
 @ComponentScan(basePackages = {"org.example"})
+@Profile("!test")
 public class WebConfig implements WebMvcConfigurer {
 
     @Bean

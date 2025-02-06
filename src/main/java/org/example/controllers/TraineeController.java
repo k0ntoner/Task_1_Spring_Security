@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.example.enums.TrainingType;
+import org.example.metrics.UserRegistrationsMetric;
 import org.example.models.trainee.TraineeRegistrationDto;
 import org.example.models.trainee.TraineeUpdateDto;
 import org.example.models.training.TrainingDto;
@@ -21,14 +22,12 @@ import org.example.models.user.LoginUserDto;
 import org.example.models.trainee.TraineeDto;
 import org.example.models.trainee.TraineeViewDto;
 import org.example.services.TraineeService;
-import org.example.services.TrainerService;
 import org.example.services.TrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -47,7 +46,7 @@ public class TraineeController {
     private TraineeService traineeService;
 
     @Autowired
-    private TrainerService trainerService;
+    private UserRegistrationsMetric userRegistrationsCounter;
 
     @Autowired
     private TrainingService trainingService;
@@ -85,6 +84,8 @@ public class TraineeController {
                 .withRel("trainee"));
 
         URI location = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUri();
+
+        userRegistrationsCounter.incrementUserRegistrations();
 
         return ResponseEntity.created(location).body(entityModel);
     }
@@ -193,6 +194,8 @@ public class TraineeController {
                         .methodOn(TraineeController.class)
                         .deleteTrainee(username))
                 .withSelfRel().getHref();
+
+        userRegistrationsCounter.decrementUserRegistrations();
 
         return ResponseEntity.noContent().header("Link", "<" + selfLink + ">; rel=\"self\"").build();
     }

@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.example.enums.TrainingType;
+import org.example.metrics.TrainingMetric;
 import org.example.models.trainer.TrainerDto;
 import org.example.models.trainee.TraineeDto;
 import org.example.models.training.*;
@@ -47,6 +48,9 @@ public class TrainingController {
     @Autowired
     private ConversionService conversionService;
 
+    @Autowired
+    private TrainingMetric trainingMetric;
+
     @PostMapping
     @Operation(summary = "Create Training",
             parameters = {
@@ -80,6 +84,8 @@ public class TrainingController {
         entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(TrainingController.class).createTraining(trainingAddDto)).withSelfRel());
 
         URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/trainings/{id}").buildAndExpand(savedTrainingDto.getId()).toUri();
+
+        trainingMetric.incrementTrainingsCount();
 
         return ResponseEntity.created(location).body(entityModel);
     }
