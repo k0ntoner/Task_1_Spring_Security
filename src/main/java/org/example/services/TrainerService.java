@@ -3,10 +3,13 @@ package org.example.services;
 import org.example.enums.TrainingType;
 import org.example.models.trainee.TraineeDto;
 import org.example.models.trainer.TrainerDto;
+import org.example.repositories.BasicDao;
 
 import java.util.Collection;
 
-public interface TrainerService extends UserService<TrainerDto> {
+public interface TrainerService extends UserService<TrainerDto>, BasicService<TrainerDto> {
+    TrainerDto update(TrainerDto dto);
+
     public Collection<TrainerDto> findTrainersNotAssignedToTrainee(String traineeUsername);
 
     Collection<TraineeDto> findTraineesByTrainerUsername(String username);

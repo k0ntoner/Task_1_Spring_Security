@@ -178,17 +178,11 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
-    public TraineeDto matchPassword(String username, String password) {
+    public boolean matchPassword(String username, String password) {
         log.info("Request to match password");
         Optional<Trainee> trainee = traineeDao.findByUsername(username);
         if (trainee.isPresent()) {
-            boolean result = UserUtils.passwordMatch(password, trainee.get().getPassword());
-            if (result) {
-                TraineeDto traineeDto = conversionService.convert(trainee.get(), TraineeDto.class);
-                traineeDto.setTrainers(findTrainersByTraineeUsername(traineeDto.getUsername()));
-                return traineeDto;
-            }
-            throw new IllegalArgumentException("Invalid password");
+            return UserUtils.passwordMatch(password, trainee.get().getPassword());
         }
         throw new IllegalArgumentException("Invalid username");
     }

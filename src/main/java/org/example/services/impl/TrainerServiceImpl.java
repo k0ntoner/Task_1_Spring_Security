@@ -172,17 +172,11 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
     @Override
-    public TrainerDto matchPassword(String username, String password) {
+    public boolean matchPassword(String username, String password) {
         log.info("Request to match password");
         Optional<Trainer> trainer = trainerDao.findByUsername(username);
         if (trainer.isPresent()) {
-            boolean result = UserUtils.passwordMatch(password, trainer.get().getPassword());
-            if (result) {
-                TrainerDto trainerDto = conversionService.convert(trainer.get(), TrainerDto.class);
-                trainerDto.setTrainees(findTraineesByTrainerUsername(trainer.get().getUsername()));
-                return trainerDto;
-            }
-            throw new IllegalArgumentException("Invalid password");
+            return UserUtils.passwordMatch(password, trainer.get().getPassword());
         }
         throw new IllegalArgumentException("Invalid username");
     }

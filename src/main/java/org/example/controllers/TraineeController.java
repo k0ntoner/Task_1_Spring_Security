@@ -18,7 +18,7 @@ import org.example.models.training.TrainingListToUpdateDto;
 import org.example.models.training.TrainingListDto;
 import org.example.models.training.TrainingViewDto;
 import org.example.models.user.ChangeUserPasswordDto;
-import org.example.models.user.LoginUserDto;
+import org.example.models.user.AuthUserDto;
 import org.example.models.trainee.TraineeDto;
 import org.example.models.trainee.TraineeViewDto;
 import org.example.services.TraineeService;
@@ -62,16 +62,16 @@ public class TraineeController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Trainee created",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = LoginUserDto.class))),
+                            schema = @Schema(implementation = AuthUserDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> createTrainee(@RequestBody @Valid TraineeRegistrationDto traineeRegistrationDto) {
         TraineeDto traineeDto = conversionService.convert(traineeRegistrationDto, TraineeDto.class);
         TraineeDto savedTraineeDto = traineeService.add(traineeDto);
 
-        LoginUserDto loginUserDto = conversionService.convert(savedTraineeDto, LoginUserDto.class);
+        AuthUserDto loginUserDto = conversionService.convert(savedTraineeDto, AuthUserDto.class);
 
-        EntityModel<LoginUserDto> entityModel = EntityModel.of(loginUserDto);
+        EntityModel<AuthUserDto> entityModel = EntityModel.of(loginUserDto);
 
         entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder
                         .methodOn(TraineeController.class)
@@ -287,7 +287,7 @@ public class TraineeController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Trainee active was changed",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = LoginUserDto.class))),
+                            schema = @Schema(implementation = AuthUserDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> de_activate(@PathVariable("username") String username, @RequestParam("activate") boolean activate) {

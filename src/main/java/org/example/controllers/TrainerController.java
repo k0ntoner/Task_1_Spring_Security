@@ -14,7 +14,7 @@ import org.example.models.trainer.*;
 import org.example.models.training.TrainingListDto;
 import org.example.models.training.TrainingViewDto;
 import org.example.models.user.ChangeUserPasswordDto;
-import org.example.models.user.LoginUserDto;
+import org.example.models.user.AuthUserDto;
 import org.example.services.TrainerService;
 import org.example.services.TrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,16 +83,16 @@ public class TrainerController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Trainer created",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = LoginUserDto.class))),
+                            schema = @Schema(implementation = AuthUserDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> createTrainer(@RequestBody @Valid TrainerRegistrationDto trainerRegistrationDto) {
         TrainerDto trainerDto = conversionService.convert(trainerRegistrationDto, TrainerDto.class);
         TrainerDto savedTrainerDto = trainerService.add(trainerDto);
 
-        LoginUserDto loginUserDto = conversionService.convert(savedTrainerDto, LoginUserDto.class);
+        AuthUserDto loginUserDto = conversionService.convert(savedTrainerDto, AuthUserDto.class);
 
-        EntityModel<LoginUserDto> entityModel = EntityModel.of(loginUserDto);
+        EntityModel<AuthUserDto> entityModel = EntityModel.of(loginUserDto);
 
         entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder
                         .methodOn(TrainerController.class)
