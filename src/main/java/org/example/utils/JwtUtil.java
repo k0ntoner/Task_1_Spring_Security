@@ -14,7 +14,7 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private static final String SECRET = "your-super-secure-random-key-32-chars-long";
+    private static final String SECRET = "super-secure-random-key-for-spring-security";
 
     private static final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(SECRET.getBytes());
 
