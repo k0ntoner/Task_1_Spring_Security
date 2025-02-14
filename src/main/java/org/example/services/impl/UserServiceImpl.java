@@ -12,13 +12,14 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+
 @Service
 @Slf4j
 public class UserServiceImpl implements UserService<AuthUserDto> {
 
     @Autowired
     @Qualifier("userDaoImpl")
-    private UserDao userDao;
+    private UserDao<User> userDao;
 
     @Autowired
     private ConversionService conversionService;

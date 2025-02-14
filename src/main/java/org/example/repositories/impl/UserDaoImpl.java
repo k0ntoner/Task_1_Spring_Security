@@ -37,12 +37,11 @@ public class UserDaoImpl implements UserDao<User> {
 
     @Override
     public boolean isUsernameExist(String username) {
-        try{
+        try {
             log.info("Checking if username exists for {}", username);
             User user = entityManager.createQuery("from User u where u.username = :username", User.class).setParameter("username", username).getSingleResult();
             return user != null;
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage());
             return false;
         }
@@ -50,12 +49,11 @@ public class UserDaoImpl implements UserDao<User> {
 
     @Override
     public Optional<User> findByUsername(String username) {
-        try{
+        try {
             log.info("Trying to find user by username {}", username);
             User user = entityManager.createQuery("From User u where u.username = :username", User.class).setParameter("username", username).getSingleResult();
             return Optional.of(user);
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage());
 
             return Optional.empty();
