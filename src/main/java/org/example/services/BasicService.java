@@ -7,7 +7,7 @@ import java.util.Optional;
 public interface BasicService<T> {
     T add(T dto);
 
-    Optional<T> findById(long id);
+    T findById(long id);
 
     Collection<T> findAll();
 }

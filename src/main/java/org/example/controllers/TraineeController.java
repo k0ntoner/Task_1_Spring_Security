@@ -31,7 +31,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Optional;
@@ -66,28 +65,11 @@ public class TraineeController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> createTrainee(@RequestBody @Valid TraineeRegistrationDto traineeRegistrationDto) {
-        TraineeDto traineeDto = conversionService.convert(traineeRegistrationDto, TraineeDto.class);
-        TraineeDto savedTraineeDto = traineeService.add(traineeDto);
 
-        AuthUserDto loginUserDto = conversionService.convert(savedTraineeDto, AuthUserDto.class);
+        TraineeDto savedTraineeDto = traineeService.add(conversionService.convert(traineeRegistrationDto, TraineeDto.class));
 
-        EntityModel<AuthUserDto> entityModel = EntityModel.of(loginUserDto);
-
-        entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder
-                        .methodOn(TraineeController.class)
-                        .createTrainee(traineeRegistrationDto))
-                .withSelfRel());
-
-        entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder
-                        .methodOn(TraineeController.class)
-                        .getTrainee(savedTraineeDto.getUsername()))
-                .withRel("trainee"));
-
-        URI location = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUri();
-
-        userRegistrationsCounter.incrementUserRegistrations();
-
-        return ResponseEntity.created(location).body(entityModel);
+        return ResponseEntity.created(ServletUriComponentsBuilder.fromCurrentContextPath().build().toUri())
+                .body(conversionService.convert(savedTraineeDto, AuthUserDto.class));
     }
 
     @PutMapping("/trainee/change-password")
@@ -116,25 +98,13 @@ public class TraineeController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> getTrainee(@PathVariable("username") String username) {
-        Optional<TraineeDto> traineeDto = traineeService.findByUsername(username);
-        if (traineeDto.isPresent()) {
-            TraineeViewDto traineeViewDto = conversionService.convert(traineeDto.get(), TraineeViewDto.class);
-            EntityModel<TraineeViewDto> traineeEntityModel = EntityModel.of(traineeViewDto);
-
-            traineeEntityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder
-                            .methodOn(TraineeController.class)
-                            .getTrainee(username))
-                    .withSelfRel());
-
-            return ResponseEntity.ok(traineeEntityModel);
-        }
-        return ResponseEntity.badRequest().build();
+            return ResponseEntity.ok(traineeService.findByUsername(username));
     }
 
-    @PutMapping("/trainee/{id}")
+    @PutMapping("/trainee/{username}")
     @Operation(summary = "Update Trainee",
             parameters = {
-                    @Parameter(name = "id", required = true),
+                    @Parameter(name = "username", required = true),
                     @Parameter(name = "TraineeUpdateDto", description = "Updating information", required = true)
             })
     @ApiResponses(value = {
@@ -143,36 +113,8 @@ public class TraineeController {
                             schema = @Schema(implementation = TraineeViewDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> updateTrainee(@PathVariable("id") Long id, @RequestBody @Valid  TraineeUpdateDto traineeUpdateDto) {
-        Optional<TraineeDto> foundTraineeDto = traineeService.findByUsername(traineeUpdateDto.getUsername());
-        if (foundTraineeDto.isPresent()) {
-            TraineeDto updatedTraineeDto = foundTraineeDto.get();
-
-            updatedTraineeDto.setUsername(traineeUpdateDto.getUsername());
-            updatedTraineeDto.setFirstName(traineeUpdateDto.getFirstName());
-            updatedTraineeDto.setLastName(traineeUpdateDto.getLastName());
-
-            if (traineeUpdateDto.getAddress() != null) {
-                updatedTraineeDto.setAddress(traineeUpdateDto.getAddress());
-            }
-            if (traineeUpdateDto.getDateOfBirth() != null) {
-                updatedTraineeDto.setDateOfBirth(traineeUpdateDto.getDateOfBirth());
-            }
-
-            updatedTraineeDto = traineeService.update(updatedTraineeDto);
-
-            TraineeViewDto traineeViewDto = conversionService.convert(updatedTraineeDto, TraineeViewDto.class);
-
-            EntityModel<TraineeViewDto> traineeEntityModel = EntityModel.of(traineeViewDto);
-
-            traineeEntityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder
-                            .methodOn(TraineeController.class)
-                            .updateTrainee(id, traineeUpdateDto))
-                    .withSelfRel());
-
-            return ResponseEntity.ok(traineeEntityModel);
-        }
-        throw new IllegalArgumentException("Invalid username");
+    public ResponseEntity<?> updateTrainee(@PathVariable("username") String username, @RequestBody @Valid  TraineeUpdateDto traineeUpdateDto) {
+        return ResponseEntity.ok(traineeService.update(username,traineeUpdateDto));
     }
 
     @DeleteMapping("/trainee/{username}")
@@ -185,19 +127,8 @@ public class TraineeController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> deleteTrainee(@PathVariable("username") String username) {
-        Optional<TraineeDto> foundTraineeDto = traineeService.findByUsername(username);
-        if (foundTraineeDto.isPresent()) {
-            traineeService.delete(foundTraineeDto.get());
-        }
-
-        String selfLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder
-                        .methodOn(TraineeController.class)
-                        .deleteTrainee(username))
-                .withSelfRel().getHref();
-
-        userRegistrationsCounter.decrementUserRegistrations();
-
-        return ResponseEntity.noContent().header("Link", "<" + selfLink + ">; rel=\"self\"").build();
+        traineeService.deleteByUsername(username);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/trainee/{username}/trainings")
@@ -213,32 +144,7 @@ public class TraineeController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> updateTrainings(@PathVariable("username") String username, @RequestBody @Valid  TrainingListToUpdateDto trainingListToUpdateDto) {
-        Optional<TraineeDto> traineeDto = traineeService.findByUsername(username);
-        if (traineeDto.isPresent()) {
-            TraineeDto traineeDtoToUpdate = traineeDto.get();
-
-            Collection<TrainingDto> trainingDtos = trainingListToUpdateDto.getTrainingIds().stream().map(id -> {
-                Optional<TrainingDto> trainingDto = trainingService.findById(id);
-                if (trainingDto.isPresent()) {
-                    return trainingDto.get();
-                }
-                throw new IllegalArgumentException("Invalid training id");
-            }).collect(Collectors.toList());
-
-            traineeDtoToUpdate.setTrainings(trainingDtos);
-
-            TraineeDto updatedTraineeDto = traineeService.update(traineeDtoToUpdate);
-
-            EntityModel<TrainingListDto> entityModel = EntityModel.of(new TrainingListDto(updatedTraineeDto.getTrainings().stream()
-                    .map(trainingDto -> conversionService.convert(trainingDto, TrainingViewDto.class)).collect(Collectors.toList())));
-
-            entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder
-                            .methodOn(TraineeController.class)
-                            .updateTrainings(username, trainingListToUpdateDto))
-                    .withSelfRel());
-            return ResponseEntity.ok(entityModel);
-        }
-        throw new IllegalArgumentException("Invalid username");
+        return ResponseEntity.ok(traineeService.updateTraineeTrainings(username, trainingListToUpdateDto));
     }
 
     @GetMapping("/trainee/{username}/trainings")
@@ -262,20 +168,10 @@ public class TraineeController {
                                           @RequestParam(required = false, name = "trainerUsername") String trainerUsername,
                                           @RequestParam(required = false, name = "trainingType") TrainingType trainingType) {
 
-        if (traineeService.findByUsername(username).isPresent()) {
             Collection<TrainingViewDto> trainingViewDtos = trainingService.findByTrainee(username, periodFrom, periodTo, trainerUsername, trainingType).stream()
                     .map(trainingDto -> conversionService.convert(trainingDto, TrainingViewDto.class)).collect(Collectors.toList());
 
-            EntityModel<TrainingListDto> entityModel = EntityModel.of(new TrainingListDto(trainingViewDtos));
-
-            entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder
-                            .methodOn(TraineeController.class)
-                            .getTrainings(username, periodFrom, periodTo, trainerUsername, trainingType))
-                    .withSelfRel());
-
-            return ResponseEntity.ok(entityModel);
-        }
-        throw new IllegalArgumentException("Invalid username");
+            return ResponseEntity.ok(trainingViewDtos);
     }
 
     @PatchMapping("/trainee/{username}/activate")
@@ -291,15 +187,11 @@ public class TraineeController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> de_activate(@PathVariable("username") String username, @RequestParam("activate") boolean activate) {
-        Optional<TraineeDto> traineeDto = traineeService.findByUsername(username);
-        if (traineeDto.isPresent()) {
             if (activate) {
-                traineeService.activate(traineeService.findByUsername(username).get());
+                traineeService.activate(traineeService.findByUsername(username));
             } else {
-                traineeService.deactivate(traineeService.findByUsername(username).get());
+                traineeService.deactivate(traineeService.findByUsername(username));
             }
             return ResponseEntity.noContent().build();
-        }
-        throw new IllegalArgumentException("Invalid username");
     }
 }

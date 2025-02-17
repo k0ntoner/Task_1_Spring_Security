@@ -23,7 +23,8 @@ public class LogoutService {
     @Autowired
     private UserDetailsService userDetailsService;
 
-    private final List<String> blackTokensList = new ArrayList<>();
+    @Autowired
+    private JwtTokenService jwtTokenService;
 
     public void logout(HttpServletRequest request, HttpServletResponse response) {
         log.info("Request to logout:");
@@ -33,13 +34,11 @@ public class LogoutService {
             String token = authHeader.substring(7);
             String username = JwtUtil.extractUsername(token);
             if (JwtUtil.validateToken(token, userDetailsService.loadUserByUsername(username))) {
-                userService.deactivate(userService.findByUsername(username).get());
+                userService.deactivate(userService.findByUsername(username));
+                jwtTokenService.blockToken(token);
+                return;
             }
             throw new JwtException("Invalid JWT token");
         }
-    }
-
-    public boolean isBlocked(String token) {
-        return blackTokensList.contains(token);
     }
 }

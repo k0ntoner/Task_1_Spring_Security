@@ -2,8 +2,11 @@ package org.example.services.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.enums.TrainingType;
+import org.example.metrics.UserRegistrationsMetric;
 import org.example.models.trainee.TraineeDto;
 import org.example.models.trainer.TrainerDto;
+import org.example.models.trainer.TrainerUpdateDto;
+import org.example.repositories.TraineeDao;
 import org.example.repositories.TrainerDao;
 import org.example.repositories.entities.Trainer;
 import org.example.services.TrainerService;
@@ -28,6 +31,12 @@ public class TrainerServiceImpl implements TrainerService {
     @Autowired
     private ConversionService conversionService;
 
+    @Autowired
+    private UserRegistrationsMetric userRegistrationsMetric;
+
+    @Autowired
+    private TraineeDao traineeDao;
+
     @Override
     public TrainerDto add(TrainerDto trainerDto) {
         Trainer entity = conversionService.convert(trainerDto, Trainer.class);
@@ -42,6 +51,8 @@ public class TrainerServiceImpl implements TrainerService {
 
         Trainer savedTrainer = trainerDao.save(entity);
 
+        userRegistrationsMetric.incrementUserRegistrations();
+
         TrainerDto savedTrainerDto = conversionService.convert(savedTrainer, TrainerDto.class);
         savedTrainerDto.setTrainees(findTraineesByTrainerUsername(savedTrainer.getUsername()));
         return savedTrainerDto;
@@ -49,14 +60,13 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
     @Override
-    public Optional<TrainerDto> findById(long id) {
+    public TrainerDto findById(long id) {
         log.info("Request to find trainer by ID: {}", id);
-        return trainerDao.findById(id)
-                .map(trainer -> conversionService.convert(trainer, TrainerDto.class))
-                .map(trainerDto -> {
-                    trainerDto.setTrainees(findTraineesByTrainerUsername(trainerDto.getUsername()));
-                    return trainerDto;
-                });
+        Optional<Trainer> trainer = trainerDao.findById(id);
+        if(trainer.isPresent()) {
+            return conversionService.convert(trainer.get(), TrainerDto.class);
+        }
+        throw new IllegalArgumentException("Trainer with ID " + id + " not found");
     }
 
     @Override
@@ -87,13 +97,29 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
     @Override
-    public Optional<TrainerDto> findByUsername(String username) {
+    public TrainerDto update(String username, TrainerUpdateDto trainerUpdateDto) {
+        log.info("Request to update trainer with username: {}", username);
+        TrainerDto trainerDtoFromDb = findByUsername(username);
+
+        trainerDtoFromDb.setFirstName(trainerUpdateDto.getFirstName());
+        trainerDtoFromDb.setLastName(trainerUpdateDto.getLastName());
+        trainerDtoFromDb.setActive(trainerUpdateDto.isActive());
+
+        Trainer updatedTrainer = trainerDao.update(conversionService.convert(trainerDtoFromDb, Trainer.class));
+
+        TrainerDto updatedTrainerDto = conversionService.convert(updatedTrainer, TrainerDto.class);
+        updatedTrainerDto.setTrainees(findTraineesByTrainerUsername(trainerDtoFromDb.getUsername()));
+        return updatedTrainerDto;
+    }
+
+    @Override
+    public TrainerDto findByUsername(String username) {
         log.info("Request to find trainer by username: {}", username);
-        return trainerDao.findByUsername(username).map(trainer -> conversionService.convert(trainer, TrainerDto.class))
-                .map(trainerDto -> {
-                    trainerDto.setTrainees(findTraineesByTrainerUsername(trainerDto.getUsername()));
-                    return trainerDto;
-                });
+        Optional<Trainer> trainer = trainerDao.findByUsername(username);
+        if(trainer.isPresent()) {
+            return conversionService.convert(trainer.get(), TrainerDto.class);
+        }
+        throw new IllegalArgumentException("Trainer with username " + username + " not found");
     }
 
     @Override
@@ -132,6 +158,11 @@ public class TrainerServiceImpl implements TrainerService {
     @Override
     public Collection<TrainerDto> findTrainersNotAssignedToTrainee(String traineeUsername) {
         log.info("Request to find trainers not assigned to trainee: {}", traineeUsername);
+
+        if(!traineeDao.findByUsername(traineeUsername).isPresent()) {
+            throw new IllegalArgumentException("Trainee " + traineeUsername + " not found");
+        }
+
         return trainerDao.findTrainersNotAssignedToTrainee(traineeUsername)
                 .stream()
                 .map(trainer -> conversionService.convert(trainer, TrainerDto.class))
@@ -165,6 +196,8 @@ public class TrainerServiceImpl implements TrainerService {
         entity.setPassword(UserUtils.hashPassword(entity.getPassword()));
 
         Trainer savedTrainer = trainerDao.save(entity);
+
+        userRegistrationsMetric.incrementUserRegistrations();
 
         TrainerDto savedTrainerDto = conversionService.convert(savedTrainer, TrainerDto.class);
         savedTrainerDto.setTrainees(findTraineesByTrainerUsername(savedTrainer.getUsername()));

@@ -5,7 +5,7 @@ import java.util.Optional;
 
 public interface UserService<T> {
 
-    Optional<T> findByUsername(String username);
+    T findByUsername(String username);
 
     void changePassword(String username, String oldPassword, String newPassword);
 

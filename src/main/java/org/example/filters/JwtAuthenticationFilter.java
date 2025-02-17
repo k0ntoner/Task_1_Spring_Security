@@ -6,7 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.services.security.BruteForceProtectorService;
-import org.example.services.security.LogoutService;
+import org.example.services.security.JwtTokenService;
 import org.example.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -19,14 +19,20 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private static final List<String> EXCLUDED_PATHS = List.of(
+            "/auth/", "/trainees/registration", "/trainers/registration"
+    );
+
     @Autowired
     private UserDetailsService userDetailsService;
 
     @Autowired
-    private LogoutService logoutService;
+    private JwtTokenService jwtTokenService;
 
     @Autowired
     private BruteForceProtectorService bruteForceProtectorService;
@@ -36,6 +42,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
+        if (EXCLUDED_PATHS.stream().anyMatch(string -> request.getRequestURI().startsWith(string))) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -43,7 +54,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
-        if (logoutService.isBlocked(token)) {
+        if (jwtTokenService.isBlocked(token)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
             throw new JwtException("Invalid JWT token");
         }
 

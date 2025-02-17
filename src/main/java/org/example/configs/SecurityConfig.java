@@ -31,13 +31,15 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**", "/trainees/registration", "/trainers/registration").permitAll()
-                        .anyRequest().authenticated())
+                        .anyRequest().authenticated()
+                )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(logout -> logout.logoutUrl("/auth/logout")
                         .addLogoutHandler((request, response, authentication) -> {
-                            logoutService.logout(request, response);
-                        })
-                        .logoutSuccessHandler((request, response, authentication) -> response.setStatus(200)));
+                            logoutService.logout(request, response);})
+                        .logoutSuccessHandler((request, response, authentication) -> response.setStatus(200)))
+
+        ;
 
         return http.build();
     }

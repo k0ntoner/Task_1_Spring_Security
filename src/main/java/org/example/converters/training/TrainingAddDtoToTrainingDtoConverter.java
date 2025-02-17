@@ -10,8 +10,6 @@ public class TrainingAddDtoToTrainingDtoConverter implements Converter<TrainingA
     @Override
     public TrainingDto convert(TrainingAddDto trainingAddDto) {
         return TrainingDto.builder()
-                .trainerDto(trainingAddDto.getTrainerDto())
-                .traineeDto(trainingAddDto.getTraineeDto())
                 .trainingName(trainingAddDto.getTrainingName())
                 .trainingType(trainingAddDto.getTrainingType())
                 .trainingDate(trainingAddDto.getTrainingDate())
