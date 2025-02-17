@@ -57,10 +57,10 @@ public class TrainingServiceImpl implements TrainingService {
     public TrainingDto findById(long id) {
         log.info("Request to find training by ID: {}", id);
         Optional<Training> foundTraining = trainingDao.findById(id);
-        if(foundTraining.isPresent()) {
+        if (foundTraining.isPresent()) {
             return conversionService.convert(foundTraining.get(), TrainingDto.class);
         }
-        throw  new UsernameNotFoundException("Training with id " + id + " not found");
+        throw new UsernameNotFoundException("Training with id " + id + " not found");
     }
 
     @Override
@@ -76,8 +76,8 @@ public class TrainingServiceImpl implements TrainingService {
     public Collection<TrainingDto> findByTrainer(String trainerUsername, LocalDateTime startDateTime, LocalDateTime endDateTime, String traineeUsername) {
         log.info("Request to find training by trainer username: {}, and criteria: startDateTime: {}, endDateTime: {}, traineeUsername: {}", trainerUsername, startDateTime, endDateTime, traineeUsername);
 
-        if(trainerService.findByUsername(trainerUsername) == null) {
-            throw  new UsernameNotFoundException("Trainer " + trainerUsername + " not found");
+        if (trainerService.findByUsername(trainerUsername) == null) {
+            throw new UsernameNotFoundException("Trainer " + trainerUsername + " not found");
         }
 
         return trainingDao.findByTrainer(trainerUsername, startDateTime, endDateTime, traineeUsername)
@@ -90,8 +90,8 @@ public class TrainingServiceImpl implements TrainingService {
     public Collection<TrainingDto> findByTrainee(String traineeUsername, LocalDateTime startDateTime, LocalDateTime endDateTime, String trainerUsername, TrainingType trainingType) {
         log.info("Request to find training by trainee username: {}, and criteria: startDateTime: {}, endDateTime: {}, trainerUsername: {}, trainingType: {}", trainerUsername, startDateTime, endDateTime, traineeUsername, trainingType);
 
-        if(traineeService.findByUsername(traineeUsername) == null) {
-            throw  new UsernameNotFoundException("Trainee " + traineeUsername + " not found");
+        if (traineeService.findByUsername(traineeUsername) == null) {
+            throw new UsernameNotFoundException("Trainee " + traineeUsername + " not found");
         }
 
         return trainingDao.findByTrainee(traineeUsername, startDateTime, endDateTime, trainerUsername, trainingType)

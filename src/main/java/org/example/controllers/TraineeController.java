@@ -81,7 +81,7 @@ public class TraineeController {
             @ApiResponse(responseCode = "204", description = "Trainee updated"),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> changePassword(@RequestBody @Valid  ChangeUserPasswordDto changeUserPasswordDto) {
+    public ResponseEntity<?> changePassword(@RequestBody @Valid ChangeUserPasswordDto changeUserPasswordDto) {
         traineeService.changePassword(changeUserPasswordDto.getUsername(), changeUserPasswordDto.getOldPassword(), changeUserPasswordDto.getNewPassword());
         return ResponseEntity.noContent().build();
     }
@@ -98,7 +98,7 @@ public class TraineeController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> getTrainee(@PathVariable("username") String username) {
-            return ResponseEntity.ok(traineeService.findByUsername(username));
+        return ResponseEntity.ok(traineeService.findByUsername(username));
     }
 
     @PutMapping("/trainee/{username}")
@@ -113,8 +113,8 @@ public class TraineeController {
                             schema = @Schema(implementation = TraineeViewDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> updateTrainee(@PathVariable("username") String username, @RequestBody @Valid  TraineeUpdateDto traineeUpdateDto) {
-        return ResponseEntity.ok(traineeService.update(username,traineeUpdateDto));
+    public ResponseEntity<?> updateTrainee(@PathVariable("username") String username, @RequestBody @Valid TraineeUpdateDto traineeUpdateDto) {
+        return ResponseEntity.ok(traineeService.update(username, traineeUpdateDto));
     }
 
     @DeleteMapping("/trainee/{username}")
@@ -143,7 +143,7 @@ public class TraineeController {
                             schema = @Schema(implementation = TrainingListDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> updateTrainings(@PathVariable("username") String username, @RequestBody @Valid  TrainingListToUpdateDto trainingListToUpdateDto) {
+    public ResponseEntity<?> updateTrainings(@PathVariable("username") String username, @RequestBody @Valid TrainingListToUpdateDto trainingListToUpdateDto) {
         return ResponseEntity.ok(traineeService.updateTraineeTrainings(username, trainingListToUpdateDto));
     }
 
@@ -168,10 +168,10 @@ public class TraineeController {
                                           @RequestParam(required = false, name = "trainerUsername") String trainerUsername,
                                           @RequestParam(required = false, name = "trainingType") TrainingType trainingType) {
 
-            Collection<TrainingViewDto> trainingViewDtos = trainingService.findByTrainee(username, periodFrom, periodTo, trainerUsername, trainingType).stream()
-                    .map(trainingDto -> conversionService.convert(trainingDto, TrainingViewDto.class)).collect(Collectors.toList());
+        Collection<TrainingViewDto> trainingViewDtos = trainingService.findByTrainee(username, periodFrom, periodTo, trainerUsername, trainingType).stream()
+                .map(trainingDto -> conversionService.convert(trainingDto, TrainingViewDto.class)).collect(Collectors.toList());
 
-            return ResponseEntity.ok(trainingViewDtos);
+        return ResponseEntity.ok(trainingViewDtos);
     }
 
     @PatchMapping("/trainee/{username}/activate")
@@ -187,11 +187,11 @@ public class TraineeController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> de_activate(@PathVariable("username") String username, @RequestParam("activate") boolean activate) {
-            if (activate) {
-                traineeService.activate(traineeService.findByUsername(username));
-            } else {
-                traineeService.deactivate(traineeService.findByUsername(username));
-            }
-            return ResponseEntity.noContent().build();
+        if (activate) {
+            traineeService.activate(traineeService.findByUsername(username));
+        } else {
+            traineeService.deactivate(traineeService.findByUsername(username));
+        }
+        return ResponseEntity.noContent().build();
     }
 }

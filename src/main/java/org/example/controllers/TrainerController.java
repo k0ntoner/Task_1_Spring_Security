@@ -60,7 +60,7 @@ public class TrainerController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> getTrainerByUsername(@PathVariable("username") String username) {
-        return  ResponseEntity.ok(trainerService.findByUsername(username));
+        return ResponseEntity.ok(trainerService.findByUsername(username));
     }
 
     @PostMapping("/registration")
@@ -89,7 +89,7 @@ public class TrainerController {
             @ApiResponse(responseCode = "204", description = "Trainer's password changed"),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> changePassword(@RequestBody @Valid  ChangeUserPasswordDto changeUserPasswordDto) {
+    public ResponseEntity<?> changePassword(@RequestBody @Valid ChangeUserPasswordDto changeUserPasswordDto) {
         trainerService.changePassword(changeUserPasswordDto.getUsername(), changeUserPasswordDto.getOldPassword(), changeUserPasswordDto.getNewPassword());
         return ResponseEntity.noContent().build();
     }
@@ -106,8 +106,8 @@ public class TrainerController {
                             schema = @Schema(implementation = TrainingViewDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> updateTrainer(@PathVariable("username") String username, @RequestBody @Valid  TrainerUpdateDto trainerUpdateDto) {
-            return ResponseEntity.ok(trainerService.update(username, trainerUpdateDto));
+    public ResponseEntity<?> updateTrainer(@PathVariable("username") String username, @RequestBody @Valid TrainerUpdateDto trainerUpdateDto) {
+        return ResponseEntity.ok(trainerService.update(username, trainerUpdateDto));
     }
 
     @GetMapping("/not-assigned-on-trainee/{username}")

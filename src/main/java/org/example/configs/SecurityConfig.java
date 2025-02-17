@@ -36,11 +36,9 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(logout -> logout.logoutUrl("/auth/logout")
                         .addLogoutHandler((request, response, authentication) -> {
-                            logoutService.logout(request, response);})
-                        .logoutSuccessHandler((request, response, authentication) -> response.setStatus(200)))
-
-        ;
-
+                            logoutService.logout(request, response);
+                        })
+                        .logoutSuccessHandler((request, response, authentication) -> response.setStatus(200)));
         return http.build();
     }
 

@@ -16,7 +16,7 @@ public class JwtTokenService {
 
     public void addToken(String token) {
         if (!blackTokensList.contains(token)) {
-            if(!whiteTokensList.contains(token)) {
+            if (!whiteTokensList.contains(token)) {
                 whiteTokensList.add(token);
                 return;
             }
@@ -24,6 +24,7 @@ public class JwtTokenService {
         }
         throw new JwtException("Token already blocked");
     }
+
     public void blockToken(String token) {
         whiteTokensList.remove(token);
         blackTokensList.add(token);

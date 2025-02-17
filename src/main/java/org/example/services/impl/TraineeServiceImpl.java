@@ -117,16 +117,16 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
-    public TraineeDto update(String username,TraineeUpdateDto traineeUpdateDto) {
+    public TraineeDto update(String username, TraineeUpdateDto traineeUpdateDto) {
         log.info("Request to update trainee with username: {}", username);
         TraineeDto traineeDtoFromDb = findByUsername(username);
 
         traineeDtoFromDb.setFirstName(traineeUpdateDto.getFirstName());
         traineeDtoFromDb.setLastName(traineeUpdateDto.getLastName());
-        if(traineeUpdateDto.getAddress() != null) {
+        if (traineeUpdateDto.getAddress() != null) {
             traineeDtoFromDb.setAddress(traineeUpdateDto.getAddress());
         }
-        if(traineeUpdateDto.getDateOfBirth() != null) {
+        if (traineeUpdateDto.getDateOfBirth() != null) {
             traineeDtoFromDb.setDateOfBirth(traineeUpdateDto.getDateOfBirth());
         }
 
@@ -138,13 +138,13 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
-    public TraineeDto updateTraineeTrainings(String username,TrainingListToUpdateDto listToUpdateDto) {
+    public TraineeDto updateTraineeTrainings(String username, TrainingListToUpdateDto listToUpdateDto) {
         Optional<Trainee> optionalTrainee = traineeDao.findByUsername(username);
-        if(optionalTrainee.isPresent()) {
+        if (optionalTrainee.isPresent()) {
             Trainee trainee = optionalTrainee.get();
             trainee.getTrainings().clear();
 
-            for(TrainingListToUpdateDto.TrainingUpdateDto trainingUpdateDto : listToUpdateDto.getTrainings()) {
+            for (TrainingListToUpdateDto.TrainingUpdateDto trainingUpdateDto : listToUpdateDto.getTrainings()) {
                 if (!trainingUpdateDto.getTraineeUsername().equals(username)) {
                     throw new IllegalArgumentException("Trainee's username in listToUpdateDto does not match trainee's username");
                 }

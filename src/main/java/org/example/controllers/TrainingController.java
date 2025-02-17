@@ -64,7 +64,7 @@ public class TrainingController {
     })
     public ResponseEntity<?> createTraining(@RequestBody @Valid TrainingAddDto trainingAddDto) {
         return ResponseEntity.created(ServletUriComponentsBuilder.fromCurrentContextPath().build().toUri())
-                .body(trainingService.add(trainingAddDto.getTraineeUsername(),trainingAddDto.getTrainerUsername(),trainingAddDto.getTrainingType(),trainingAddDto.getTrainingName(),trainingAddDto.getTrainingDuration(),trainingAddDto.getTrainingDate()));
+                .body(trainingService.add(trainingAddDto.getTraineeUsername(), trainingAddDto.getTrainerUsername(), trainingAddDto.getTrainingType(), trainingAddDto.getTrainingName(), trainingAddDto.getTrainingDuration(), trainingAddDto.getTrainingDate()));
     }
 
     @GetMapping("/types")

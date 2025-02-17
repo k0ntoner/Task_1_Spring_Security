@@ -63,7 +63,7 @@ public class TrainerServiceImpl implements TrainerService {
     public TrainerDto findById(long id) {
         log.info("Request to find trainer by ID: {}", id);
         Optional<Trainer> trainer = trainerDao.findById(id);
-        if(trainer.isPresent()) {
+        if (trainer.isPresent()) {
             return conversionService.convert(trainer.get(), TrainerDto.class);
         }
         throw new IllegalArgumentException("Trainer with ID " + id + " not found");
@@ -116,7 +116,7 @@ public class TrainerServiceImpl implements TrainerService {
     public TrainerDto findByUsername(String username) {
         log.info("Request to find trainer by username: {}", username);
         Optional<Trainer> trainer = trainerDao.findByUsername(username);
-        if(trainer.isPresent()) {
+        if (trainer.isPresent()) {
             return conversionService.convert(trainer.get(), TrainerDto.class);
         }
         throw new IllegalArgumentException("Trainer with username " + username + " not found");
@@ -159,7 +159,7 @@ public class TrainerServiceImpl implements TrainerService {
     public Collection<TrainerDto> findTrainersNotAssignedToTrainee(String traineeUsername) {
         log.info("Request to find trainers not assigned to trainee: {}", traineeUsername);
 
-        if(!traineeDao.findByUsername(traineeUsername).isPresent()) {
+        if (!traineeDao.findByUsername(traineeUsername).isPresent()) {
             throw new IllegalArgumentException("Trainee " + traineeUsername + " not found");
         }
 
