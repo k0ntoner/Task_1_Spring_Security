@@ -2,8 +2,6 @@ package controllers.integration;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import configs.TestWebConfig;
-import jakarta.transaction.Transactional;
 import org.example.Application;
 import org.example.enums.TrainingType;
 import org.example.models.trainee.TraineeRegistrationDto;
@@ -13,10 +11,9 @@ import org.example.models.trainer.TrainerDto;
 import org.example.models.trainer.TrainerRegistrationDto;
 import org.example.models.training.*;
 import org.example.models.user.ChangeUserPasswordDto;
-import org.example.models.user.LoginUserDto;
+import org.example.models.user.AuthUserDto;
 import org.example.models.trainee.TraineeDto;
 import org.example.utils.UserUtils;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +21,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -105,7 +101,7 @@ public class TraineeControllerIntegrationTest {
                 .andReturn();
 
         String responseJson = mvcResult.getResponse().getContentAsString();
-        LoginUserDto responseDto = mapper.readValue(responseJson, LoginUserDto.class);
+        AuthUserDto responseDto = mapper.readValue(responseJson, AuthUserDto.class);
 
         assertEquals(responseDto.getUsername(), traineeDto.getFirstName() + "." + traineeDto.getLastName());
         assertTrue(UserUtils.passwordMatch(traineeDto.getPassword(), responseDto.getPassword()));
@@ -115,7 +111,7 @@ public class TraineeControllerIntegrationTest {
     public void testFindTraineeByUsername() throws Exception {
         TraineeDto traineeDto = buildTraineeDto();
 
-        LoginUserDto responseLoginDto = registerTrainee(traineeDto);
+        AuthUserDto responseLoginDto = registerTrainee(traineeDto);
 
         MvcResult mvcResult = mockMvc.perform(get("/trainees/trainee/" + responseLoginDto.getUsername()))
                 .andExpect(status().isOk())
@@ -148,7 +144,7 @@ public class TraineeControllerIntegrationTest {
     public void testUpdateTrainee() throws Exception {
         TraineeDto traineeDto = buildTraineeDto();
 
-        LoginUserDto responseLoginDto = registerTrainee(traineeDto);
+        AuthUserDto responseLoginDto = registerTrainee(traineeDto);
 
         TraineeUpdateDto traineeUpdateDto = TraineeUpdateDto.builder()
                 .firstName(traineeDto.getFirstName())
@@ -178,7 +174,7 @@ public class TraineeControllerIntegrationTest {
     public void testChangePassword() throws Exception {
         TraineeDto traineeDto = buildTraineeDto();
 
-        LoginUserDto responseLoginDto = registerTrainee(traineeDto);
+        AuthUserDto responseLoginDto = registerTrainee(traineeDto);
 
         ChangeUserPasswordDto changeUserPasswordDto = ChangeUserPasswordDto.builder()
                 .username(responseLoginDto.getUsername())
@@ -199,7 +195,7 @@ public class TraineeControllerIntegrationTest {
     public void testActivateTrainee() throws Exception {
         TraineeDto traineeDto = buildTraineeDto();
 
-        LoginUserDto responseLoginDto = registerTrainee(traineeDto);
+        AuthUserDto responseLoginDto = registerTrainee(traineeDto);
 
         mockMvc.perform(patch("/trainees/trainee/" + responseLoginDto.getUsername() + "/activate?activate=false"))
                 .andExpect(status().isNoContent())
@@ -211,8 +207,8 @@ public class TraineeControllerIntegrationTest {
         TraineeDto traineeDto = buildTraineeDto();
         TrainerDto trainerDto = buildTrainerDto();
 
-        LoginUserDto traineeLoginDto = registerTrainee(traineeDto);
-        LoginUserDto trainerLoginDto = registerTrainer(trainerDto);
+        AuthUserDto traineeLoginDto = registerTrainee(traineeDto);
+        AuthUserDto trainerLoginDto = registerTrainer(trainerDto);
 
         TrainingDto trainingDto = buildTrainingDto();
         trainingDto.getTrainerDto().setUsername(trainerLoginDto.getUsername());
@@ -239,8 +235,8 @@ public class TraineeControllerIntegrationTest {
         TraineeDto traineeDto = buildTraineeDto();
         TrainerDto trainerDto = buildTrainerDto();
 
-        LoginUserDto traineeLoginDto = registerTrainee(traineeDto);
-        LoginUserDto trainerLoginDto = registerTrainer(trainerDto);
+        AuthUserDto traineeLoginDto = registerTrainee(traineeDto);
+        AuthUserDto trainerLoginDto = registerTrainer(trainerDto);
 
         TrainingDto trainingDto = buildTrainingDto();
         trainingDto.getTrainerDto().setUsername(trainerLoginDto.getUsername());
@@ -277,7 +273,7 @@ public class TraineeControllerIntegrationTest {
         assertTrue(trainingListViewDto.getTrainings().size() == 0);
     }
 
-    private LoginUserDto registerTrainee(TraineeDto traineeDto) throws Exception {
+    private AuthUserDto registerTrainee(TraineeDto traineeDto) throws Exception {
         TraineeRegistrationDto registrationDto = conversionService.convert(traineeDto, TraineeRegistrationDto.class);
         String jsonNewTrainee = mapper.writeValueAsString(registrationDto);
 
@@ -288,10 +284,10 @@ public class TraineeControllerIntegrationTest {
 
         String responseNewTraineeJson = mvcResult.getResponse().getContentAsString();
 
-        return mapper.readValue(responseNewTraineeJson, LoginUserDto.class);
+        return mapper.readValue(responseNewTraineeJson, AuthUserDto.class);
     }
 
-    private LoginUserDto registerTrainer(TrainerDto trainerDto) throws Exception {
+    private AuthUserDto registerTrainer(TrainerDto trainerDto) throws Exception {
         TrainerRegistrationDto registrationTrainerDto = conversionService.convert(trainerDto, TrainerRegistrationDto.class);
 
         String trainerJson = mapper.writeValueAsString(registrationTrainerDto);
@@ -302,7 +298,7 @@ public class TraineeControllerIntegrationTest {
                 .andReturn();
 
         String responseTrainerJson = mvcResult.getResponse().getContentAsString();
-        return mapper.readValue(responseTrainerJson, LoginUserDto.class);
+        return mapper.readValue(responseTrainerJson, AuthUserDto.class);
     }
 
     private TrainingViewDto createTraining(TrainingDto trainingDto) throws Exception {

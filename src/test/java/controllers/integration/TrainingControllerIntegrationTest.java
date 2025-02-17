@@ -1,8 +1,6 @@
 package controllers.integration;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import configs.TestWebConfig;
 
 import org.example.Application;
 import org.example.enums.TrainingType;
@@ -14,7 +12,7 @@ import org.example.models.training.TrainingAddDto;
 import org.example.models.training.TrainingDto;
 import org.example.models.training.TrainingTypeListDto;
 import org.example.models.training.TrainingViewDto;
-import org.example.models.user.LoginUserDto;
+import org.example.models.user.AuthUserDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +20,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -32,8 +29,6 @@ import org.springframework.web.context.WebApplicationContext;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
@@ -96,12 +91,12 @@ public class TrainingControllerIntegrationTest {
     public void testCreateTraining() throws Exception {
         //Trainee
         TraineeDto traineeDto = buildTraineeDto();
-        LoginUserDto responseTraineeDto = registerTrainee(traineeDto);
+        AuthUserDto responseTraineeDto = registerTrainee(traineeDto);
         String traineeUsername = responseTraineeDto.getUsername();
 
         //Trainer
         TrainerDto trainerDto = buildTrainerDto();
-        LoginUserDto responseTrainerDto = registerTrainer(trainerDto);
+        AuthUserDto responseTrainerDto = registerTrainer(trainerDto);
         String trainerUsername = responseTrainerDto.getUsername();
 
         //Training
@@ -140,7 +135,7 @@ public class TrainingControllerIntegrationTest {
         assertTrue(responseDto.getTrainingTypes().size() > 0);
     }
 
-    private LoginUserDto registerTrainee(TraineeDto traineeDto) throws Exception {
+    private AuthUserDto registerTrainee(TraineeDto traineeDto) throws Exception {
         TraineeRegistrationDto registrationDto = conversionService.convert(traineeDto, TraineeRegistrationDto.class);
         String jsonNewTrainee = mapper.writeValueAsString(registrationDto);
 
@@ -151,10 +146,10 @@ public class TrainingControllerIntegrationTest {
 
         String responseNewTraineeJson = mvcResult.getResponse().getContentAsString();
 
-        return mapper.readValue(responseNewTraineeJson, LoginUserDto.class);
+        return mapper.readValue(responseNewTraineeJson, AuthUserDto.class);
     }
 
-    private LoginUserDto registerTrainer(TrainerDto trainerDto) throws Exception {
+    private AuthUserDto registerTrainer(TrainerDto trainerDto) throws Exception {
         TrainerRegistrationDto registrationTrainerDto = conversionService.convert(trainerDto, TrainerRegistrationDto.class);
 
         String trainerJson = mapper.writeValueAsString(registrationTrainerDto);
@@ -165,7 +160,7 @@ public class TrainingControllerIntegrationTest {
                 .andReturn();
 
         String responseTrainerJson = mvcResult.getResponse().getContentAsString();
-        return mapper.readValue(responseTrainerJson, LoginUserDto.class);
+        return mapper.readValue(responseTrainerJson, AuthUserDto.class);
     }
 
     private TrainingViewDto createTraining(TrainingDto trainingDto) throws Exception {

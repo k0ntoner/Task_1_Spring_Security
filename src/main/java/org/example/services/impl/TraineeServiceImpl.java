@@ -2,20 +2,29 @@ package org.example.services.impl;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.example.metrics.UserRegistrationsMetric;
 import org.example.models.trainee.TraineeDto;
+import org.example.models.trainee.TraineeUpdateDto;
 import org.example.models.trainer.TrainerDto;
+import org.example.models.training.TrainingDto;
+import org.example.models.training.TrainingListToUpdateDto;
 import org.example.repositories.TraineeDao;
 
+import org.example.repositories.TrainerDao;
 import org.example.repositories.entities.Trainee;
+import org.example.repositories.entities.Training;
 import org.example.services.TraineeService;
 import org.example.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -29,6 +38,12 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Autowired
     private ConversionService conversionService;
+
+    @Autowired
+    private UserRegistrationsMetric userRegistrationsMetric;
+
+    @Autowired
+    private TrainerDao trainerDao;
 
     @Override
     public TraineeDto add(TraineeDto traineeDto) {
@@ -47,19 +62,22 @@ public class TraineeServiceImpl implements TraineeService {
 
         TraineeDto savedTraineeDto = conversionService.convert(savedTrainee, TraineeDto.class);
         savedTraineeDto.setTrainers(findTrainersByTraineeUsername(traineeDto.getUsername()));
+
+        userRegistrationsMetric.incrementUserRegistrations();
+
         return savedTraineeDto;
     }
 
     @Override
-    public Optional<TraineeDto> findById(long id) {
+    public TraineeDto findById(long id) {
         log.info("Request to find trainee by ID: {}", id);
         Optional<Trainee> trainee = traineeDao.findById(id);
         if (trainee.isPresent()) {
             TraineeDto traineeDto = conversionService.convert(trainee.get(), TraineeDto.class);
             traineeDto.setTrainers(findTrainersByTraineeUsername(traineeDto.getUsername()));
-            return Optional.of(traineeDto);
+            return traineeDto;
         }
-        return Optional.empty();
+        throw new UsernameNotFoundException("Trainee not found");
     }
 
     @Override
@@ -81,13 +99,15 @@ public class TraineeServiceImpl implements TraineeService {
         Trainee trainee = conversionService.convert(traineeDto, Trainee.class);
         log.info("Request to delete trainee with ID: {}", trainee.getId());
         traineeDao.delete(trainee);
+        userRegistrationsMetric.decrementUserRegistrations();
     }
 
 
     @Override
     public TraineeDto update(TraineeDto traineeDto) {
+        log.info("Request to update trainee with username: {}", traineeDto.getUsername());
         Trainee trainee = conversionService.convert(traineeDto, Trainee.class);
-        log.info("Request to update trainee with ID: {}", trainee.getId());
+
 
         Trainee updatedTrainee = traineeDao.update(trainee);
 
@@ -97,9 +117,60 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
+    public TraineeDto update(String username, TraineeUpdateDto traineeUpdateDto) {
+        log.info("Request to update trainee with username: {}", username);
+        TraineeDto traineeDtoFromDb = findByUsername(username);
+
+        traineeDtoFromDb.setFirstName(traineeUpdateDto.getFirstName());
+        traineeDtoFromDb.setLastName(traineeUpdateDto.getLastName());
+        if (traineeUpdateDto.getAddress() != null) {
+            traineeDtoFromDb.setAddress(traineeUpdateDto.getAddress());
+        }
+        if (traineeUpdateDto.getDateOfBirth() != null) {
+            traineeDtoFromDb.setDateOfBirth(traineeUpdateDto.getDateOfBirth());
+        }
+
+        Trainee updatedTrainee = traineeDao.update(conversionService.convert(traineeDtoFromDb, Trainee.class));
+
+        TraineeDto updatedTraineeDto = conversionService.convert(updatedTrainee, TraineeDto.class);
+        updatedTraineeDto.setTrainers(findTrainersByTraineeUsername(traineeDtoFromDb.getUsername()));
+        return updatedTraineeDto;
+    }
+
+    @Override
+    public TraineeDto updateTraineeTrainings(String username, TrainingListToUpdateDto listToUpdateDto) {
+        Optional<Trainee> optionalTrainee = traineeDao.findByUsername(username);
+        if (optionalTrainee.isPresent()) {
+            Trainee trainee = optionalTrainee.get();
+            trainee.getTrainings().clear();
+
+            for (TrainingListToUpdateDto.TrainingUpdateDto trainingUpdateDto : listToUpdateDto.getTrainings()) {
+                if (!trainingUpdateDto.getTraineeUsername().equals(username)) {
+                    throw new IllegalArgumentException("Trainee's username in listToUpdateDto does not match trainee's username");
+                }
+                trainee.getTrainings().add(
+                        Training.builder()
+                                .id(trainingUpdateDto.getId())
+                                .trainee(traineeDao.findByUsername(trainingUpdateDto.getTraineeUsername()).get())
+                                .trainer(trainerDao.findByUsername(trainingUpdateDto.getTrainerUsername()).get())
+                                .trainingName(trainingUpdateDto.getTrainingName())
+                                .trainingType(trainingUpdateDto.getTrainingType())
+                                .trainingDate(trainingUpdateDto.getTrainingDate())
+                                .trainingDuration(trainingUpdateDto.getTrainingDuration())
+                                .build()
+                );
+            }
+            trainee = traineeDao.update(trainee);
+            return conversionService.convert(trainee, TraineeDto.class);
+        }
+        throw new UsernameNotFoundException("Trainee not found");
+    }
+
+    @Override
     public void deleteByUsername(String username) {
         log.info("Request to delete trainee with username: {}", username);
         traineeDao.delete(traineeDao.findByUsername(username).get());
+        userRegistrationsMetric.decrementUserRegistrations();
     }
 
     @Override
@@ -127,21 +198,23 @@ public class TraineeServiceImpl implements TraineeService {
 
         Trainee savedTrainee = traineeDao.save(trainee);
 
+        userRegistrationsMetric.incrementUserRegistrations();
+
         TraineeDto savedTraineeDto = conversionService.convert(savedTrainee, TraineeDto.class);
         savedTraineeDto.setTrainers(findTrainersByTraineeUsername(traineeDto.getUsername()));
         return savedTraineeDto;
     }
 
     @Override
-    public Optional<TraineeDto> findByUsername(String username) {
+    public TraineeDto findByUsername(String username) {
         log.info("Request to find trainee with username: {}", username);
         Optional<Trainee> trainee = traineeDao.findByUsername(username);
         if (trainee.isPresent()) {
             TraineeDto traineeDto = conversionService.convert(trainee.get(), TraineeDto.class);
             traineeDto.setTrainers(findTrainersByTraineeUsername(traineeDto.getUsername()));
-            return Optional.of(traineeDto);
+            return traineeDto;
         }
-        return Optional.empty();
+        throw new UsernameNotFoundException("Trainee not found");
     }
 
     @Override
@@ -178,17 +251,11 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
-    public TraineeDto matchPassword(String username, String password) {
+    public boolean matchPassword(String username, String password) {
         log.info("Request to match password");
         Optional<Trainee> trainee = traineeDao.findByUsername(username);
         if (trainee.isPresent()) {
-            boolean result = UserUtils.passwordMatch(password, trainee.get().getPassword());
-            if (result) {
-                TraineeDto traineeDto = conversionService.convert(trainee.get(), TraineeDto.class);
-                traineeDto.setTrainers(findTrainersByTraineeUsername(traineeDto.getUsername()));
-                return traineeDto;
-            }
-            throw new IllegalArgumentException("Invalid password");
+            return UserUtils.passwordMatch(password, trainee.get().getPassword());
         }
         throw new IllegalArgumentException("Invalid username");
     }

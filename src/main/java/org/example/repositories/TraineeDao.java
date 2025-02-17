@@ -6,7 +6,7 @@ import org.example.repositories.entities.Trainer;
 import java.util.Collection;
 import java.util.Optional;
 
-public interface TraineeDao extends UserDao<Trainee> {
+public interface TraineeDao extends UserDao<Trainee>, BasicDao<Trainee>{
     void delete(Trainee entity);
 
     Collection<Trainer> findTrainersByTraineeUsername(String username);

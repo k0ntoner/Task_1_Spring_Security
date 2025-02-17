@@ -14,5 +14,7 @@ public interface TrainingService extends BasicService<TrainingDto> {
 
     Collection<TrainingDto> findByTrainee(String traineeUsername, LocalDateTime startDateTime, LocalDateTime endDateTime, String trainerUsername, TrainingType trainingType);
 
-    TrainingDto add(Long id, TraineeDto traineeDto, TrainerDto trainerDto, TrainingType trainingType, String trainingName, Duration duration, LocalDateTime dateTime);
+    TrainingDto add(String traineeUsername, String trainerUsername, TrainingType trainingType, String trainingName, Duration duration, LocalDateTime dateTime);
+
+
 }

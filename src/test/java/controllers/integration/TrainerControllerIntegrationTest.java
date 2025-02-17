@@ -1,7 +1,6 @@
 package controllers.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import configs.TestWebConfig;
 import org.example.Application;
 import org.example.enums.TrainingType;
 import org.example.models.trainee.TraineeDto;
@@ -12,7 +11,7 @@ import org.example.models.training.TrainingDto;
 import org.example.models.training.TrainingListDto;
 import org.example.models.training.TrainingViewDto;
 import org.example.models.user.ChangeUserPasswordDto;
-import org.example.models.user.LoginUserDto;
+import org.example.models.user.AuthUserDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -92,7 +90,7 @@ public class TrainerControllerIntegrationTest {
     public void testCreateTrainer() throws Exception {
         TrainerDto trainerDto = buildTrainerDto();
 
-        LoginUserDto loginUserDto = registerTrainer(trainerDto);
+        AuthUserDto loginUserDto = registerTrainer(trainerDto);
         assertNotNull(loginUserDto);
         assertEquals(loginUserDto.getUsername(), trainerDto.getFirstName() + "." + trainerDto.getLastName());
     }
@@ -101,7 +99,7 @@ public class TrainerControllerIntegrationTest {
     public void testFindTrainerByUsername() throws Exception {
         TrainerDto trainerDto = buildTrainerDto();
 
-        LoginUserDto responseLoginDto = registerTrainer(trainerDto);
+        AuthUserDto responseLoginDto = registerTrainer(trainerDto);
 
         MvcResult mvcResult = mockMvc.perform(get("/trainers/trainer/" + responseLoginDto.getUsername()))
                 .andExpect(status().isOk())
@@ -118,7 +116,7 @@ public class TrainerControllerIntegrationTest {
     public void testUpdateTrainer() throws Exception {
         TrainerDto trainerDto = buildTrainerDto();
 
-        LoginUserDto responseLoginDto = registerTrainer(trainerDto);
+        AuthUserDto responseLoginDto = registerTrainer(trainerDto);
 
         TrainerUpdateDto trainerUpdateDto = TrainerUpdateDto.builder()
                 .firstName("NewName")
@@ -146,7 +144,7 @@ public class TrainerControllerIntegrationTest {
     public void testChangePassword() throws Exception {
         TrainerDto trainerDto = buildTrainerDto();
 
-        LoginUserDto responseLoginDto = registerTrainer(trainerDto);
+        AuthUserDto responseLoginDto = registerTrainer(trainerDto);
 
         ChangeUserPasswordDto changeUserPasswordDto = ChangeUserPasswordDto.builder()
                 .username(responseLoginDto.getUsername())
@@ -167,7 +165,7 @@ public class TrainerControllerIntegrationTest {
     public void testActivateTrainee() throws Exception {
         TrainerDto trainerDto = buildTrainerDto();
 
-        LoginUserDto responseLoginDto = registerTrainer(trainerDto);
+        AuthUserDto responseLoginDto = registerTrainer(trainerDto);
 
         mockMvc.perform(patch("/trainers/trainer/" + responseLoginDto.getUsername() + "/activate?activate=false"))
                 .andExpect(status().isNoContent())
@@ -180,7 +178,7 @@ public class TrainerControllerIntegrationTest {
         registerTrainer(trainerDto);
 
         TraineeDto traineeDto = buildTraineeDto();
-        LoginUserDto traineeLoginDto = registerTrainee(traineeDto);
+        AuthUserDto traineeLoginDto = registerTrainee(traineeDto);
 
         MvcResult mvcResult = mockMvc.perform(get("/trainers/not-assigned-on-trainee/" + traineeLoginDto.getUsername()))
                 .andExpect(status().isOk())
@@ -198,8 +196,8 @@ public class TrainerControllerIntegrationTest {
         TraineeDto traineeDto = buildTraineeDto();
         TrainerDto trainerDto = buildTrainerDto();
 
-        LoginUserDto traineeLoginDto = registerTrainee(traineeDto);
-        LoginUserDto trainerLoginDto = registerTrainer(trainerDto);
+        AuthUserDto traineeLoginDto = registerTrainee(traineeDto);
+        AuthUserDto trainerLoginDto = registerTrainer(trainerDto);
 
         TrainingDto trainingDto = buildTrainingDto();
         trainingDto.getTrainerDto().setUsername(trainerLoginDto.getUsername());
@@ -221,7 +219,7 @@ public class TrainerControllerIntegrationTest {
     }
 
 
-    private LoginUserDto registerTrainee(TraineeDto traineeDto) throws Exception {
+    private AuthUserDto registerTrainee(TraineeDto traineeDto) throws Exception {
         TraineeRegistrationDto registrationDto = conversionService.convert(traineeDto, TraineeRegistrationDto.class);
         String jsonNewTrainee = mapper.writeValueAsString(registrationDto);
 
@@ -232,10 +230,10 @@ public class TrainerControllerIntegrationTest {
 
         String responseNewTraineeJson = mvcResult.getResponse().getContentAsString();
 
-        return mapper.readValue(responseNewTraineeJson, LoginUserDto.class);
+        return mapper.readValue(responseNewTraineeJson, AuthUserDto.class);
     }
 
-    private LoginUserDto registerTrainer(TrainerDto trainerDto) throws Exception {
+    private AuthUserDto registerTrainer(TrainerDto trainerDto) throws Exception {
         TrainerRegistrationDto registrationTrainerDto = conversionService.convert(trainerDto, TrainerRegistrationDto.class);
 
         String trainerJson = mapper.writeValueAsString(registrationTrainerDto);
@@ -246,7 +244,7 @@ public class TrainerControllerIntegrationTest {
                 .andReturn();
 
         String responseTrainerJson = mvcResult.getResponse().getContentAsString();
-        return mapper.readValue(responseTrainerJson, LoginUserDto.class);
+        return mapper.readValue(responseTrainerJson, AuthUserDto.class);
     }
 
     private TrainingViewDto createTraining(TrainingDto trainingDto) throws Exception {

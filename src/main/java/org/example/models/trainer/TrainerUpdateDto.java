@@ -20,9 +20,6 @@ public class TrainerUpdateDto {
     private String lastName;
 
     @NotNull
-    private String username;
-
-    @NotNull
     @Builder.Default
     private boolean isActive = true;
 
