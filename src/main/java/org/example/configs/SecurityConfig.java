@@ -13,6 +13,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.io.IOException;
 import java.util.List;
 
 @Configuration
@@ -36,7 +37,12 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(logout -> logout.logoutUrl("/auth/logout")
                         .addLogoutHandler((request, response, authentication) -> {
-                            logoutService.logout(request, response);
+                            try {
+                                logoutService.logout(request, response);
+                            }
+                            catch (IOException e) {
+                                throw new RuntimeException("Error during logout",e);
+                            }
                         })
                         .logoutSuccessHandler((request, response, authentication) -> response.setStatus(200)));
         return http.build();

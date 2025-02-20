@@ -56,11 +56,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
         if (jwtTokenService.isBlocked(token)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
-            throw new JwtException("Invalid JWT token");
+            response.getWriter().write("Token is blocked");
+            throw new JwtException("Token is blocked");
         }
 
         String username = JwtUtil.extractUsername(token);
         if (bruteForceProtectorService.isBlocked(username)) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("User is blocked until " + bruteForceProtectorService.getLockTime(username));
             throw new LockedException("User is blocked until " + bruteForceProtectorService.getLockTime(username));
         }
 
@@ -68,6 +71,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
             if (JwtUtil.validateToken(token, userDetails)) {
+                if(JwtUtil.isTokenExpired(token)) {
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN);
+                    response.getWriter().write("Token is Expired");
+                    throw new JwtException("Token is Expired");
+                }
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,

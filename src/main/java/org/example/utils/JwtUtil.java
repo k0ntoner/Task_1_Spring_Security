@@ -1,5 +1,6 @@
 package org.example.utils;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -27,16 +28,21 @@ public class JwtUtil {
                 .compact();
 
     }
-
-    public static String extractUsername(String token) {
+    private static Claims getClaims(String token) {
         return Jwts.parser()
                 .verifyWith(SECRET_KEY)
                 .build()
                 .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
+                .getPayload();
     }
 
+    public static String extractUsername(String token) {
+        return getClaims(token).getSubject();
+    }
+
+    public static boolean isTokenExpired(String token) {
+        return getClaims(token).getExpiration().before(new Date());
+    }
 
     public static boolean validateToken(String token, UserDetails userDetails) {
         String username = extractUsername(token);

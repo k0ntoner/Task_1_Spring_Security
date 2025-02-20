@@ -1,6 +1,7 @@
 package org.example.services.security;
 
 import io.jsonwebtoken.JwtException;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +28,7 @@ public class LogoutService {
     @Autowired
     private JwtTokenService jwtTokenService;
 
-    public void logout(HttpServletRequest request, HttpServletResponse response) {
+    public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
         log.info("Request to logout:");
 
         String authHeader = request.getHeader("Authorization");
@@ -36,6 +38,9 @@ public class LogoutService {
             if (JwtUtil.validateToken(token, userDetailsService.loadUserByUsername(username))) {
                 userService.deactivate(userService.findByUsername(username));
                 jwtTokenService.blockToken(token);
+
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.getWriter().write("User logged out successfully");
                 return;
             }
             throw new JwtException("Invalid JWT token");

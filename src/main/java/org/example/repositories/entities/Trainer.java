@@ -23,5 +23,6 @@ public class Trainer extends User {
 
     @OneToMany(mappedBy = "trainer", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default
+    @ToString.Exclude
     private Collection<Training> trainings = new ArrayList<>();
 }
