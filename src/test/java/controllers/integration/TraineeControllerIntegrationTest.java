@@ -115,7 +115,7 @@ public class TraineeControllerIntegrationTest {
 
         MvcResult mvcResult = mockMvc.perform(get("/trainees/trainee/" + responseLoginDto.getUsername()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("application/hal+json"))
+                .andExpect(content().contentType("application/json"))
                 .andReturn();
 
 
@@ -149,7 +149,6 @@ public class TraineeControllerIntegrationTest {
         TraineeUpdateDto traineeUpdateDto = TraineeUpdateDto.builder()
                 .firstName(traineeDto.getFirstName())
                 .lastName(traineeDto.getLastName())
-                .username(responseLoginDto.getUsername())
                 .address("new address")
                 .dateOfBirth(traineeDto.getDateOfBirth())
                 .isActive(true)
@@ -157,7 +156,7 @@ public class TraineeControllerIntegrationTest {
 
         String updateJson = mapper.writeValueAsString(traineeUpdateDto);
 
-        MvcResult mvcResult = mockMvc.perform(put("/trainees/trainee/1")
+        MvcResult mvcResult = mockMvc.perform(put("/trainees/trainee/"+responseLoginDto.getUsername())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updateJson))
                 .andExpect(status().isOk())

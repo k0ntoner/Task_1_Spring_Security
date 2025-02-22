@@ -139,8 +139,10 @@ public class TrainerController {
     public ResponseEntity<?> getTrainings(@PathVariable("username") String username, @RequestParam(required = false, name = "periodFrom") LocalDateTime periodFrom,
                                           @RequestParam(required = false, name = "periodTo") LocalDateTime periodTo,
                                           @RequestParam(required = false, name = "traineeUsername") String traineeUsername) {
+        Collection<TrainingViewDto> trainingViewDtos = trainingService.findByTrainer(username, periodFrom, periodTo, traineeUsername).stream()
+                .map(trainingDto -> conversionService.convert(trainingDto, TrainingViewDto.class)).collect(Collectors.toList());
 
-        return ResponseEntity.ok(trainingService.findByTrainer(username, periodFrom, periodTo, traineeUsername));
+        return ResponseEntity.ok(new TrainingListDto(trainingViewDtos));
     }
 
     @PatchMapping("/trainer/{username}/activate")

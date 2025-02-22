@@ -130,7 +130,7 @@ public class TrainerServiceImplTest {
         testTrainerDto = trainerService.add(testTrainerDto);
         when(trainerDao.findById(1L)).thenReturn(Optional.of(buildTrainer(testTrainerDto)));
 
-        TrainerDto foundTrainerDto = trainerService.findById(1L).get();
+        TrainerDto foundTrainerDto = trainerService.findById(1L);
 
         verify(trainerDao, times(1)).findById(1L);
     }
@@ -158,7 +158,7 @@ public class TrainerServiceImplTest {
 
         when(trainerDao.findByUsername(testTrainerDto.getUsername())).thenReturn(Optional.of(buildTrainer(testTrainerDto)));
 
-        TrainerDto foundTrainerDto = trainerService.findByUsername(testTrainerDto.getUsername()).get();
+        TrainerDto foundTrainerDto = trainerService.findByUsername(testTrainerDto.getUsername());
 
         verify(trainerDao, times(1)).findByUsername(testTrainerDto.getUsername());
     }

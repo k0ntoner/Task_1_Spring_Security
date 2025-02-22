@@ -171,7 +171,7 @@ public class TraineeController {
         Collection<TrainingViewDto> trainingViewDtos = trainingService.findByTrainee(username, periodFrom, periodTo, trainerUsername, trainingType).stream()
                 .map(trainingDto -> conversionService.convert(trainingDto, TrainingViewDto.class)).collect(Collectors.toList());
 
-        return ResponseEntity.ok(trainingViewDtos);
+        return ResponseEntity.ok(new TrainingListDto(trainingViewDtos));
     }
 
     @PatchMapping("/trainee/{username}/activate")
