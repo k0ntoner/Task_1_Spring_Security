@@ -23,9 +23,6 @@ public class TraineeUpdateDto {
     private String lastName;
 
     @NotNull
-    private String username;
-
-    @NotNull
     @Builder.Default
     private boolean isActive = true;
 

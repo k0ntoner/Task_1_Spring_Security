@@ -8,28 +8,23 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.*;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @TestConfiguration
 @ComponentScan(basePackages = "org.example")
 @Profile("test")
 public class TestWebConfig implements WebMvcConfigurer {
-    @JsonFilter("linksFilter")
-    private static class IgnoreLinksMixin {
-    }
-
     @Bean
-    public ObjectMapper objectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .csrf(csrf -> csrf.disable())
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable());
 
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-        objectMapper.addMixIn(Object.class, IgnoreLinksMixin.class);
-        objectMapper.setFilterProvider(new SimpleFilterProvider()
-                .addFilter("linksFilter", SimpleBeanPropertyFilter.serializeAllExcept("links")));
-
-        return objectMapper;
-
+        return http.build();
     }
 }

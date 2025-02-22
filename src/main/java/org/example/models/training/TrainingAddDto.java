@@ -37,10 +37,4 @@ public class TrainingAddDto {
 
     @NotNull
     private Duration trainingDuration;
-
-    @JsonIgnore
-    private TraineeDto traineeDto;
-
-    @JsonIgnore
-    private TrainerDto trainerDto;
 }

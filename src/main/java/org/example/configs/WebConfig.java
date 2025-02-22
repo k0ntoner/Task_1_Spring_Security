@@ -28,7 +28,6 @@ import java.util.Set;
 
 @Configuration
 @ComponentScan(basePackages = {"org.example"})
-@Profile("!test")
 public class WebConfig implements WebMvcConfigurer {
 
     @Bean
@@ -50,14 +49,4 @@ public class WebConfig implements WebMvcConfigurer {
     private static class IgnoreLinksMixin {
     }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-                .csrf(csrf -> csrf.disable())
-                .formLogin(form -> form.disable())
-                .httpBasic(basic -> basic.disable());
-
-        return http.build();
-    }
 }

@@ -63,31 +63,8 @@ public class TrainingController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> createTraining(@RequestBody @Valid TrainingAddDto trainingAddDto) {
-        Optional<TraineeDto> foundTraineeDto = traineeService.findByUsername(trainingAddDto.getTraineeUsername());
-        if (foundTraineeDto.isEmpty()) {
-            throw new IllegalArgumentException("Trainee  not found");
-        }
-
-        trainingAddDto.setTraineeDto(foundTraineeDto.get());
-
-        Optional<TrainerDto> foundTrainerDto = trainerService.findByUsername(trainingAddDto.getTrainerUsername());
-        if (foundTrainerDto.isEmpty()) {
-            throw new IllegalArgumentException("Trainer not found");
-        }
-
-        trainingAddDto.setTrainerDto(foundTrainerDto.get());
-
-        TrainingDto trainingDto = conversionService.convert(trainingAddDto, TrainingDto.class);
-        TrainingDto savedTrainingDto = trainingService.add(trainingDto);
-
-        EntityModel<TrainingViewDto> entityModel = EntityModel.of(conversionService.convert(savedTrainingDto, TrainingViewDto.class));
-        entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(TrainingController.class).createTraining(trainingAddDto)).withSelfRel());
-
-        URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/trainings/{id}").buildAndExpand(savedTrainingDto.getId()).toUri();
-
-        trainingMetric.incrementTrainingsCount();
-
-        return ResponseEntity.created(location).body(entityModel);
+        return ResponseEntity.created(ServletUriComponentsBuilder.fromCurrentContextPath().build().toUri())
+                .body(trainingService.add(trainingAddDto.getTraineeUsername(), trainingAddDto.getTrainerUsername(), trainingAddDto.getTrainingType(), trainingAddDto.getTrainingName(), trainingAddDto.getTrainingDuration(), trainingAddDto.getTrainingDate()));
     }
 
     @GetMapping("/types")

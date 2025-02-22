@@ -34,6 +34,7 @@ public class TrainingDaoImpl implements TrainingDao {
     @PersistenceContext
     private EntityManager entityManager;
 
+
     @Override
     @Transactional
     public Training save(Training entity) {
@@ -87,8 +88,7 @@ public class TrainingDaoImpl implements TrainingDao {
             List<Predicate> predicates = new ArrayList<>();
 
             if (trainerUsername == null) {
-                log.info("Trainer username must be indicated");
-                return new ArrayList<>();
+                throw new IllegalArgumentException("Trainer username must be indicated");
             }
 
             predicates.add(builder.equal(trainingRoot.get("trainer").get("username"), trainerUsername));
@@ -127,8 +127,7 @@ public class TrainingDaoImpl implements TrainingDao {
             List<Predicate> predicates = new ArrayList<>();
 
             if (traineeUsername == null) {
-                log.info("Trainee username must be indicated");
-                return new ArrayList<>();
+                throw new IllegalArgumentException("Trainee username must be indicated");
             }
 
             predicates.add(builder.equal(trainingRoot.get("trainee").get("username"), traineeUsername));
