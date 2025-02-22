@@ -166,7 +166,7 @@ public class TrainingServiceImplTest {
         TrainingDto newTraining = trainingService.add(testTrainingDto);
 
         when(trainingDao.findById(newTraining.getId())).thenReturn(Optional.of(buildTraining(newTraining)));
-        TrainingDto foundTraining = trainingService.findById(newTraining.getId()).get();
+        TrainingDto foundTraining = trainingService.findById(newTraining.getId());
 
         verify(trainingDao, times(1)).findById(newTraining.getId());
     }

@@ -1,5 +1,6 @@
 package controllers.integration;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.Application;
 import org.example.enums.TrainingType;
@@ -28,6 +29,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
@@ -103,7 +105,7 @@ public class TrainerControllerIntegrationTest {
 
         MvcResult mvcResult = mockMvc.perform(get("/trainers/trainer/" + responseLoginDto.getUsername()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("application/hal+json"))
+                .andExpect(content().contentType("application/json"))
                 .andReturn();
 
         TrainerViewDto responseDto = mapper.readValue(mvcResult.getResponse().getContentAsString(), TrainerViewDto.class);
@@ -121,14 +123,13 @@ public class TrainerControllerIntegrationTest {
         TrainerUpdateDto trainerUpdateDto = TrainerUpdateDto.builder()
                 .firstName("NewName")
                 .lastName(trainerDto.getLastName())
-                .username(responseLoginDto.getUsername())
                 .specialization(trainerDto.getSpecialization())
                 .isActive(true)
                 .build();
 
         String updateJson = mapper.writeValueAsString(trainerUpdateDto);
 
-        MvcResult mvcResult = mockMvc.perform(put("/trainers/trainer/1")
+        MvcResult mvcResult = mockMvc.perform(put("/trainers/trainer/"+responseLoginDto.getUsername())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updateJson))
                 .andExpect(status().isOk())
@@ -186,9 +187,9 @@ public class TrainerControllerIntegrationTest {
 
         String response = mvcResult.getResponse().getContentAsString();
 
-        TrainerListDto responseDto = mapper.readValue(response, TrainerListDto.class);
+        Collection<TrainerDto> responseDto = mapper.readValue(response,  new TypeReference<Collection<TrainerDto>>() {});
 
-        assertFalse(responseDto.getTrainers().isEmpty());
+        assertFalse(responseDto.isEmpty());
     }
 
     @Test

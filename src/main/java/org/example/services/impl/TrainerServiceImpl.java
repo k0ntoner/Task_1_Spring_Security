@@ -117,7 +117,9 @@ public class TrainerServiceImpl implements TrainerService {
         log.info("Request to find trainer by username: {}", username);
         Optional<Trainer> trainer = trainerDao.findByUsername(username);
         if (trainer.isPresent()) {
-            return conversionService.convert(trainer.get(), TrainerDto.class);
+            TrainerDto trainerDto = conversionService.convert(trainer.get(), TrainerDto.class);
+            trainerDto.setTrainees(findTraineesByTrainerUsername(trainer.get().getUsername()));
+            return trainerDto;
         }
         throw new IllegalArgumentException("Trainer with username " + username + " not found");
     }

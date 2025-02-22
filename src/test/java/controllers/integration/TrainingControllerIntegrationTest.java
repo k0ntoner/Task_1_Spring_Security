@@ -115,12 +115,12 @@ public class TrainingControllerIntegrationTest {
 
         String response = mvcResult.getResponse().getContentAsString();
 
-        TrainingViewDto responseDto = mapper.readValue(response, TrainingViewDto.class);
+        TrainingDto responseDto = mapper.readValue(response, TrainingDto.class);
         assertNotNull(responseDto);
-        assertNotNull(responseDto.getTraineeUsername());
-        assertNotNull(responseDto.getTrainerUsername());
+        assertNotNull(responseDto.getTraineeDto());
+        assertNotNull(responseDto.getTrainerDto());
         assertNotNull(responseDto.getTrainingType());
-        assertNotNull(responseDto.getTrainingDateTime());
+        assertNotNull(responseDto.getTrainingDate());
         assertNotNull(responseDto.getTrainingDuration());
         assertNotNull(responseDto.getTrainingName());
     }

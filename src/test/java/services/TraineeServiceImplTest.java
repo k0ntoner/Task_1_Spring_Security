@@ -163,7 +163,7 @@ public class TraineeServiceImplTest {
         testTraineeDto = traineeService.add(testTraineeDto);
         when(traineeDao.findById(1L)).thenReturn(Optional.of(buildTrainee(testTraineeDto)));
 
-        TraineeDto foundTraineeDto = traineeService.findById(testTraineeDto.getId()).get();
+        TraineeDto foundTraineeDto = traineeService.findById(testTraineeDto.getId());
 
         verify(traineeDao, times(1)).findById(testTraineeDto.getId());
     }
@@ -189,7 +189,7 @@ public class TraineeServiceImplTest {
 
         when(traineeDao.findByUsername(testTraineeDto.getUsername())).thenReturn(Optional.of(buildTrainee(testTraineeDto)));
 
-        TraineeDto foundTraineeDto = traineeService.findByUsername(testTraineeDto.getUsername()).get();
+        TraineeDto foundTraineeDto = traineeService.findByUsername(testTraineeDto.getUsername());
 
         verify(traineeDao, times(1)).findByUsername(any());
     }
